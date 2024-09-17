@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
-@section('contents')
+@section('content')
 <div class="container mt-5">
     <div class="card shadow-lg border-0 rounded">
         <div class="card-header bg-info text-white text-center py-3">
@@ -177,12 +177,15 @@
                         $('#alert-message').fadeOut();
                     }, 3000);
 
+                    // Clear error messages
                     $('#name-error').text('');
                     $('#contact-error').text('');
                     $('#email-error').text('');
                     $('#service-error').text('');
                     $('#site_visit_date-error').text('');
                     $('#address-error').text('');
+
+                    // Redirect to booking index
                     window.location.href = "{{ route('booking.index') }}";
                 },
                 error: function(xhr) {
@@ -199,11 +202,12 @@
                         .end()
                         .fadeIn();
 
-                    // Automatically fade out the alert after 3 seconds
+                    // Automatically fade out the alert after 4 seconds
                     setTimeout(function() {
                         $('#alert-message').fadeOut();
                     }, 4000);
 
+                    // Display error messages
                     $('#name-error').text(errors.name ? errors.name[0] : '');
                     $('#contact-error').text(errors.contact ? errors.contact[0] : '');
                     $('#email-error').text(errors.email ? errors.email[0] : '');
@@ -234,7 +238,7 @@
 
     .form-control, .form-select {
         border-radius: 8px;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
 
     .alert {

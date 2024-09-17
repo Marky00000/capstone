@@ -197,9 +197,9 @@
 </head>
 
 <body>
-    @extends('layouts.app')
+    @extends('layouts.apps')
 
-    @section('contents')
+    @section('content')
         <div class="container mt-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">

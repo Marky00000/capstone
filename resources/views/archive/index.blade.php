@@ -2,7 +2,7 @@
 
 @section('title', 'Archived Services')
 
-@section('contents')
+@section('content')
 <div class="card">
     <div class="card-header">
         <div class="card-tools">

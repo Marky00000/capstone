@@ -1,15 +1,9 @@
-@extends('layouts.app')
+
+@extends('layouts.apps')
 
 @section('title')
 
 @section('content')
-
-    <div class="placeholder" style="position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 30px; background-color: rgba(0, 0, 0, 0.1); border-radius: 8px;">
-        <!-- Top Button inside the placeholder -->
-        <a href="{{ route('welcome') }}" class="btn btn-outline-info" style="position: absolute; top: 20px; left: 20px;">
-            <i class="fa fa-home"></i> Home
-        </a>
-
         <h1 class="display-5" style="font-weight: 300; text-align: center; width: 100%;">{{ ucfirst($category) }} Services</h1>
 
         @if($services->isEmpty())

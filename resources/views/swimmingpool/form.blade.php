@@ -4,7 +4,7 @@
     {{ isset($service) ? 'Edit Swimming Pool Service' : 'Create Swimming Pool Service' }}
 @endsection
 
-@section('contents')
+@section('content')
 <div class="card floating-form">
     <div class="card-header stylish-header">
         <h3>{{ isset($service) ? 'Edit Swimming Pool Service' : 'Create Swimming Pool Service' }}</h3>

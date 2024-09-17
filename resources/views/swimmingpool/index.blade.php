@@ -2,7 +2,7 @@
 
 @section('title', 'Swimming Pool Services')
 
-@section('contents')
+@section('content')
 <div class="card">
     <div class="card-header stylish-header">
         <div class="card-tools">

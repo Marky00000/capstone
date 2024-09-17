@@ -75,7 +75,7 @@
 
             <div id="page-content-wrapper" class="flex-grow-1">
                 <main class="py-4">
-                    @yield('content')
+                    {{-- @yield('content') --}}
                 </main>
             </div>
         </div>
@@ -88,7 +88,7 @@
 
         <div class="container">
             <main class="py-4">
-                @yield('content')
+                {{-- @yield('content') --}}
             </main>
         </div>
 
@@ -98,7 +98,7 @@
 @else
     <div class="container">
         <main class="py-4">
-            @yield('content')
+            {{-- @yield('content') --}}
         </main>
     </div>
 @endauth

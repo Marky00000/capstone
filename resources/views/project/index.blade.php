@@ -4,7 +4,7 @@
 My Projects
 @endsection
 
-@section('contents')
+@section('content')
 <div class="pricing-factors mb-4">
     <h5>Project Overview</h5>
     <p>Below is a list of all your projects, including their details and current status.</p>

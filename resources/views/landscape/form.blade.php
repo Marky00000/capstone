@@ -2,7 +2,7 @@
 
 @section('title')
 
-@section('contents')
+@section('content')
 <div class="card floating-form">
     <div class="card-header stylish-header">
         <h3>{{ isset($service) ? 'Edit Landscape Service' : 'Create Landscape Service' }}</h3>
