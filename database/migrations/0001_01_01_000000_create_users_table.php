@@ -15,11 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->boolean('is_activated')->default(0);
             $table->timestamp('email_verified_at')->nullable();
             $table->integer('otp')->nullable();
             $table->string('password');
-            $table->enum('usertype', ['user', 'admin'])->default('user');
+            $table->enum('usertype', ['user', 'super_admin','admin'])->default('user');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -35,7 +34,7 @@ return new class extends Migration
             'name' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('arfiladmin'),
-            'usertype' => 'admin',
+            'usertype' => 'super_admin',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

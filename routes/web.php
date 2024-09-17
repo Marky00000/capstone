@@ -14,6 +14,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controller\RegisterController;
 use App\Http\Controller\LoginController;
+use App\Http\Controller\OTPController;
 
 
 
@@ -27,6 +28,7 @@ Route::get('/', function () {
 // Authentication routes
 Route::get('register', [AuthController::class, 'register'])->name('register');
 Route::post('register', [AuthController::class, 'registerSave'])->name('register.save');
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'loginAction'])->name('login.action');
@@ -34,7 +36,8 @@ Route::post('login', [AuthController::class, 'loginAction'])->name('login.action
 Route::post('login-otp', [AuthController::class, 'loginOtp'])->name('login.otp');
 // Routes for authenticated users
 Route::middleware('auth')->group(function () {
-    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
 
     // Dashboard route
     Route::get('dashboard', function () {
@@ -99,12 +102,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory');
 
-    Route::post('/login/otp', [AuthController::class, 'loginOtp'])->name('login.otp');
-    Route::get('/otp/verify', function() {
-        return view('auth.verify_otp');  
-    })->name('otp.verify');
-    Route::post('/otp/verify/action', [AuthController::class, 'verifyOtp'])->name('otp.verify.action');
-    
 
     });
     
@@ -112,7 +109,12 @@ Route::middleware('auth')->group(function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::view('/login-with-otp','auth.loginwithotp')->name('login.with.otp');
+Route::post('/login-with-otp-post',[App\Http\Controllers\OTPController::class, 'loginwithotppost'])->name('login.with.otp.post');
+Route::view('/confirm-login-with-otp', 'auth.confirmloginwithotp')->name('confirm.login.with.otp');
+Route::post('/confirm-login-with-otp-post', [App\Http\Controllers\OTPController::class, 'confirmloginwithotppost'])->name('confirm.login.with.otp.post');
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
