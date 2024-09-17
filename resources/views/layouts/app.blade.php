@@ -15,10 +15,45 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar {
+            box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.1);
+        }
+        .sticky-footer {
+            background-color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            height: 50px;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            position: relative;
+        }
+        .nav-item .nav-link {
+            color: #343a40;
+            font-weight: 300 !important;
+            text-decoration: none;
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-item:hover .nav-link {
+            color: #17a2b8 !important;
+            border-bottom: 2px solid #17a2b8;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand navbar-light bg-white topbar static-top shadow mb-0">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
@@ -30,7 +65,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-
+                        <!-- Your additional links can go here -->
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -41,7 +76,6 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
                                 </li>
-
                             @endif
 
                             @if (Route::has('register'))
@@ -73,9 +107,23 @@
             </div>
         </nav>
 
-        <main class="py-4">
+        <main class="py-4 flex-grow-1">
             @yield('content')
         </main>
+
+        <!-- Footer -->
+        <footer class="sticky-footer">
+            <div class="container">
+                <div class="copyright text-center">
+                    <span>Copyright © Arfil's Landscaping Services</span>
+                </div>
+            </div>
+        </footer>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    @yield('scripts')
 </body>
 </html>

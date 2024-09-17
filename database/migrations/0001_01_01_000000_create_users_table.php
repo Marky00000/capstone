@@ -32,7 +32,7 @@ return new class extends Migration
 
         DB::table('users')->insert([
             'name' => 'admin',
-            'email' => 'admin@gmail.com',
+            'email' => 'markejano0@gmail.com',
             'password' => Hash::make('arfiladmin'),
             'usertype' => 'super_admin',
             'created_at' => now(),

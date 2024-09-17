@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use Mail;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class LoginController extends Controller
 {
@@ -27,17 +31,33 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            // Redirect to OTP page after successful login
-            return redirect()->route('login.with.otp');
-        }
-
-        return redirect()->back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+        // Validate the request
+        $request->validate([
+            'email' => 'required|email|max:60',
         ]);
+    
+        // Check if the user exists
+        $checkUser = User::where('email', $request->email)->first();
+    
+        if (is_null($checkUser)) {
+            return redirect()->back()->with('error', 'Your email address is not associated with us.');
+        } else {
+            // Generate and update OTP
+            $otp = rand(100000, 999999);
+            User::where('email', $request->email)->update([
+                'otp' => $otp,
+            ]);
+    
+            // Send OTP via email
+            Mail::send('emails.loginWithOTPEmail', ['otp' => $otp], function ($message) use ($request) {
+                $message->to($request->email);
+                $message->subject('Login with OTP');
+            });
+    
+            return redirect()->route('confirm.login.with.otp')->with('success', 'Check your email inbox/spam folder for login with OTP code.');
+        }
     }
+    
 
     /**
      * Handle a logout request.
@@ -49,4 +69,5 @@ class LoginController extends Controller
         Auth::logout();
         return redirect()->route('login');
     }
+    
 }

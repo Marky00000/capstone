@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Mail;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class OTPController extends Controller
 {
@@ -38,26 +38,33 @@ class OTPController extends Controller
     }
 
     public function confirmloginwithotppost(Request $request)
-    {
-        // Validate the request
-        $request->validate([
-            'otp' => 'required|numeric'
+{
+    // Validate the OTP
+    $request->validate([
+        'otp' => 'required|numeric'
+    ]);
+
+    // Verify OTP
+    $checkUser = User::where('otp', $request->otp)->first();
+    
+    if (is_null($checkUser)) {
+        return redirect()->back()->with('error', 'The OTP you provided is incorrect.');
+    } else {
+        // Clear OTP and log the user in
+        User::where('otp', $request->otp)->update([
+            'otp' => null,
         ]);
-    
-        // Get the authenticated user
-        $user = Auth::user();
-    
-        // Verify OTP for the authenticated user
-        if ($user->otp == $request->otp) {
-            // Clear OTP and log the user in
-            $user->update([
-                'otp' => null,
-            ]);
-    
-            return redirect()->route('welcome');
-        } else {
-            return redirect()->back()->with('error', 'Your OTP is incorrect.');
+
+        Auth::login($checkUser);
+
+        // Route based on user role
+        if ($checkUser->usertype === 'admin' || $checkUser->usertype === 'super_admin') {
+            return redirect()->route('dashboard'); // Adjust the route name if needed
         }
+
+        return redirect()->route('welcome');
     }
+}
+
     
 }
