@@ -39,6 +39,7 @@
             font-size: 14px;
             border-top: 1px solid #ddd;
             position: relative;
+            bottom: 0;
         }
         .nav-item .nav-link {
             color: #343a40;
@@ -49,6 +50,20 @@
         .nav-item:hover .nav-link {
             color: #17a2b8 !important;
             border-bottom: 2px solid #17a2b8;
+        }
+        .wrapper {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+            min-height: calc(100vh - 50px); /* Adjust for footer height */
+        }
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0; /* Prevents sidebar from shrinking */
+        }
+        .content {
+            flex: 1;
+            padding: 20px; /* Optional padding */
         }
     </style>
     
@@ -65,42 +80,22 @@
 <body class="font-sans antialiased dark:bg-black dark:text-white/50">
 
 @auth
-    @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
-        <!-- Include Navbar for admins -->
-        @include('layouts.navbar')
+    @include('layouts.navbar')
 
-        <div class="d-flex" id="wrapper">
+    <div class="wrapper">
+        @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
             <!-- Include Sidebar -->
             @include('layouts.sidebar')
+        @endif
 
-            <div id="page-content-wrapper" class="flex-grow-1">
-                <main class="py-4">
-                    {{-- @yield('content') --}}
-                </main>
-            </div>
-        </div>
-
-        <!-- Include Footer -->
-        @include('layouts.footer')
-    @else
-        <!-- Include Navbar for regular users -->
-        @include('layouts.navbar')
-
-        <div class="container">
-            <main class="py-4">
-                {{-- @yield('content') --}}
-            </main>
-        </div>
-
-        <!-- Include Footer -->
-        @include('layouts.footer')
-    @endif
-@else
-    <div class="container">
-        <main class="py-4">
-            {{-- @yield('content') --}}
+        <!-- Main content area -->
+        <main class="content">
+            @yield('content')
         </main>
     </div>
+
+    <!-- Include Footer -->
+    @include('layouts.footer')
 @endauth
 
 <!-- Scripts -->
