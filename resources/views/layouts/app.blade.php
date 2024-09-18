@@ -3,19 +3,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <title>{{ config('app.name', 'Laravel') }}</title>
-    
+
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-    
+
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    
+
     <!-- Custom Styles -->
     <style>
         body {
@@ -66,42 +66,49 @@
             padding: 20px; /* Optional padding */
         }
     </style>
-    
+
     <!-- Custom fonts -->
     <link href="https://startbootstrap.github.io/startbootstrap-sb-admin-2/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    
+
     <!-- Custom styles -->
     <link href="https://startbootstrap.github.io/startbootstrap-sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
 </head>
 <body class="font-sans antialiased dark:bg-black dark:text-white/50">
 
-@auth
-    @include('layouts.navbar')
+    <!-- Authenticated User Content -->
+    @auth
+        @include('layouts.navbar')
 
-    <div class="wrapper">
-        @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
-            <!-- Include Sidebar -->
-            @include('layouts.sidebar')
-        @endif
+        <div class="wrapper">
+            @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
+                <!-- Include Sidebar -->
+                @include('layouts.sidebar')
+            @endif
 
-        <!-- Main content area -->
+            <!-- Main content area -->
+            <main class="content">
+                @yield('content')
+            </main>
+        </div>
+
+       
+        
+    @else
+        <!-- Unauthenticated User Content -->
+        <!-- Main content area for unauthenticated users like the login page -->
         <main class="content">
             @yield('content')
         </main>
-    </div>
+    @endauth
 
-    <!-- Include Footer -->
-    @include('layouts.footer')
-@endauth
-
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-@yield('scripts')
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    @yield('scripts')
 
 </body>
 </html>

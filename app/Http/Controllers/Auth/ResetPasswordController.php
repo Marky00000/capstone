@@ -99,7 +99,9 @@ class ResetPasswordController extends Controller
      */
     protected function sendResetResponse($response)
     {
-        return Redirect::route('login')->with('status', __($response));
+        // Redirect to the login page with a success message
+        return Redirect::route('login')
+            ->with('status', __('Your password has been reset successfully. Please log in.'));
     }
 
     /**
@@ -111,6 +113,7 @@ class ResetPasswordController extends Controller
      */
     protected function sendResetFailedResponse(Request $request, $response)
     {
+        // Redirect back to the password reset form with error message
         return Redirect::back()
             ->withErrors(['email' => __($response)])
             ->withInput($request->only('email'));

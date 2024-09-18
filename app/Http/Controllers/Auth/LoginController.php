@@ -6,10 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
-use Mail;
 use Illuminate\Support\Facades\Auth;
-
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class LoginController extends Controller
 {
@@ -34,19 +33,19 @@ class LoginController extends Controller
         // Validate the request
         $request->validate([
             'email' => 'required|email|max:60',
+            'password' => 'required|min:6',
         ]);
+
+        // Check if the user exists and password is correct
+        $user = User::where('email', $request->email)->first();
     
-        // Check if the user exists
-        $checkUser = User::where('email', $request->email)->first();
-    
-        if (is_null($checkUser)) {
-            return redirect()->back()->with('error', 'Your email address is not associated with us.');
+        if (is_null($user) || !Hash::check($request->password, $user->password)) {
+            return redirect()->back()->with('error', 'Invalid email or password.');
         } else {
             // Generate and update OTP
             $otp = rand(100000, 999999);
-            User::where('email', $request->email)->update([
-                'otp' => $otp,
-            ]);
+            $user->otp = $otp;
+            $user->save();
     
             // Send OTP via email
             Mail::send('emails.loginWithOTPEmail', ['otp' => $otp], function ($message) use ($request) {
@@ -57,7 +56,6 @@ class LoginController extends Controller
             return redirect()->route('confirm.login.with.otp')->with('success', 'Check your email inbox/spam folder for login with OTP code.');
         }
     }
-    
 
     /**
      * Handle a logout request.
@@ -69,5 +67,4 @@ class LoginController extends Controller
         Auth::logout();
         return redirect()->route('login');
     }
-    
 }

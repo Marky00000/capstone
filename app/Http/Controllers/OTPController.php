@@ -39,19 +39,23 @@ class OTPController extends Controller
 
     public function confirmloginwithotppost(Request $request)
 {
-    // Validate the OTP
+    // Validate the OTP array
     $request->validate([
-        'otp' => 'required|numeric'
+        'otp' => 'required|array|size:6',
+        'otp.*' => 'numeric|digits:1',
     ]);
 
+    // Concatenate OTP input fields
+    $otp = implode('', $request->input('otp'));
+
     // Verify OTP
-    $checkUser = User::where('otp', $request->otp)->first();
+    $checkUser = User::where('otp', $otp)->first();
     
     if (is_null($checkUser)) {
         return redirect()->back()->with('error', 'The OTP you provided is incorrect.');
     } else {
         // Clear OTP and log the user in
-        User::where('otp', $request->otp)->update([
+        User::where('otp', $otp)->update([
             'otp' => null,
         ]);
 
