@@ -9,6 +9,8 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Address;
+
 
 class UserCreated extends Mailable
 {
@@ -45,13 +47,11 @@ class UserCreated extends Mailable
                     ->subject('Account Created');
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Account Created',
+            from: new Address('no-reply@arfil.com', "Arfil's Landscaping Services"),
+            subject: 'Account Created'
         );
     }
 
