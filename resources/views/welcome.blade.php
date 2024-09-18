@@ -208,7 +208,7 @@
                     <i class="fas fa-calendar-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                     My Bookings
                 </a>
-                {{-- <a class="dropdown-item" href="{{ route('project.index') }}"> --}}
+                <a class="dropdown-item" href="{{ route('project.index') }}">
                     <i class="fas fa-briefcase fa-sm fa-fw mr-2 text-gray-400"></i>
                     My Projects
                 </a>

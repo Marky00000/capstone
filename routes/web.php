@@ -12,12 +12,10 @@ use App\Http\Controllers\DesignController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controller\RegisterController;
-use App\Http\Controller\LoginController;
-use App\Http\Controller\OTPController;
-
-
-
+use App\Http\Controllers\RegisterController; // Fixed namespace here
+use App\Http\Controllers\LoginController;   // Fixed namespace here
+use App\Http\Controllers\OTPController;     // Fixed namespace here
+use App\Http\Controllers\AdminController;
 
 
 // Landing page
@@ -94,7 +92,7 @@ Route::middleware('auth')->group(function () {
 
     
     Route::get('/projects/{booking_id?}', [ProjectController::class, 'index'])->name('project.index');
-    Route::get('/projects/{booking_id?}', [ProjectController::class, 'adminIndex'])->name('project.adminIndex');
+    Route::get('/admin/projects/{booking_id?}', [ProjectController::class, 'adminIndex'])->name('project.adminIndex');
     Route::get('/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create');
     Route::post('/projects/store', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/designs/{category}', [ProjectController::class, 'getDesigns']);
@@ -102,26 +100,33 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory');
 
+    // routes/web.php
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+
+    Route::get('users/create', [AdminController::class, 'create'])->name('admin.create');
+    Route::post('users', [AdminController::class, 'store'])->name('admin.users.store');
+
+
 
     });
     
 
-Auth::routes();
+    Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::view('/login-with-otp','auth.loginwithotp')->name('login.with.otp');
-Route::post('/login-with-otp-post',[App\Http\Controllers\OTPController::class, 'loginwithotppost'])->name('login.with.otp.post');
-Route::view('/confirm-login-with-otp', 'auth.confirmloginwithotp')->name('confirm.login.with.otp');
-Route::post('/confirm-login-with-otp-post', [App\Http\Controllers\OTPController::class, 'confirmloginwithotppost'])->name('confirm.login.with.otp.post');
-// Password Reset Routes
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::view('/login-with-otp','auth.loginwithotp')->name('login.with.otp');
+    Route::post('/login-with-otp-post',[App\Http\Controllers\OTPController::class, 'loginwithotppost'])->name('login.with.otp.post');
+    Route::view('/confirm-login-with-otp', 'auth.confirmloginwithotp')->name('confirm.login.with.otp');
+    Route::post('/confirm-login-with-otp-post', [App\Http\Controllers\OTPController::class, 'confirmloginwithotppost'])->name('confirm.login.with.otp.post');
+    // Password Reset Routes
 
-Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
 
 
-Auth::routes();
+    Auth::routes();
 
 
 

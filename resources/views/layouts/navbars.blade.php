@@ -1,38 +1,3 @@
-<style>
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #ffffff; /* Set body background to white */
-        color: #000000; /* Set text color to black */
-    }
-    
-    .nav-item .nav-link {
-        color: #343a40; /* Default color */
-        font-weight: 300 !important; /* Force font weight to light */
-        text-decoration: none; /* Remove underline by default */
-        transition: color 0.3s, border-bottom-color 0.3s; /* Smooth transition for color and underline */
-    }
-    
-    .nav-item:hover .nav-link {
-        color: #17a2b8 !important; /* Success color */
-        border-bottom: 2px solid #17a2b8; /* Underline on hover */
-    }
-    
-    .nav-item {
-        font-weight: 300 !important; /* Ensure nav-item is also light */
-    }
-    
-    .navbar {
-        box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.1); /* Add shadow for bottom highlight */
-    }
-    
-    .hide-for-admin {
-        display: none; /* Hide elements by default */
-    }
-</style>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     <div class="container-fluid">
         <!-- Logo positioned to the far left -->
@@ -115,10 +80,10 @@
                                     <i class="fas fa-calendar-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     My Bookings
                                 </a>
-                                <a class="dropdown-item" href="{{ route('project.index') }}">
+                                {{-- <a class="dropdown-item" href="{{ route('project.index') }}">
                                     <i class="fas fa-briefcase fa-sm fa-fw mr-2 text-gray-400"></i>
                                     My Projects
-                                </a>
+                                </a> --}}
     
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

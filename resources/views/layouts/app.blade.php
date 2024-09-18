@@ -81,7 +81,7 @@
 
     <!-- Authenticated User Content -->
     @auth
-        @include('layouts.navbar')
+        @include('layouts.navbars')
 
         <div class="wrapper">
             @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
@@ -95,7 +95,6 @@
             </main>
         </div>
 
-       
         
     @else
         <!-- Unauthenticated User Content -->

@@ -22,6 +22,16 @@
             </a>
         </li>
 
+        @if(auth()->user()->usertype === 'super_admin')
+            <!-- Nav Item - Admin (Only for super_admin) -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.index') }}">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Users</span>
+                </a>
+            </li>
+        @endif
+
         <!-- Nav Item - Services -->
         <li class="nav-item">
             <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="false" aria-controls="collapseServices">
@@ -46,42 +56,50 @@
             </div>
         </li>
 
-        <hr class="sidebar-divider d-none d-md-block">
+        @if(auth()->user()->usertype === 'super_admin')
+            <!-- Nav Item - Bookings -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('booking.adminBooking') }}">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Bookings</span>
+                </a>
+            </li>
 
-        <!-- Nav Item - Projects -->
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('booking.adminBooking') }}">
-                <i class="fas fa-project-diagram"></i>
-                <span>Bookings</span>
-            </a>
-        </li>
+            <!-- Nav Item - Projects -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('project.adminIndex') }}">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Projects</span>
+                </a>
+            </li>
 
-        <!-- Nav Item - Users -->
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('project.adminIndex') }}">
-                <i class="fas fa-user-friends"></i>
-                <span>Projects</span>
-            </a>
-        </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
 
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
+            <!-- Nav Item - Payments -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('dashboard') }}">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Payments</span>
+                </a>
+            </li>
 
-        <!-- Nav Item - Payments -->
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('dashboard') }}">
-                <i class="fas fa-cash-register"></i>
-                <span>Payments</span>
-            </a>
-        </li>
-
-        <!-- Nav Item - Sales -->
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('dashboard') }}">
-                <i class="fas fa-chart-bar"></i>
-                <span>Sales</span>
-            </a>
-        </li>
+            <!-- Nav Item - Sales -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('dashboard') }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Sales</span>
+                </a>
+            </li>
+        @else
+            <!-- Nav Item - Projects -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('project.adminIndex') }}">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Projects</span>
+                </a>
+            </li>
+        @endif
 
         <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
