@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="card">
+    <div class="card-header stylish-header">
+        <h1>Bookings</h1>
+    </div>
     <div class="card-body">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

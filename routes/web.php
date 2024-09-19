@@ -102,7 +102,6 @@ Route::middleware('auth')->group(function () {
 
     // routes/web.php
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-
     Route::get('users/create', [AdminController::class, 'create'])->name('admin.create');
     Route::post('users', [AdminController::class, 'store'])->name('admin.users.store');
 

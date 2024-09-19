@@ -56,16 +56,16 @@
             </div>
         </li>
 
-        @if(auth()->user()->usertype === 'super_admin')
-            <!-- Nav Item - Bookings -->
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('booking.adminBooking') }}">
-                    <i class="fas fa-project-diagram"></i>
-                    <span>Bookings</span>
-                </a>
-            </li>
+        <!-- Nav Item - Bookings (Visible for both admin and super_admin) -->
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('booking.adminBooking') }}">
+                <i class="fas fa-project-diagram"></i>
+                <span>Bookings</span>
+            </a>
+        </li>
 
-            <!-- Nav Item - Projects -->
+        @if(auth()->user()->usertype === 'super_admin')
+            <!-- Nav Item - Projects (Visible for super_admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('project.adminIndex') }}">
                     <i class="fas fa-user-friends"></i>
@@ -76,7 +76,7 @@
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Nav Item - Payments -->
+            <!-- Nav Item - Payments (Only for super_admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('dashboard') }}">
                     <i class="fas fa-cash-register"></i>
@@ -84,7 +84,7 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Sales -->
+            <!-- Nav Item - Sales (Only for super_admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('dashboard') }}">
                     <i class="fas fa-chart-bar"></i>
@@ -92,7 +92,7 @@
                 </a>
             </li>
         @else
-            <!-- Nav Item - Projects -->
+            <!-- Nav Item - Projects (Visible for admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('project.adminIndex') }}">
                     <i class="fas fa-user-friends"></i>

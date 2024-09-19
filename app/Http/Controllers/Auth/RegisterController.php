@@ -8,20 +8,11 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use App\Mail\RegistrationSuccessMail;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
     use RegistersUsers;
 
     /**
@@ -64,23 +55,28 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    
+        // Send the registration success email
+        Mail::to($user->email)->send(new RegistrationSuccessMail($user));
+    
+        return $user;
     }
 
     /**
      * Handle a registration request for the application.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
     protected function registered(Request $request, $user)
-{
-    // Redirect to the login page with a success message
-    return redirect()->route('login')->with('status', 'Registration successful! Please log in.');
-}
-
+    {
+        // Redirect to the login page with a success message
+        return redirect()->route('login')->with('status', 'Registration successful! Please log in.');
+    }
 }

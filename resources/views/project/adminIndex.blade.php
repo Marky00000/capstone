@@ -5,10 +5,7 @@
 @section('content')
 <div class="card">
     <div class="card-header stylish-header">
-        {{-- <div class="card-tools">
-            <!-- Add New Project Button -->
-            <a href="{{ route('projects.create', ['booking_id' => $booking_id]) }}" class="btn btn-primary">Add New</a>
-        </div> --}}
+        <h1>Projects</h1>
     </div>
     <div class="card-body">
        <!-- Display success message -->

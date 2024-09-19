@@ -19,8 +19,8 @@
     </style>
 </head>
 <body>
-    <h1>Account Created</h1>
-    <p>Your account has been created successfully.</p>
+    <h1>Admin Account Created</h1>
+    <p>Hello there Admin, your account has been created successfully.</p>
     <p><strong>Email:</strong> {{ $email }}</p>
     <p><strong>Password:</strong> {{ $password }}</p>
 

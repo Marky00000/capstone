@@ -2,9 +2,19 @@
 
 @section('content')
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="col-md-8">
+    <div class="col-md-8 position-relative"> <!-- Added position-relative to the parent container -->
         <div class="card shadow-sm border-0 rounded-lg" style="width: 100%; cursor: pointer; position: relative;">
             <div class="card-img-top" style="background-image: url('{{ asset('background.jpg') }}'); height: 180px; background-size: cover; background-position: center;">
+            </div>
+
+            <!-- Spinner and "Please Wait" message -->
+            <div id="loadingSpinner" class="d-none justify-content-center align-items-center" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background-color: rgba(255, 255, 255, 0.8);">
+                <div class="text-center">
+                    <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="mt-2">Please wait...</p>
+                </div>
             </div>
 
             <div class="card-body" style="padding: 20px; text-align: center;">
@@ -22,11 +32,11 @@
                     {{ session('error') }}
                 </div>
             @endif
-            
+
             <hr style="border-top: 1px solid #010101; margin: 0; position: relative; z-index: 1;">
 
             <div class="card-body px-5">
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('login') }}" id="loginForm">
                     @csrf
 
                     <div class="form-group mb-3">
@@ -59,7 +69,7 @@
                     </div>
 
                     <div class="form-group mb-0 text-center">
-                        <button type="submit" class="btn btn-info btn-block py-2 font-weight-bold">
+                        <button type="submit" id="submitBtn" class="btn btn-info btn-block py-2 font-weight-bold">
                             {{ __('Login') }}
                         </button>
                     </div>
@@ -132,16 +142,43 @@
         position: relative;
         z-index: 1; /* Ensure hr is below the alert */
     }
+
+    /* Spinner and loading text */
+    #loadingSpinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+    }
+
+    #loadingSpinner .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Fade out the alert messages
         setTimeout(function () {
             const alerts = document.querySelectorAll('.fade-in-out');
             alerts.forEach(alert => {
                 alert.classList.add('hidden');
             });
         }, 2000); // 2000 milliseconds = 2 seconds
+
+        // Handle form submission and show loading spinner
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent form from submitting immediately
+
+            // Hide the submit button and show the loading spinner
+            document.getElementById('submitBtn').classList.add('d-none');
+            document.getElementById('loadingSpinner').classList.remove('d-none');
+
+            // Submit the form after showing the spinner
+            this.submit();
+        });
     });
 </script>
 @endsection
