@@ -40,7 +40,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background: url('{{ asset('2.jpg') }}') no-repeat center center fixed;
+            background: url('{{ asset('1.jpg') }}') no-repeat center center fixed;
             background-size: cover;
             /* Removed overflow: hidden to allow scrolling */
         }

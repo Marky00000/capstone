@@ -20,7 +20,7 @@
     <style>
         /* Global Styles */
         body {
-            background: url('{{ asset('2.jpg') }}') no-repeat center center fixed;
+            background: url('{{ asset('1.jpg') }}') no-repeat center center fixed;
             background-size: cover;
             height: 100vh;
             display: flex;
@@ -332,10 +332,6 @@
                 </div>
             </div>
         </div>
-
-
-
-
 
         <div class="card-header text-center">
             <div class="logo">

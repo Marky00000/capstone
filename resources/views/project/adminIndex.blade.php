@@ -43,10 +43,10 @@
                         @foreach($projects as $project)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $project->booking_id }}</td>
+                                <td>{{ $project->service->name }}</td>
                                 <td>{{ $project->service_id }}</td>
                                 <td>{{ $project->lot_area }}</td>
-                                <td>{{ $project->total_cost }}</td>
+                                <td>₱{{ number_format($project->total_cost, 2) }}</td>
                                 <td>{{ $project->project_status }}</td>
                                 <td>
                                     <!-- View Project Details Button -->
@@ -82,7 +82,7 @@
 <div class="modal fade" id="projectModal" tabindex="-1" role="dialog" aria-labelledby="projectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-info text-white">
                 <h5 class="modal-title" id="projectModalLabel">Project Details</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>

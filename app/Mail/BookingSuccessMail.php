@@ -21,8 +21,7 @@ class BookingSuccessMail extends Mailable
     {
         return $this->from('no-reply@arfil-landscaping.com', 'Arfil\'s Landscaping Services')
                     ->view('emails.booking_success')
-                    ->subject('Booking Details')
-                    ->with('bookingDetails', $this->bookingDetails);
+                    ->subject('Booking Details');
     }
 
 
