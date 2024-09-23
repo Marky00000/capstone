@@ -56,10 +56,11 @@
                                         data-target="#projectModal"
                                         data-id="{{ $project->id }}"
                                         data-booking_id="{{ $project->booking_id }}"
+                                        data-service_id="{{ $project->service_id }}"
                                         data-lot_area="{{ $project->lot_area }}"
                                         data-total_cost="{{ $project->total_cost }}"
                                         data-status="{{ ucfirst($project->project_status) }}"
-                                        data-designs="{{ json_encode($project->designs) }}"> <!-- assuming designs is a relationship or attribute -->
+                                        data-designs="{{ json_encode($project->service_id) }}"> <!-- assuming designs is a relationship or attribute -->
                                         <i class="fas fa-eye"></i> View
                                     </button>
                                     <!-- Add additional action buttons if needed -->
@@ -90,7 +91,7 @@
             <div class="modal-body">
                 <p><strong>ID:</strong> <span id="modalId"></span></p>
                 <p><strong>Booking ID:</strong> <span id="modalBookingId"></span></p>
-                <p><strong>Service:</strong> <span id="modalService"></span></p>
+                <p><strong>Service:</strong> <span id="modalServiceId"></span></p>
                 <p><strong>Lot Area:</strong> <span id="modalLotArea"></span></p>
                 <p><strong>Total Cost:</strong> ₱<span id="modalTotalCost"></span></p>
                 <p><strong>Status:</strong> <span id="modalStatus"></span></p>
@@ -233,6 +234,7 @@
         var id = button.data('id');
         var bookingId = button.data('booking_id');
         var lotArea = button.data('lot_area');
+        var serviceId = button.data('service_id'); // Get the service_id
         var totalCost = button.data('total_cost');
         var status = button.data('status');
         var designs = button.data('designs'); // Assuming this is a list of designs
@@ -242,8 +244,9 @@
         
         modal.find('#modalId').text(id);
         modal.find('#modalBookingId').text(bookingId);
+        modal.find('#modalServiceId').text(serviceId); // Update this line to show service_id
         modal.find('#modalLotArea').text(lotArea);
-        modal.find('#modalTotalCost').text('₱' + totalCost); // Format total cost with peso symbol
+        modal.find('#modalTotalCost').text(totalCost); // Format total cost with peso symbol
         modal.find('#modalStatus').text(status);
         
         // Display designs

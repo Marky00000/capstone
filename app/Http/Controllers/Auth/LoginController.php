@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
+
 
 class LoginController extends Controller
 {
@@ -35,7 +37,7 @@ class LoginController extends Controller
             'email' => 'required|email|max:60',
             'password' => 'required|min:6',
         ]);
-
+    
         // Check if the user exists and password is correct
         $user = User::where('email', $request->email)->first();
     
@@ -44,7 +46,11 @@ class LoginController extends Controller
         } else {
             // Generate and update OTP
             $otp = rand(100000, 999999);
+            $expiresAt = Carbon::now()->addSeconds(60); // Set expiration to 60 seconds
+            
+            // Update the user with the new OTP and expiration time
             $user->otp = $otp;
+            $user->otp_expires_at = $expiresAt; // Set the expiration time
             $user->save();
     
             // Send OTP via email
@@ -53,9 +59,10 @@ class LoginController extends Controller
                 $message->subject('Login with OTP');
             });
     
-            return redirect()->route('confirm.login.with.otp')->with('success', 'Check your email inbox/spam folder for login with OTP code.');
+            return redirect()->route('confirm.login.with.otp')->with('success', 'Check your email inbox/spam folder for the login OTP code.');
         }
     }
+    
 
     /**
      * Handle a logout request.

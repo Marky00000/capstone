@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->integer('otp')->nullable();
+            $table->timestamp('otp_expires_at')->nullable();
             $table->string('password');
-            $table->enum('usertype', ['user', 'super_admin','admin'])->default('user');
+            $table->enum('usertype', ['user','admin'])->default('user');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -34,7 +35,7 @@ return new class extends Migration
             'name' => 'admin',
             'email' => 'markejano0@gmail.com',
             'password' => Hash::make('arfiladmin'),
-            'usertype' => 'super_admin',
+            'usertype' => 'admin',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -46,6 +47,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
+        $table->dropColumn('otp_expires_at');
+
 
     }
 };

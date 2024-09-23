@@ -12,10 +12,9 @@ use App\Http\Controllers\DesignController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\RegisterController; // Fixed namespace here
-use App\Http\Controllers\LoginController;   // Fixed namespace here
-use App\Http\Controllers\OTPController;     // Fixed namespace here
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\RegisterController; 
+use App\Http\Controllers\LoginController;   
+use App\Http\Controllers\OTPController;  
 
 
 // Landing page
@@ -100,11 +99,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory');
 
-    // routes/web.php
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-    Route::get('users/create', [AdminController::class, 'create'])->name('admin.create');
-    Route::post('users', [AdminController::class, 'store'])->name('admin.users.store');
-
 
 
     });
@@ -113,10 +107,12 @@ Route::middleware('auth')->group(function () {
     Auth::routes();
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::view('/login-with-otp','auth.loginwithotp')->name('login.with.otp');
     Route::post('/login-with-otp-post',[App\Http\Controllers\OTPController::class, 'loginwithotppost'])->name('login.with.otp.post');
     Route::view('/confirm-login-with-otp', 'auth.confirmloginwithotp')->name('confirm.login.with.otp');
     Route::post('/confirm-login-with-otp-post', [App\Http\Controllers\OTPController::class, 'confirmloginwithotppost'])->name('confirm.login.with.otp.post');
+    Route::post('/set-otp-null', [YourController::class, 'setOtpNull'])->name('set.otp.null');
+    Route::post('/resend-otp', [OTPController::class, 'resendOtp'])->name('resend.otp');
+
     // Password Reset Routes
 
     Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');

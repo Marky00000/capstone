@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use App\Mail\BookingSuccessMail;
+use Illuminate\Support\Facades\Mail;
+
+
 
 class BookingController extends Controller
 {
@@ -161,26 +165,42 @@ class BookingController extends Controller
     ];
     return view('booking.form', compact('cities'));    }
 
+    
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string',
             'contact' => 'required|string',
-            'email' => 'required|string',
+            'email' => 'required|string|email', // Added email validation
             'site_visit_date' => 'required|date',
             'user_id' => 'required|exists:users,id',
             'address' => 'required|string',
             'province' => 'required|string',
             'city' => 'required|string',
-
         ]);
     
         // Create a new booking
         $booking = Booking::create($request->all());
     
+        // Prepare all booking details for the email
+        $bookingDetails = [
+            'id' => $booking->id,
+            'name' => $booking->name,
+            'contact' => $booking->contact,
+            'email' => $booking->email,
+            'site_visit_date' => $booking->site_visit_date,
+            'address' => $booking->address,
+            'province' => $booking->province,
+            'city' => $booking->city,
+        ];  
+    
+        // Send the email
+// Send the email
+        Mail::to($request->email)->send(new BookingSuccessMail($bookingDetails));
+    
         return response()->json(['message' => 'Booking created successfully.']);
     }
     
     
+    
 }
-

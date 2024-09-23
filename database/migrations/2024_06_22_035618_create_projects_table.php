@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('total_cost', 10, 2);
             $table->text('description')->nullable();
             $table->enum('project_status', ['pending', 'active','hold', 'finish'])->default('pending');
+            $table->enum('discount', ['0', '1','2','3','4','5','6','7','8','9','10'])->default('0');
             $table->timestamps();
 
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');

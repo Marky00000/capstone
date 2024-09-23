@@ -84,7 +84,7 @@
         @include('layouts.navbars')
 
         <div class="wrapper">
-            @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
+            @if(Auth::user()->usertype == 'admin')
                 <!-- Include Sidebar -->
                 @include('layouts.sidebar')
             @endif

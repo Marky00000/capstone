@@ -38,7 +38,7 @@ class QuotationController extends Controller
 
     // Ensure the design URL is absolute or correct relative path
     $designs->each(function ($design) {
-        $design->design = asset('storage/' . $design->design); // Assuming images are stored in 'public/storage'
+        $design->design = asset('storage/' . $design->design); 
     });
 
     return response()->json($designs);
@@ -408,14 +408,6 @@ class QuotationController extends Controller
 }
 
     
-    
-    
-    
-    
-    
-    
- 
-
 
     public function edit($id)
     {

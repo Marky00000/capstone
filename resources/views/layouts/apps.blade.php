@@ -65,7 +65,7 @@
 <body class="font-sans antialiased dark:bg-black dark:text-white/50">
 
 @auth
-    @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
+    @if(Auth::user()->usertype == 'admin')
         <!-- Include Navbar for admins -->
         @include('layouts.navbar')
 

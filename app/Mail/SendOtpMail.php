@@ -22,7 +22,8 @@ class SendOtpMail extends Mailable
 
     public function build()
     {
-        return $this->view('emails.send_otp')
+        return $this->from('no-reply@arfil-landscaping.com', 'Arfil\'s Landscaping Services')
+                    ->view('emails.send_otp')
                     ->subject('Your OTP Code')
                     ->with(['otp' => $this->otp]);
     }
@@ -33,7 +34,8 @@ class SendOtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send Otp Mail',
+            from: new Address('no-reply@arfil-landscaping.com', "Arfil's Landscaping Services"), // Updated here
+            subject: 'Your OTP Code'
         );
     }
 
@@ -43,7 +45,7 @@ class SendOtpMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.send_otp', // Ensure this matches your email view
         );
     }
 

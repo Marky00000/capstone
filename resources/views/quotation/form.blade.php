@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
+    <title>Arfil's Landscaping Services</title>
     <style>
         /* Button Design Styles */
-        .btn-outline-primary {
+        .btn-outline-info {
             color: #17a2b8;
             /* Initial text color */
             background-color: white;
@@ -30,7 +31,7 @@
         }
 
         /* Apply similar styles to other button classes */
-        .btn-primary {
+        .btn-info {
             color: #007bff;
             /* Initial text color */
             background-color: white;
@@ -40,7 +41,7 @@
             transition: all 0.3s ease-in-out;
         }
 
-        .btn-primary:hover {
+        .btn-info:hover {
             color: white;
             /* Text color on hover */
             background-color: #007bff;
@@ -201,8 +202,10 @@
 
     @section('content')
         <div class="container mt-4">
+
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-info text-white">
+
                     <h5 class="mb-0 text-center">
                         {{ isset($quotation) ? 'Edit Quotation' : 'Create Quotation' }}
                     </h5>
@@ -232,14 +235,16 @@
                         @csrf
                         <!-- Address -->
                         <div class="form-group">
-                            <label for="address">Address</label>
+                            <label for="address">Address <span
+                                    style="color: red; font-size: 0.75em;">*Required</span></label>
                             <input type="text" name="address" class="form-control" id="address"
                                 value="{{ old('address', $quotation->address ?? '') }}" required>
                         </div>
 
                         <!-- Region -->
                         <div class="form-group">
-                            <label for="region">Region</label>
+                            <label for="region">Region <span
+                                    style="color: red; font-size: 0.75em;">*Required</span></label>
                             <select name="region" class="form-control" id="region" required>
                                 <option value="">Select Region</option>
                                 <option value="NCR">NCR</option>
@@ -265,7 +270,8 @@
 
                         <!-- City/Municipality -->
                         <div class="form-group">
-                            <label for="city">City/Municipality</label>
+                            <label for="city">City/Municipality <span
+                                    style="color: red; font-size: 0.75em;">*Required</span></label>
                             <select name="city" class="form-control" id="city" required>
                                 <option value="">Select City/Municipality</option>
                             </select>
@@ -273,11 +279,11 @@
 
                         <!-- Next button -->
                         <div class="d-flex justify-content-between">
-                            <button href ="{{ route('quotation.view') }}" type="button" class="btn btn-outline-primary"
+                            <button href ="{{ route('quotation.view') }}" type="button" class="btn btn-outline-info"
                                 id="cancel-button">
                                 Cancel
                             </button>
-                            <button type="button" class="btn btn-outline-primary btn-next" id="nextButton">
+                            <button type="button" class="btn btn-outline-info btn-next" id="nextButton">
                                 Next
                                 <i class="fas fa-arrow-right ms-2"></i>
                             </button>
@@ -295,9 +301,12 @@
 
                         <!-- Lot Area, Service -->
                         <div class="form-group">
-                            <label for="lot_area">Lot Area</label>
-                            <input type="text" name="lot_area" class="form-control" id="lot_area"
-                                value="{{ old('lot_area', $quotation->lot_area ?? '') }}" required>
+                            <label for="lot_area">Lot Area <span style="color: red; font-size: 0.75em;">*
+                                    required</span></label>
+                            <input placeholder="Please enter a value between 20 and 300 square meters." name="lot_area"
+                                class="form-control" id="lot_area"
+                                value="{{ old('lot_area', $quotation->lot_area ?? '') }}" min="20" max="300"
+                                required>
                         </div>
 
                         <div class="form-group">
@@ -311,7 +320,7 @@
 
                         <!-- Design ID Display -->
                         <div class="text-center mb-3">
-                            <strong>Service ID:</strong> <span id="selectedServiceId">Not selected</span>
+                            <strong>Service ID:</strong> <span id="selectedServiceName">Not selected</span>
                         </div>
 
                         <!-- Add Design Button -->
@@ -325,11 +334,11 @@
                         <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
                         <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-outline-primary" id="backButton">
+                            <button type="button" class="btn btn-outline-info" id="backButton">
                                 <i class="fas fa-arrow-left me-2"></i> Previous
                             </button>
-                            <button type="submit" class="btn btn-outline-primary", id="submitButton">
-                                Submit Booking
+                            <button type="submit" class="btn btn-outline-info", id="submitButton">
+                                Submit Quotation
                                 <i class="fas fa-check ms-2"></i>
                             </button>
                         </div>
@@ -337,6 +346,31 @@
                 </div>
             </div>
         </div>
+
+        <!-- Error Modal -->
+        <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="errorModalLabel">
+                            <i class="fas fa-exclamation-circle" style="color: red; margin-right: 8px;"></i>
+                            Error
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Error message will be inserted here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -354,6 +388,7 @@
                 const designModal = new bootstrap.Modal(document.getElementById('designModal'));
                 const designsContainer = document.getElementById('designsContainer');
                 const selectedServiceId = document.getElementById('selectedServiceId');
+                const selectedServiceName = document.getElementById('selectedServiceName');
                 const serviceIdInput = document.getElementById('service_id');
 
                 // Load cities based on region selection
@@ -418,6 +453,7 @@
                     window.location.href = "{{ route('quotation.view') }}";
                 });
 
+                // Fetch and display designs based on selected category
                 addDesignButton.addEventListener('click', function() {
                     const selectedService = document.getElementById('category').value;
 
@@ -426,21 +462,22 @@
                         .then(data => {
                             if (Array.isArray(data)) {
                                 designsContainer.innerHTML = data.map(design => `
-                                <div class="design-card" data-id="${design.id}">
-                                    <img src="${design.design}" class="design-img" alt="${design.name}">
-                                    <div class="design-card-content">
-                                        <h5 class="card-title">${design.name}</h5>
-                                        <p>${design.description}</p>
-                                        <p><strong>Complexity:</strong> ${design.complexity}</p>
-                                    </div>
-                                </div>
-                            `).join('');
+                        <div class="design-card" data-id="${design.id}" data-name="${design.name}">
+                            <img src="${design.design}" class="design-img" alt="${design.name}">
+                            <div class="design-card-content">
+                                <h5 class="card-title">${design.name}</h5>
+                                <p>${design.description}</p>
+                                <p><strong>Complexity:</strong> ${design.complexity}</p>
+                            </div>
+                        </div>
+                    `).join('');
 
                                 // Add click event to each design card
                                 designsContainer.querySelectorAll('.design-card').forEach(card => {
                                     card.addEventListener('click', function() {
                                         const id = this.getAttribute('data-id');
-                                        selectDesign(id);
+                                        const name = this.getAttribute('data-name');
+                                        selectDesign(id, name); // Pass both id and name
                                     });
                                 });
                             } else {
@@ -451,9 +488,10 @@
                         .catch(error => console.error('Error fetching designs:', error));
                 });
 
-                window.selectDesign = function(id) {
-                    serviceIdInput.value = id;
-                    selectedServiceId.textContent = id;
+                // Update function to display the selected design's name
+                window.selectDesign = function(id, name) {
+                    serviceIdInput.value = id; // Store the service ID in the hidden input
+                    selectedServiceName.textContent = name; // Display the service name
                     designModal.hide();
                 };
             });
@@ -462,6 +500,24 @@
                 // Handle form submission with AJAX
                 $('#submitButton').on('click', function(event) {
                     event.preventDefault(); // Prevent the default form submission
+
+                    // Get the lot area value
+                    const lotAreaValue = parseFloat($('#lot_area').val());
+
+                    // Validate lot area
+                    if (lotAreaValue < 20 || lotAreaValue > 300) {
+                        // Show error modal message
+                        $('#errorModal .modal-body').text(
+                            'Please enter a lot area between 20 and 300 square meters.');
+                        $('#errorModal').modal('show');
+
+                        // Automatically close the modal after 3 seconds
+                        setTimeout(function() {
+                            $('#errorModal').modal('hide');
+                        }, 3000); // 3000 ms = 3 seconds
+
+                        return; // Stop further execution
+                    }
 
                     // Serialize both forms
                     const addressFormData = $('#addressForm').serializeArray();
@@ -479,6 +535,9 @@
 
                     // Add CSRF token to data
                     combinedData._token = $('meta[name="csrf-token"]').attr('content');
+
+                    // Add lot area to combined data
+                    combinedData.lot_area = lotAreaValue;
 
                     $.ajax({
                         url: $('#projectForm').attr('action'), // Use form action URL

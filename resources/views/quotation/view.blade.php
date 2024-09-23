@@ -4,13 +4,13 @@
 
 @section('content')
 <div class="card shadow-lg">
-    <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+    <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
         <h4 class="mb-0">My Quotations</h4>
         <div>
-            <a href="{{ route('quotation.create') }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('quotation.create') }}" class="btn btn-info btn-sm">
                 <i class="fas fa-plus"></i> Add Quotation
             </a>
-            <a href="{{ route('welcome') }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('welcome') }}" class="btn btn-info btn-sm">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
         </div>
@@ -32,7 +32,7 @@
                             <th>City</th>
                             <th>Region</th>
                             <th>Lot Area</th>
-                            <th>Service ID</th>
+                            <th>Service Name</th>
                             <th>Total Amount</th>
                             <th>Working Days</th>
                             <th>Actions</th>
@@ -46,12 +46,12 @@
                                 <td>{{ $quotation->city }}</td>
                                 <td>{{ $quotation->region }}</td>
                                 <td>{{ $quotation->lot_area }}</td>
-                                <td>{{ $quotation->service_id }}</td>
+                                <td>{{ $quotation->service->name }}</td> <!-- Display service name -->
                                 <td>{{ number_format($quotation->amount, 2) }}</td>
                                 <td>{{ $quotation->working_days }}</td>
                                 <td>
                                     <button 
-                                        class="btn btn-sm btn-primary" 
+                                        class="btn btn-sm btn-info" 
                                         data-toggle="modal" 
                                         data-target="#quotationModal"
                                         data-id="{{ $quotation->id }}"
@@ -59,7 +59,7 @@
                                         data-city="{{ $quotation->city }}"
                                         data-region="{{ $quotation->region }}"
                                         data-lot_area="{{ $quotation->lot_area }}"
-                                        data-service_id="{{ $quotation->service_id }}"
+                                        data-name="{{ $quotation->service->name }}"
                                         data-amount="{{ $quotation->amount }}"
                                         data-working_days="{{ $quotation->working_days }}">
                                         <i class="fas fa-eye"></i> View
@@ -81,7 +81,7 @@
 <div class="modal fade" id="quotationModal" tabindex="-1" role="dialog" aria-labelledby="quotationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-info text-white">
                 <h5 class="modal-title" id="quotationModalLabel">Quotation Details</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -94,7 +94,7 @@
                     <p><strong>City:</strong> <span id="modalCity"></span></p>
                     <p><strong>Region:</strong> <span id="modalRegion"></span></p>
                     <p><strong>Lot Area:</strong> <span id="modalLotArea"></span></p>
-                    <p><strong>Service ID:</strong> <span id="modalServiceId"></span></p>
+                    <p><strong>Service Name:</strong> <span id="modalServiceName"></span></p>
                     <p><strong>Total Amount:</strong> <span id="modalAmount"></span></p>
                     <p><strong>Working Days:</strong> <span id="modalWorkingDays"></span></p>
                 </div>
@@ -173,7 +173,7 @@
         transition: all 0.3s ease;
     }
 
-    .btn-primary {
+    .btn-info {
         background-color: #007bff;
         border-color: #007bff;
     }
@@ -183,7 +183,7 @@
         border-color: #6c757d;
     }
 
-    .btn-primary {
+    .btn-info {
         background-color: #17a2b8;
         border-color: #17a2b8;
     }
@@ -249,12 +249,12 @@
 <script>
     $('#quotationModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
-        var id = button.data('id'); // Extract primary from data-* attributes
+        var id = button.data('id'); // Extract info from data-* attributes
         var address = button.data('address');
         var city = button.data('city');
         var region = button.data('region');
         var lotArea = button.data('lot_area');
-        var serviceId = button.data('service_id');
+        var serviceName = button.data('name'); // Fetch the service name
         var amount = button.data('amount');
         var workingDays = button.data('working_days');
 
@@ -266,7 +266,7 @@
         modal.find('#modalCity').text(city);
         modal.find('#modalRegion').text(region);
         modal.find('#modalLotArea').text(lotArea);
-        modal.find('#modalServiceId').text(serviceId);
+        modal.find('#modalServiceName').text(serviceName); // Change this to show the service name
         modal.find('#modalAmount').text(amount);
         modal.find('#modalWorkingDays').text(workingDays);
     });

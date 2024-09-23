@@ -22,16 +22,6 @@
             </a>
         </li>
 
-        @if(auth()->user()->usertype === 'super_admin')
-            <!-- Nav Item - Admin (Only for super_admin) -->
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('admin.index') }}">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Users</span>
-                </a>
-            </li>
-        @endif
-
         <!-- Nav Item - Services -->
         <li class="nav-item">
             <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="false" aria-controls="collapseServices">
@@ -64,8 +54,8 @@
             </a>
         </li>
 
-        @if(auth()->user()->usertype === 'super_admin')
-            <!-- Nav Item - Projects (Visible for super_admin) -->
+        @if(auth()->user()->usertype === 'admin')
+            <!-- Nav Item - Projects (Visible for admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('project.adminIndex') }}">
                     <i class="fas fa-user-friends"></i>
@@ -76,7 +66,7 @@
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Nav Item - Payments (Only for super_admin) -->
+            <!-- Nav Item - Payments (Only for admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('dashboard') }}">
                     <i class="fas fa-cash-register"></i>
@@ -84,7 +74,7 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Sales (Only for super_admin) -->
+            <!-- Nav Item - Sales (Only for admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('dashboard') }}">
                     <i class="fas fa-chart-bar"></i>
@@ -92,7 +82,7 @@
                 </a>
             </li>
         @else
-            <!-- Nav Item - Projects (Visible for admin) -->
+            <!-- Nav Item - Projects (Visible for super_admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('project.adminIndex') }}">
                     <i class="fas fa-user-friends"></i>

@@ -5,74 +5,86 @@
 @endsection
 
 @section('content')
-<div class="card floating-form">
-    <div class="card-header stylish-header">
-        <h3>{{ isset($service) ? 'Edit Swimming Pool Service' : 'Create Swimming Pool Service' }}</h3>
-    </div>
-    <div class="card-body">
-        <div class="card-body">
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header" style="background-image: url('{{ asset('swimmingpool.jpg') }}'); height: 180px; background-size: cover; background-position: center;">
+        </div>
+
+        <div id="spinner" style="display:none;">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
             @if (session('success'))
-            <div class="alert custom-alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert custom-alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <form id="swimmingpoolServiceForm" action="{{ isset($service) ? route('swimmingpool-services.update', $service->id) : route('swimmingpool-services.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @if (isset($service))
-                @method('PUT')
+                <div class="alert alert-dismissible fade show alert-success" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             @endif
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" name="name" class="form-control" id="name" value="{{ old('name', isset($service) ? $service->name : '') }}" required>
-            </div>
 
-            <div class="form-group">
-                <label for="design">Design</label>
-                @if(isset($service) && $service->design)
-                    <div class="mb-2">
-                        <img src="{{ asset('storage/' . $service->design) }}" alt="{{ $service->name }}" style="width: 150px; height: auto; border: 1px solid #ccc;">
-                    </div>
+            @if (session('error'))
+                <div class="alert alert-dismissible fade show alert-danger" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            <form id="swimmingpoolServiceForm" action="{{ isset($service) ? route('swimmingpool-services.update', $service->id) : route('swimmingpool-services.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @if (isset($service))
+                    @method('PUT')
                 @endif
-                
-                <input type="file" class="form-control-file @error('design') is-invalid @enderror" id="design" name="design">
-                @error('design')
-                    <span class="invalid-feedback">{{ $message }}</span>
-                @enderror
-                <span id="designError" class="invalid-feedback" style="display: none;">Please upload a design file.</span>
-            </div>
 
-            <div class="form-group">
-                <label for="complexity">Design Complexity</label>
-                <select name="complexity" class="form-control" id="complexity" required>
-                    <option value="very_easy" {{ old('complexity', isset($service) ? $service->complexity : '') == 'very_easy' ? 'selected' : '' }}>Very Easy</option>
-                    <option value="easy" {{ old('complexity', isset($service) ? $service->complexity : '') == 'easy' ? 'selected' : '' }}>Easy</option>
-                    <option value="medium" {{ old('complexity', isset($service) ? $service->complexity : '') == 'medium' ? 'selected' : '' }}>Medium</option>
-                    <option value="hard" {{ old('complexity', isset($service) ? $service->complexity : '') == 'hard' ? 'selected' : '' }}>Hard</option>
-                    <option value="very_hard" {{ old('complexity', isset($service) ? $service->complexity : '') == 'very_hard' ? 'selected' : '' }}>Very Hard</option>
-                </select>
-            </div>
+                <div class="form-group mb-4">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" name="name" class="form-control" id="name" value="{{ old('name', isset($service) ? $service->name : '') }}" required>
+                </div>
 
-            @if (!isset($service))
-                <input type="hidden" name="category" value="{{ $swimmingpool_id }}">
-            @endif
+                <div class="form-group mb-4">
+                    <label for="design" class="form-label">Design</label>
+                    @if(isset($service) && $service->design)
+                        <div class="mb-2">
+                            <img src="{{ asset('storage/' . $service->design) }}" alt="{{ $service->name }}" style="width: 150px; height: auto; border: 1px solid #ccc;">
+                        </div>
+                    @endif
+                    
+                    <input type="file" class="form-control-file @error('design') is-invalid @enderror" id="design" name="design">
+                    @error('design')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <span id="designError" class="invalid-feedback" style="display: none;">Please upload a design file.</span>
+                </div>
 
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea name="description" class="form-control" id="description" rows="3">{{ old('description', isset($service) ? $service->description : '') }}</textarea>
-            </div>
+                <div class="form-group mb-4">
+                    <label for="complexity" class="form-label">Design Complexity</label>
+                    <select name="complexity" class="form-select" id="complexity" required>
+                        <option value="very_easy" {{ old('complexity', isset($service) ? $service->complexity : '') == 'very_easy' ? 'selected' : '' }}>Very Easy</option>
+                        <option value="easy" {{ old('complexity', isset($service) ? $service->complexity : '') == 'easy' ? 'selected' : '' }}>Easy</option>
+                        <option value="medium" {{ old('complexity', isset($service) ? $service->complexity : '') == 'medium' ? 'selected' : '' }}>Medium</option>
+                        <option value="hard" {{ old('complexity', isset($service) ? $service->complexity : '') == 'hard' ? 'selected' : '' }}>Hard</option>
+                        <option value="very_hard" {{ old('complexity', isset($service) ? $service->complexity : '') == 'very_hard' ? 'selected' : '' }}>Very Hard</option>
+                    </select>
+                </div>
 
-            <button type="submit" id="submitBtn" class="btn btn-primary">
-                {{ isset($service) ? 'Update Service' : 'Add Service' }}
-            </button>
-            <a href="{{ route('swimmingpool') }}" class="btn btn-secondary">Cancel</a>
-        </form>
+                @if (!isset($service))
+                    <input type="hidden" name="category" value="{{ $swimmingpool_id }}">
+                @endif
+
+                <div class="form-group mb-4">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea name="description" class="form-control" id="description" rows="3">{{ old('description', isset($service) ? $service->description : '') }}</textarea>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" id="submitBtn" class="btn btn-outline-info rounded-pill px-4 py-2">
+                        {{ isset($service) ? 'Update Service' : 'Add Service' }}
+                    </button>
+                    <a href="{{ route('swimmingpool') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

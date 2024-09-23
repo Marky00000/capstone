@@ -4,53 +4,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arfil's Landscaping and Swimmingpool Services</title>
+    <title>Arfil's Landscaping Services</title>
 
+    <!-- Custom fonts -->
+    <link href="https://startbootstrap.github.io/startbootstrap-sb-admin-2/vendor/fontawesome-free/css/all.min.css"
+        rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="https://startbootstrap.github.io/startbootstrap-sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Updated CSS -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
+        /* Reset and Base Styles */
         html,
         body {
             height: 100%;
             margin: 0;
             box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
         }
 
         body {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            background: url('{{ asset('2.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            /* Removed overflow: hidden to allow scrolling */
         }
 
-        .content {
-            flex: 1;
-            padding: 30px;
-            /* Optional: Adjust padding to provide space for content */
-        }
-
+        /* Navbar Styles */
         .navbar {
             background-color: #ffffff;
             box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.1);
             position: fixed;
             top: 0;
             width: 100%;
-            height: 60px; /* Adjust height as needed */
-            z-index: 1000; /* Ensure the navbar stays on top */
-            border-bottom: 1px solid #ddd; /* Optional: Add a bottom border */
+            height: 60px;
+            z-index: 1000;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
         }
 
+        /* Backdrop Styles */
+        .backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent black */
+            backdrop-filter: blur(5px);
+            /* Blur effect */
+            z-index: 1;
+            /* Positioned below main content */
+            pointer-events: none;
+            /* Allows interaction with main content */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .backdrop.active {
+            opacity: 1;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 90px 30px 30px;
+            /* 60px navbar + 30px extra */
+            position: relative;
+            z-index: 2;
+            /* Above the backdrop */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Footer Styles */
         .footer {
             background-color: #f7f7f7;
             padding: 20px;
             text-align: center;
             border-top: 1px solid #ddd;
-            position: relative;
             width: 100%;
-            height: 60px; /* Fixed height for the footer */
-            box-sizing: border-box; /* Ensure padding is included in height */
-            margin-top: auto;
+            height: 60px;
+            box-sizing: border-box;
+            z-index: 2;
+            /* Same as main content */
         }
 
+        /* Profile Image Styles */
         .img-profile {
             width: 60px;
             height: 60px;
@@ -58,6 +117,7 @@
             border-radius: 50%;
         }
 
+        /* Button Styles */
         .btn-outline-info {
             border-color: #17a2b8;
             color: #17a2b8;
@@ -78,6 +138,138 @@
             border-color: #17a2b8;
         }
 
+        /* Home Button Positioning and Styles */
+        .home-button {
+            /* Removed position: fixed; */
+            /* Center the button */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 2px solid #17a2b8;
+            border-radius: 50px;
+            background-color: transparent;
+            color: #17a2b8;
+            text-decoration: none;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            /* Space between h1 and button */
+        }
+
+        .home-button i {
+            margin-right: 8px;
+            /* Space between icon and text */
+            transition: transform 0.3s ease;
+        }
+
+        /* Hover Effects */
+        .home-button:hover {
+            background-color: #17a2b8;
+            color: #fff;
+            transform: translateY(-3px);
+            /* Slight lift on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-button:hover i {
+            transform: rotate(20deg);
+            /* Icon rotates slightly on hover */
+        }
+
+        /* Active State (Optional) */
+        .home-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .modern-heading {
+            font-weight: 400;
+            /* Slightly bolder for better presence */
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+            color: #ffffff;
+            /* White for visibility */
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+            font-size: 2.5rem;
+            /* Adjust as needed */
+            transition: color 0.3s ease, transform 0.3s ease;
+            /* Add transform for hover */
+        }
+
+        /* Underline with Animation */
+        .modern-heading::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background-color: #17a2b8;
+            /* Primary color for underline */
+            bottom: -5px;
+            /* Move below the text for better effect */
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            /* Start scaled down */
+            border-radius: 2px;
+            transition: transform 0.3s ease;
+            /* Smooth scaling */
+        }
+
+        /* Hover Effect on Heading */
+        .modern-heading:hover {
+            /* Change color on hover */
+            transform: translateY(-5px);
+            /* Lift the heading slightly */
+        }
+
+        /* Hover Effect on Underline */
+        .modern-heading:hover::after {
+            transform: translateX(-50%) scaleX(1);
+            /* Scale up on hover */
+        }
+
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .modern-heading {
+                font-size: 2rem;
+                /* Adjust font size for smaller screens */
+                margin-bottom: 15px;
+            }
+
+            .modern-heading::after {
+                width: 40px;
+                /* Adjust underline width for smaller screens */
+            }
+
+            .modern-heading:hover::after {
+                transform: translateX(-50%) scaleX(1);
+                /* Keep hover effect for small screens */
+            }
+
+            .service-container .card {
+                width: 90%;
+                /* Make cards take up more width on small screens */
+            }
+
+            .service-container .card:nth-child(1),
+            .service-container .card:nth-child(2),
+            .service-container .card:nth-child(3),
+            .service-container .card:nth-child(4) {
+                animation-delay: 0s;
+                /* Remove staggered delays on mobile for faster loading */
+            }
+
+            .home-button {
+                margin-top: 15px;
+                /* Adjust space on smaller screens */
+            }
+        }
+
+        /* Card Styles with Animations and Hover Effects */
         .card {
             background-color: #ffffff;
             border-radius: 10px;
@@ -88,12 +280,48 @@
             flex-direction: column;
             width: 300px;
             text-align: center;
+            margin: 15px;
+            margin-bottom: 30px;
+
+            /* Entrance Animation */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s forwards;
+        }
+
+        /* Staggered Animation Delay for Each Card */
+        .service-container .card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .service-container .card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .service-container .card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .service-container .card:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+
+        /* Hover Effects */
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover .card-img-top {
+            transform: scale(1.1);
         }
 
         .card-img-top {
             width: 100%;
             height: 180px;
             object-fit: cover;
+            transition: transform 0.3s ease;
         }
 
         .card-body {
@@ -103,6 +331,14 @@
 
         .card-title {
             font-weight: 800;
+            margin-bottom: 15px;
+            color: #17a2b8;
+            /* Primary color for titles */
+        }
+
+        .card-text {
+            color: #555;
+            line-height: 1.5;
         }
 
         .card-footer {
@@ -114,32 +350,42 @@
             margin: 0;
         }
 
-        .service-container {
+        /* Container Styles */
+        .container {
             position: relative;
+            z-index: 2;
+        }
+
+        /* Service Container Styles */
+        .service-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 30px;
             padding: 30px;
-            background-color: #f7f7f7;
+            background-color: transparent;
             border-radius: 8px;
         }
 
+        /* Entrance Animations Keyframes */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Optional: Add fadeIn keyframes for other elements */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
     </style>
-
-    <!-- Custom fonts -->
-    <link href="https://startbootstrap.github.io/startbootstrap-sb-admin-2/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
-    <!-- Custom styles -->
-    <link href="https://startbootstrap.github.io/startbootstrap-sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
-
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body class="font-sans antialiased dark:bg-black dark:text-white/50">
@@ -165,14 +411,19 @@
             </li>
 
             <li class="nav-item dropdown mr-4">
-                <a class="nav-link dropdown-toggle text-dark font-weight-bold" href="#" id="servicesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle text-dark font-weight-bold" href="#" id="servicesDropdown"
+                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Services
                 </a>
                 <div class="dropdown-menu" aria-labelledby="servicesDropdown">
-                    <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'landscaping']) }}">Landscaping</a>
-                    <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'swimmingpool']) }}">Swimming Pool</a>
-                    <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'renovation']) }}">Renovation</a>
-                    <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
+                    <a class="dropdown-item"
+                        href="{{ route('services.byCategory', ['category' => 'landscaping']) }}">Landscaping</a>
+                    <a class="dropdown-item"
+                        href="{{ route('services.byCategory', ['category' => 'swimmingpool']) }}">Swimming Pool</a>
+                    <a class="dropdown-item"
+                        href="{{ route('services.byCategory', ['category' => 'renovation']) }}">Renovation</a>
+                    <a class="dropdown-item"
+                        href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
                 </div>
             </li>
 
@@ -182,13 +433,15 @@
 
             <!-- Nav Item - Alerts -->
             <li class="nav-item dropdown no-arrow mx-1">
-                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-bell fa-fw"></i>
                     <!-- Counter - Alerts -->
                     <span class="badge badge-danger badge-counter">0</span>
                 </a>
                 <!-- Dropdown - Alerts -->
-                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                    aria-labelledby="alertsDropdown">
                     <h6 class="dropdown-header bg-info">
                         Alerts Center
                     </h6>
@@ -200,7 +453,8 @@
 
             <!-- User Dropdown -->
             <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->name }}</span>
                     <img class="img-profile rounded-circle" src="{{ asset('man.png') }}" alt="Profile Image">
                 </a>
@@ -218,7 +472,8 @@
                         Activity Log
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('logout') }}" data-toggle="modal" data-target="#logoutModal">
+                    <a class="dropdown-item" href="{{ route('logout') }}" data-toggle="modal"
+                        data-target="#logoutModal">
                         <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                         Logout
                     </a>
@@ -227,43 +482,62 @@
         </ul>
     </nav>
 
+    <!-- Backdrop -->
+    <div class="backdrop active"></div> <!-- Ensure 'active' class is present to make it visible -->
+
     <!-- Main Content -->
-    <div class="container">
-        <div class="service-container">
-            <a href="{{ route('welcome') }}" class="btn btn-outline-info"
-                style="position: absolute; top: 20px; left: 20px;">
-                <i class="fa fa-home"></i> Home
-            </a>
+    <div class="main-content">
+        <!-- Modern Heading -->
+        <h1 class="display-5 modern-heading">
+            {{ ucfirst($category) }} Services
+        </h1>
 
-            <h1 class="display-5" style="font-weight: 300; text-align: center; width: 100%;">{{ ucfirst($category) }}
-                Services</h1>
+        <!-- Home Button Below the Heading -->
+        <a href="{{ route('welcome') }}" class="btn btn-outline-info home-button" aria-label="Home">
+            <i class="fa fa-home" aria-hidden="true"></i> Home
+        </a>
 
-            @if ($services->isEmpty())
-                <p class="text-center">No {{ $category }} services available at the moment.</p>
-            @else
-                @foreach ($services as $service)
-                    <div class="card">
-                        <img src="{{ asset('storage/' . $service->design) }}" class="card-img-top"
-                            alt="{{ $service->name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $service->name }}</h5>
-                            <p class="card-text">{{ $service->description }}</p>
+        <div class="container">
+            <div class="service-container">
+                @if ($services->isEmpty())
+                    <p class="text-center">No {{ $category }} services available at the moment.</p>
+                @else
+                    @foreach ($services as $service)
+                        <div class="card">
+                            <img src="{{ asset('storage/' . $service->design) }}" class="card-img-top"
+                                alt="{{ $service->name }}" loading="lazy">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $service->name }}</h5>
+                                <p class="card-text">{{ $service->description }}</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ route('booking.form') }}" class="btn btn-outline-info">Book Service</a>
+                            </div>
                         </div>
-                        <div class="card-footer">
-                            <a href="{{ route('booking.form') }}" class="btn btn-outline-info">Book Service</a>
-                        </div>
-                    </div>
-                @endforeach
-            @endif
+                    @endforeach
+                @endif
+            </div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Arfil's Landscaping and Swimmingpool Services. All rights reserved.</p>
+            <p>&copy; 2024 Arfil's Landscaping Services. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- Optional: JavaScript to Toggle Backdrop (if needed for modals) -->
+    <script>
+        // Example: Toggle Backdrop for a Modal (if you have modals)
+        function toggleBackdrop() {
+            const backdrop = document.querySelector('.backdrop');
+            backdrop.classList.toggle('active');
+        }
+
+        // Example usage: Call toggleBackdrop() when opening or closing a modal
+    </script>
+
 </body>
 
 </html>

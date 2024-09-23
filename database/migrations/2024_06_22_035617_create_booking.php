@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id(); // Auto-incrementing ID for the booking
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('assigned_admin')->nullable();
             $table->string('name');
             $table->string('contact');
             $table->string('email');
@@ -26,7 +25,6 @@ return new class extends Migration
 
             // Define foreign key constraints
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('assigned_admin')->references('id')->on('users')->onDelete('set null'); 
 
         });
     }
