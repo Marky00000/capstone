@@ -20,6 +20,7 @@ class Booking extends Model
         'city',
         'province',
         'site_visit_date',
+        'booking_status',
 
     ];
 

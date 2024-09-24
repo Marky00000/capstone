@@ -18,6 +18,7 @@ class Project extends Model
         'total_cost',
         'description',
         'project_status',
+        'discount'
     ];
 
     /**

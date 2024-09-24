@@ -18,8 +18,8 @@
 
         /* If you still need overflow: hidden for other reasons, consider overriding it here */
         /* .card {
-                    overflow: visible;
-                } */
+                                                            overflow: visible;
+                                                        } */
 
         .card-header {
             position: relative;
@@ -261,7 +261,6 @@
 
     <div class="container mt-5">
         <div class="card shadow-lg">
-            <!-- Header Image with Overlay -->
             <div class="card-header">
                 <h6 class="mb-0">Add Project for Booking # {{ $booking_id }}</h6>
             </div>
@@ -271,10 +270,10 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
-            
+
             <div class="card-body p-4">
-                <!-- Design Selection Modal -->
-                <div class="modal fade" id="designModal" tabindex="-1" aria-labelledby="designModalLabel" aria-hidden="true">
+                <div class="modal fade" id="designModal" tabindex="-1" aria-labelledby="designModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -289,7 +288,6 @@
                     </div>
                 </div>
 
-                <!-- Alert Message -->
                 <div id="alert-message" class="alert alert-dismissible fade show" role="alert">
                     <span class="icon">
                         <i id="alert-icon" class="fas"></i>
@@ -298,7 +296,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
-                <!-- Project Form -->
                 <form id="project-form" action="{{ route('projects.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="booking_id" value="{{ $booking_id }}">
@@ -318,17 +315,6 @@
                     </div>
 
 
-                    <!-- Design ID Display -->
-                    <div class="text-center mb-4">
-                        <strong>Service ID:</strong> <span id="selectedServiceId">Not selected</span>
-                    </div>
-
-                    <!-- Add Design Button -->
-                    <div class="text-center mb-4">
-                        <button type="button" class="btn btn-grey" id="addDesignButton">
-                            <i class="fas fa-plus me-2"></i> Add Design
-                        </button>
-                    </div>
 
                     <!-- Hidden Inputs -->
                     <input type="hidden" name="service_id" id="service_id">
@@ -344,6 +330,34 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <!-- Discount Selection -->
+                    <div class="mb-4">
+                        <label for="discount" class="form-label">Discount</label>
+                        <select name="discount" class="form-select" id="discount">
+                            <option value="">Select a discount</option>
+                            @foreach ($discounts as $discount)
+                                <!-- Assume $discounts is passed from the controller -->
+                                <option value="{{ $discount }}">{{ $discount }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Design ID Display -->
+                    <div class="text-center mb-4">
+                        <strong>Service ID:</strong> <span id="selectedServiceName">Not selected</span>
+                    </div>
+
+                    <!-- Add Design Button -->
+                    <div class="text-center mb-4">
+                        <button type="button" class="btn btn-grey" id="addDesignButton">
+                            <i class="fas fa-plus me-2"></i> Add Design
+                        </button>
+                    </div>
+                    <div id="totalCost" class="total-cost">
+                        Total Cost: <span id="costValue">₱0.00</span>
+                    </div>
+
 
                     <!-- Save and Cancel Buttons -->
                     <div class="d-flex justify-content-between">
@@ -364,7 +378,40 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Form submission handling
+            // Event listener for input changes
+            $('#category, #complexity, #lot_area, #discount').on('change input', function() {
+                const selectedCategory = $('#category').val();
+                const selectedComplexity = $('#complexity').val(); // Assuming there's a complexity dropdown
+                const lotArea = parseFloat($('#lot_area').val()) || 0; // Get lot area
+                const discount = parseFloat($('#discount').val()) || 0; // Get discount percentage
+
+                // Check if required inputs are filled
+                if (selectedCategory && selectedComplexity && lotArea > 0) {
+                    // Call the server to calculate the total cost
+                    $.ajax({
+                        url: '/calculate-cost', // Update with your route for calculating cost
+                        type: 'POST',
+                        data: {
+                            category: selectedCategory,
+                            complexity: selectedComplexity,
+                            lot_area: lotArea,
+                            discount: discount,
+                            _token: $('meta[name="csrf-token"]').attr(
+                                'content') // Include CSRF token
+                        },
+                        success: function(response) {
+                            $('#costValue').text('₱' + parseFloat(response.cost).toFixed(
+                            2)); // Update displayed cost
+                        },
+                        error: function(xhr) {
+                            $('#costValue').text('₱0.00'); // Reset to zero if an error occurs
+                        }
+                    });
+                } else {
+                    $('#costValue').text('₱0.00'); // Reset to zero if inputs are invalid
+                }
+            });
+
             $('#project-form').on('submit', function(event) {
                 event.preventDefault(); // Prevent default form submission
 
@@ -377,8 +424,7 @@
                 $submitButton.prop('disabled', true);
                 // Show spinner
                 $('#spinner').show(); // Assuming you have a spinner element with this ID
-                // Disable the button to prevent multiple submissions
-                $submitButton.prop('disabled', true);
+
                 var formData = $(this).serialize();
 
                 $.ajax({
@@ -398,6 +444,9 @@
                             .end()
                             .fadeIn();
 
+                        // Update total cost display (optional: if needed to reflect the final cost)
+                        $('#costValue').text('₱' + parseFloat(response.cost).toFixed(2));
+
                         // Fade out alert after 3 seconds
                         setTimeout(function() {
                             $('#alert-message').fadeOut();
@@ -405,7 +454,8 @@
 
                         // Redirect after 3 seconds
                         setTimeout(function() {
-                            window.location.href = "{{ route('project.adminIndex') }}";
+                            window.location.href =
+                                "{{ route('project.adminIndex') }}"; // Adjust route as necessary
                         }, 3000);
                     },
                     error: function(xhr) {
@@ -444,7 +494,7 @@
                             if (Array.isArray(response)) {
                                 $.each(response, function(index, design) {
                                     designsContainer.append(`
-                                <div class="design-card" data-id="${design.id}">
+                                <div class="design-card" data-id="${design.id}" data-name="${design.name}" data-complexity="${design.complexity}">
                                     <img src="${design.design}" class="design-img" alt="${design.name}">
                                     <div class="design-card-content">
                                         <h5>${design.name}</h5>
@@ -458,8 +508,14 @@
                                 // Attach click event to each design card
                                 $('.design-card').on('click', function() {
                                     var id = $(this).data('id');
+                                    var name = $(this).data('name');
+                                    var complexity = $(this).data(
+                                    'complexity'); // Get the complexity of the service
                                     $('#service_id').val(id);
                                     $('#selectedServiceId').text(id);
+                                    $('#selectedServiceName').text(name);
+                                    $('#selectedComplexity').val(
+                                    complexity); // Store complexity in a hidden field
 
                                     // Hide the modal using Bootstrap's method
                                     var designModal = bootstrap.Modal.getInstance(
@@ -471,9 +527,9 @@
                                     // Ensure the backdrop is removed and CSS adjustments are reset
                                     $('.modal-backdrop').remove();
                                     $('body').removeClass(
-                                        'modal-open'); // Allow scrolling again
+                                    'modal-open'); // Allow scrolling again
                                     $('body').css('padding-right',
-                                        ''); // Reset any padding adjustments
+                                    ''); // Reset any padding adjustments
                                 });
 
                                 // Show the modal
@@ -483,10 +539,17 @@
                             } else {
                                 designsContainer.html('<p>No designs available.</p>');
                             }
+                        },
+                        error: function(xhr) {
+                            console.error('Error fetching designs:', xhr.responseText);
                         }
                     });
                 }
             });
         });
     </script>
+
+
+
 @endsection
+

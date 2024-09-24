@@ -495,6 +495,7 @@
                 });
             }
 
+            
             // Update confirmation step
             function updateConfirmation() {
                 document.getElementById('confirmName').innerText = document.getElementById('name').value;

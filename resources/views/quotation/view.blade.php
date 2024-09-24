@@ -53,8 +53,8 @@
                                     <td>{{ $quotation->city }}</td>
                                     <td>{{ number_format($quotation->lot_area, 0) }} sqm</td>
                                     <td>{{ $quotation->service->name }}</td>
-                                    <td>{{ number_format($quotation->amount, 2) }}</td>
-                                    <td>{{ $quotation->working_days }}</td>
+                                    <td>₱{{ number_format($quotation->amount) }}</td>
+                                    <td>{{ $quotation->working_days }} Days</td>
                                     <td>
                                         <button class="btn btn-sm btn-info" data-toggle="modal"
                                             data-target="#quotationModal" data-id="{{ $quotation->id }}"
@@ -62,8 +62,8 @@
                                             data-region="{{ $quotation->region }}"
                                             data-lot_area="{{ $quotation->lot_area }}"
                                             data-name="{{ $quotation->service->name }}"
-                                            data-amount="{{ $quotation->amount }}"
-                                            data-working_days="{{ $quotation->working_days }}">
+                                            data-amount="₱{{ $quotation->amount }}"
+                                            data-working_days="{{ $quotation->working_days }} Days">
                                             <i class="fas fa-eye"></i> View
                                         </button>
                                     </td>
@@ -92,7 +92,7 @@
                     <div class="d-flex align-items-center">
                         <img src="{{ asset('arfil_logo1.png') }}" alt="Logo" class="img-fluid logo"
                             style="max-height: 50px; margin-right: 10px;">
-                        <h5 class="modal-title" id="bookingModalLabel">Booking Details</h5>
+                        <h5 class="modal-title" id="bookingModalLabel">Quotation Details</h5>
                     </div>
                 </div>
                 <div class="modal-body">

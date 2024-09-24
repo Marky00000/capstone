@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Mail\BookingSuccessMail;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth; // Make sure to include this at the top
+
 
 
 
@@ -13,7 +16,9 @@ class BookingController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::all();
+        // Fetch bookings for the currently authenticated user
+        $bookings = Booking::where('user_id', Auth::id())->paginate(10);
+
         return view('booking.index', compact('bookings'));
     }
     public function adminBooking()
@@ -171,16 +176,25 @@ class BookingController extends Controller
         $request->validate([
             'name' => 'required|string',
             'contact' => 'required|string',
-            'email' => 'required|string|email', // Added email validation
+            'email' => 'required|string|email', // Email provided in the request
             'site_visit_date' => 'required|date',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id', // Ensure user exists
             'address' => 'required|string',
             'province' => 'required|string',
             'city' => 'required|string',
         ]);
     
-        // Create a new booking
-        $booking = Booking::create($request->all());
+        // Create a new booking and include user_id
+        $booking = Booking::create([
+            'name' => $request->name,
+            'contact' => $request->contact,
+            'email' => $request->email,
+            'site_visit_date' => $request->site_visit_date,
+            'user_id' => $request->user_id, // Set user_id here
+            'address' => $request->address,
+            'province' => $request->province,
+            'city' => $request->city,
+        ]);
     
         // Prepare all booking details for the email
         $bookingDetails = [
@@ -192,14 +206,16 @@ class BookingController extends Controller
             'address' => $booking->address,
             'province' => $booking->province,
             'city' => $booking->city,
+            'user_id' => $booking->user_id, // Include user_id in the details
         ];  
     
-        // Send the email
-// Send the email
-        Mail::to($request->email)->send(new BookingSuccessMail($bookingDetails));
+        // Optionally, get user email from the user_id and send the email
+        $userEmail = User::find($booking->user_id)->email;
+        Mail::to($userEmail)->send(new BookingSuccessMail($bookingDetails));
     
         return response()->json(['message' => 'Booking created successfully.']);
     }
+    
     
     
     

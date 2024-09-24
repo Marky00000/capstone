@@ -34,12 +34,13 @@
                             <tr>
                                 <th>#</th>
                                 <th>Name</th>
-                                <th>Contact</th> <!-- New Contact Header -->
-                                <th>Email</th>   <!-- New Email Header -->
+                                <th>Contact</th>
+                                <th>Email</th>
                                 <th>Address</th>
                                 <th>Province</th>
                                 <th>City</th>
                                 <th>Site Visit Date</th>
+                                <th>Booking Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -48,8 +49,8 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $booking->name }}</td>
-                                    <td>{{ $booking->contact }}</td> <!-- Display Contact -->
-                                    <td>{{ $booking->email }}</td>   <!-- Display Email -->
+                                    <td>{{ $booking->contact }}</td>
+                                    <td>{{ $booking->email }}</td>
                                     <td>{{ $booking->address }}</td>
                                     <td>{{ $booking->province }}</td>
                                     <td>{{ $booking->city }}</td>
@@ -61,12 +62,22 @@
                                         @endif
                                     </td>
                                     <td>
+                                        <span
+                                            class="badge 
+                                            @if ($booking->booking_status == 'pending') badge-warning 
+                                            @elseif($booking->booking_status == 'scheduled') badge-success 
+                                            @else badge-secondary @endif">
+                                            {{ ucfirst($booking->booking_status) }}
+                                        </span>
+                                    </td>
+                                    <td>
                                         <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#bookingModal"
-                                            data-site_visit_date="{{ $booking->site_visit_date }}"
+                                            data-site_visit_date="{{ $booking->site_visit_date }} "
                                             data-user_id="{{ $booking->user_id }}" data-name="{{ $booking->name }}"
-                                            data-address="{{ $booking->address }}" data-province="{{ $booking->province }}"
-                                            data-city="{{ $booking->city }}" data-contact="{{ $booking->contact }}"
-                                            data-email="{{ $booking->email }}">
+                                            data-address="{{ $booking->address }}"
+                                            data-province="{{ $booking->province }}" data-city="{{ $booking->city }}"
+                                            data-contact="{{ $booking->contact }}" data-email="{{ $booking->email }} "
+                                            data-booking_status="{{ $booking->booking_status }}">
                                             <i class="fas fa-eye"></i> View
                                         </button>
                                     </td>
@@ -94,13 +105,14 @@
                 </div>
                 <div class="modal-body">
                     <div class="receipt-details">
-                        <p><strong>Name: </strong> <span id="modalName"></span></p> <!-- Name Field -->
-                        <p><strong>Contact: </strong> <span id="modalContact"></span></p> <!-- Contact Field -->
-                        <p><strong>Email: </strong> <span id="modalEmail"></span></p>      <!-- Email Field -->
+                        <p><strong>Name: </strong> <span id="modalName"></span></p>
+                        <p><strong>Contact: </strong> <span id="modalContact"></span></p>
+                        <p><strong>Email: </strong> <span id="modalEmail"></span></p>
                         <p><strong>Address: </strong> <span id="modalAddress"></span></p>
                         <p><strong>Province: </strong> <span id="modalProvince"></span></p>
                         <p><strong>City: </strong> <span id="modalCity"></span></p>
                         <p><strong>Site Visit Date: </strong> <span id="modalSiteVisitDate"></span></p>
+                        <p><strong>Booking Status: </strong> <span id="modalBookingStatus"></span></p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -234,6 +246,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -242,52 +255,63 @@
         /* Pricing Factors Styles */
         .pricing-factors {
             border: 1px solid #ddd;
+            padding: 15px;
             border-radius: 8px;
-            padding: 1rem;
             background-color: #f9f9f9;
         }
 
-        .pricing-factors h5 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .pricing-factors p {
-            margin-bottom: 0.5rem;
+        .logo {
+            max-height: 50px;
         }
     </style>
 @endsection
 
 @section('scripts')
     <script>
-        $('#bookingModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var siteVisitDate = button.data('site_visit_date');
-            var userId = button.data('user_id');
-            var name = button.data('name'); // New name data
-            var address = button.data('address');
-            var province = button.data('province');
-            var city = button.data('city');
-            var contact = button.data('contact'); // New contact data
-            var email = button.data('email');     // New email data
+        $(document).ready(function() {
+            $('#bookingModal').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const name = button.data('name');
+                const contact = button.data('contact');
+                const email = button.data('email');
+                const address = button.data('address');
+                const province = button.data('province');
+                const city = button.data('city');
+                const site_visit_date = button.data('site_visit_date');
+                const booking_status = button.data('booking_status');
 
-            // Update the modal's content.
-            var modal = $(this);
+                const modal = $(this);
+                modal.find('#modalName').text(name);
+                modal.find('#modalContact').text(contact);
+                modal.find('#modalEmail').text(email);
+                modal.find('#modalAddress').text(address);
+                modal.find('#modalProvince').text(province);
+                modal.find('#modalCity').text(city);
+                modal.find('#modalSiteVisitDate').text(site_visit_date ? new Date(site_visit_date)
+                    .toLocaleDateString() : 'No site visit scheduled.');
 
-            modal.find('#modalSiteVisitDate').text(siteVisitDate ? (new Date(siteVisitDate)).toLocaleDateString(
-                'en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                }) : 'Not Set');
+                // Set the booking status badge
+                var bookingBadgeClass = '';
+                switch (booking_status) {
+                    case 'pending':
+                        bookingBadgeClass = 'badge-warning';
+                        break;
+                    case 'confirmed':
+                        bookingBadgeClass = 'badge-success';
+                        break;
+                    case 'canceled':
+                        bookingBadgeClass = 'badge-danger';
+                        break;
+                    case 'completed':
+                        bookingBadgeClass = 'badge-primary';
+                        break;
+                }
 
-            modal.find('#modalName').text(name);          // Update name field
-            modal.find('#modalContact').text(contact);     // Update contact field
-            modal.find('#modalEmail').text(email);         // Update email field
-            modal.find('#modalAddress').text(address);     // Update address field
-            modal.find('#modalProvince').text(province);   // Update province field
-            modal.find('#modalCity').text(city);           // Update city field
+                // Set the booking status badge
+                modal.find('#modalBookingStatus').text(booking_status.charAt(0).toUpperCase() +
+                        booking_status.slice(1))
+                    .removeClass().addClass('badge ' + bookingBadgeClass);
+            });
         });
     </script>
 @endsection

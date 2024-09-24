@@ -1,267 +1,310 @@
 @extends('layouts.app')
 
-@section('title', 'Project List')
-
+@section('title')
+    My Projects
+@endsection
+<title>Arfil's Landscaping Services</title>
+<link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
 @section('content')
-<div class="card">
-    <div class="card-header stylish-header">
-        <h1>Projects</h1>
-    </div>
-    <div class="card-body">
-       <!-- Display success message -->
-@if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
+
+    <div class="card shadow-sm rounded-lg border-1">
+        <div class="card-header stylish-header text-black">
+            <h1>Projects</h1>
+        </div>
+        <div class="card-body">
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <!-- Display error message -->
-            @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-            @endif
-
-
-        @if($projects->isEmpty())
-            <p class="text-muted">No projects available at this time.</p>
-        @else
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Booking ID</th>
-                            <th>Service</th>
-                            <th>Lot Area</th>
-                            <th>Total Cost</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($projects as $project)
+            @if ($projects->isEmpty())
+                <p class="text-muted">You do not have any projects at this time.</p>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-light">
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $project->service->name }}</td>
-                                <td>{{ $project->service_id }}</td>
-                                <td>{{ $project->lot_area }}</td>
-                                <td>₱{{ number_format($project->total_cost, 2) }}</td>
-                                <td>{{ $project->project_status }}</td>
-                                <td>
-                                    <!-- View Project Details Button -->
-                                    <button 
-                                        class="btn btn-sm btn-info" 
-                                        data-toggle="modal" 
-                                        data-target="#projectModal"
-                                        data-id="{{ $project->id }}"
-                                        data-booking_id="{{ $project->booking_id }}"
-                                        data-service_id="{{ $project->service_id }}"
-                                        data-lot_area="{{ $project->lot_area }}"
-                                        data-total_cost="{{ $project->total_cost }}"
-                                        data-status="{{ ucfirst($project->project_status) }}"
-                                        data-designs="{{ json_encode($project->service_id) }}"> <!-- assuming designs is a relationship or attribute -->
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                    <!-- Add additional action buttons if needed -->
-                                </td>
+                                <th>#</th>
+                                <th>Booking ID</th>
+                                <th>Name</th>
+                                <th>Service Name</th>
+                                <th>Site Visit Date</th>
+                                <th>Address</th>
+                                <th>Province</th>
+                                <th>City</th>
+                                <th>Lot Area</th>
+                                <th>Total Cost</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination Controls -->
+                        </thead>
+                        <tbody>
+                            @foreach ($projects as $project)
+                                <tr>
+                                    <td>{{ $project->id }}</td>
+                                    <td>{{ $project->booking->id }}</td>
+                                    <td>{{ $project->booking->name }}</td>
+                                    <td>{{ $project->service->name }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($project->booking->site_visit_date)->format('F j, Y') }}
+                                    </td>
+                                    <td>{{ $project->booking->address }}</td>
+                                    <td>{{ $project->booking->province }}</td>
+                                    <td>{{ $project->booking->city }}</td>
+                                    <td>{{ $project->lot_area }} sqm</td>
+                                    <td>₱{{ number_format($project->total_cost, 2) }}</td>
+                                    <td>
+                                        <span
+                                            class="badge 
+                                        @if ($project->project_status == 'pending') badge-warning 
+                                        @elseif($project->project_status == 'active') badge-success 
+                                        @elseif($project->project_status == 'hold') badge-danger    
+                                        @elseif($project->project_status == 'finish') badge-primary @endif">
+                                            {{ ucfirst($project->project_status) }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <button class="btn btn-outline-info btn-sm" data-toggle="modal"
+                                            data-target="#projectModal" data-id="{{ $project->id }}"
+                                            data-booking_id="{{ $project->booking->id }}"
+                                            data-service_name="{{ $project->service->name }}"
+                                            data-lot_area="{{ $project->lot_area }}"
+                                            data-total_cost="{{ $project->total_cost }}"
+                                            data-project_status="{{ $project->project_status }}"
+                                            data-site_visit_date="{{ $project->booking->site_visit_date }}"
+                                            data-address="{{ $project->booking->address }}"
+                                            data-province="{{ $project->booking->province }}"
+                                            data-city="{{ $project->booking->city }}">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
             <div class="pagination-wrapper">
                 {{ $projects->links('pagination::bootstrap-4') }}
             </div>
-        @endif
+        </div>
     </div>
-</div>
 
-<!-- Project Details Modal -->
-<div class="modal fade" id="projectModal" tabindex="-1" role="dialog" aria-labelledby="projectModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="projectModalLabel">Project Details</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p><strong>ID:</strong> <span id="modalId"></span></p>
-                <p><strong>Booking ID:</strong> <span id="modalBookingId"></span></p>
-                <p><strong>Service:</strong> <span id="modalServiceId"></span></p>
-                <p><strong>Lot Area:</strong> <span id="modalLotArea"></span></p>
-                <p><strong>Total Cost:</strong> ₱<span id="modalTotalCost"></span></p>
-                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <!-- Project Modal -->
+    <div class="modal fade" id="projectModal" tabindex="-1" role="dialog" aria-labelledby="projectModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white flex-column align-items-center"
+                    style="max-height: 80px; margin-bottom: 10px;">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ asset('arfil_logo1.png') }}" alt="Logo" class="img-fluid logo"
+                            style="max-height: 50px; margin-right: 10px;">
+                        <h5 class="modal-title" id="bookingModalLabel">Project Details</h5>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="receipt-details">
+                        <p><strong>Booking ID: </strong> <span id="modalBookingId"></span></p>
+                        <p><strong>Service Name: </strong> <span id="modalServiceName"></span></p>
+                        <p><strong>Site Visit Date: </strong> <span id="modalSiteVisitDate"></span></p>
+                        <p><strong>Address: </strong> <span id="modalAddress"></span></p>
+                        <p><strong>Province: </strong> <span id="modalProvince"></span></p>
+                        <p><strong>City: </strong> <span id="modalCity"></span></p>
+                        <p><strong>Lot Area: </strong> <span id="modalLotArea"></span></p>
+                        <p><strong>Total Cost: </strong> <span id="modalTotalCost"></span></p>
+                        <p><strong>Status: </strong>
+                            <span id="modalStatus" class="badge"></span>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endsection
 
 @section('styles')
-<style>
-    .card-header {
-        background: linear-gradient(135deg, #4CAF50, #81C784); /* Green Gradient */
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+    <style>
+        .custom-light-gray {
+            background-color: #e9ecef;
+            /* Example of a custom light gray */
+        }
 
-    .card-header h3 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: bold;
-    }
+        /* General Card Styles */
+        .card {
+            border-radius: 12px;
+            border: none;
+            overflow: hidden;
+        }
 
-    .card-tools .btn-primary {
-        background-color: #4CAF50;
-        border-color: #4CAF50;
-    }
+        .card-header {
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 1.5rem;
+            font-size: 1.25rem;
+        }
 
-    .card-body {
-        padding: 20px;
-    }
+        .card-body {
+            padding: 1.5rem;
+        }
 
-    .table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
+        .table {
+            margin-bottom: 0;
+        }
 
-    .table thead th {
-        background-color: #007bff;
-        color: #fff;
-        text-align: center;
-    }
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            color: #495057;
+        }
 
-    .table tbody tr:nth-child(odd) {
-        background-color: #f9f9f9;
-    }
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+        }
 
-    .table tbody tr:nth-child(even) {
-        background-color: #ffffff;
-    }
+        /* Pricing Factors Styles */
+        .pricing-factors {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: #f9f9f9;
+        }
 
-    .table td, .table th {
-        padding: 15px;
-        vertical-align: middle;
-        text-align: center;
-    }
+        .pricing-factors h5 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
 
-    .table img {
-        border-radius: 5px;
-    }
+        .pricing-factors p {
+            margin-bottom: 0.5rem;
+        }
 
-    .pagination-wrapper {
-        margin-top: 20px;
-        text-align: center;
-    }
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
 
-    .pagination-wrapper .pagination {
-        display: inline-flex;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+        .modal-header {
+            border-bottom: none;
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0;
+            background-color: #007bff;
+            color: #ffffff;
+        }
 
-    .pagination-wrapper .page-item {
-        margin: 0 2px;
-    }
+        .modal-body {
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+        }
 
-    .pagination-wrapper .page-link {
-        padding: 10px 15px;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: #fff;
-        border: 1px solid #007bff;
-    }
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: none;
+            background-color: #f9f9f9;
+            border-radius: 0 0 12px 12px;
+        }
 
-    .pagination-wrapper .page-link:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
+        .pagination-wrapper {
+            margin-top: 20px;
+            text-align: center;
+        }
 
-    .custom-alert {
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 15px;
-        font-size: 16px;
-        border: 1px solid transparent;
-    }
+        .pagination-wrapper .pagination {
+            display: inline-flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-    .custom-alert.alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        border-color: #c3e6cb;
-    }
+        .pagination-wrapper .page-item {
+            margin: 0 2px;
+        }
 
-    .custom-alert.alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-        border-color: #f5c6cb;
-    }
+        .pagination-wrapper .page-link {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: #fff;
+            border: 1px solid #007bff;
+        }
 
-    .modal-dialog.modal-lg {
-        max-width: 1000px;
-    }
+        .pagination-wrapper .page-link:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
 
-    .modal-content {
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+        .btn {
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
 
-    .modal-body {
-        padding: 20px;
-    }
+        .btn-info {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
 
-    .btn-info, .btn-primary {
-        padding: 5px 10px; /* Adjust button padding */
-    }
-</style>
+        .btn-light {
+            background-color: #f8f9fa;
+            color: #007bff;
+            border: 1px solid #007bff;
+        }
+
+        .btn-light:hover {
+            background-color: #e2e6ea;
+        }
+    </style>
 @endsection
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
 
 @section('scripts')
-<script>
-    $('#projectModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var id = button.data('id');
-        var bookingId = button.data('booking_id');
-        var lotArea = button.data('lot_area');
-        var serviceId = button.data('service_id'); // Get the service_id
-        var totalCost = button.data('total_cost');
-        var status = button.data('status');
-        var designs = button.data('designs'); // Assuming this is a list of designs
+    <script>
+        $('#projectModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var bookingId = button.data('booking_id');
+            var serviceName = button.data('service_name');
+            var lotArea = button.data('lot_area');
+            var totalCost = parseFloat(button.data('total_cost')); // Ensure total_cost is treated as a float
+            var projectStatus = button.data('project_status');
+            var siteVisitDate = button.data('site_visit_date');
+            var address = button.data('address');
+            var province = button.data('province');
+            var city = button.data('city');
 
-        // Update the modal's content.
-        var modal = $(this);
-        
-        modal.find('#modalId').text(id);
-        modal.find('#modalBookingId').text(bookingId);
-        modal.find('#modalServiceId').text(serviceId); // Update this line to show service_id
-        modal.find('#modalLotArea').text(lotArea);
-        modal.find('#modalTotalCost').text(totalCost); // Format total cost with peso symbol
-        modal.find('#modalStatus').text(status);
-        
-        // Display designs
-        var designsHtml = '';
-        if (designs && designs.length) {
-            designs.forEach(function(design) {
-                designsHtml += `<div class="mb-2">
-                    <img src="/path/to/designs/${design.image}" alt="${design.name}" class="img-fluid" />
-                    <p>${design.name}</p>
-                </div>`;
-            });
-        } else {
-            designsHtml = '<p>No designs available.</p>';
+            var modal = $(this);
+            modal.find('#modalBookingId').text(bookingId);
+            modal.find('#modalServiceName').text(serviceName);
+            modal.find('#modalSiteVisitDate').text(moment(siteVisitDate).format('MMMM D, YYYY'));
+            modal.find('#modalAddress').text(address);
+            modal.find('#modalProvince').text(province);
+            modal.find('#modalCity').text(city);
+            modal.find('#modalLotArea').text(lotArea + ' sqm');
+            modal.find('#modalTotalCost').text('₱' + totalCost.toLocaleString('en-US'));
+
+            var statusBadge = modal.find('#modalStatus');
+            statusBadge.removeClass('badge-warning badge-success badge-danger badge-primary');
+            statusBadge.addClass(getStatusBadgeClass(projectStatus));
+            statusBadge.text(projectStatus.charAt(0).toUpperCase() + projectStatus.slice(1));
+        });
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'pending':
+                    return 'badge-warning';
+                case 'active':
+                    return 'badge-success';
+                case 'hold':
+                    return 'badge-danger';
+                case 'finish':
+                    return 'badge-primary';
+                default:
+                    return '';
+            }
         }
-        modal.find('#modalDesigns').html(designsHtml);
-    });
-</script>
+    </script>
 @endsection

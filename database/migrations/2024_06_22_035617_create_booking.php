@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('province');
             $table->date('site_visit_date');
+            $table->enum('booking_status', ['pending', 'scheduled'])->default('pending');
             $table->timestamps();
 
             // Define foreign key constraints

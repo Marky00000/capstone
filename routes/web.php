@@ -95,6 +95,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create');
     Route::post('/projects/store', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/designs/{category}', [ProjectController::class, 'getDesigns']);
+    Route::post('/calculate-cost', [ProjectController::class, 'calculateCost'])->name('calculate.cost');
+
 
 
     Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory');
