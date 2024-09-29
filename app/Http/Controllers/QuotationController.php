@@ -16,8 +16,8 @@ class QuotationController extends Controller
     public function getDesigns($type)
 {
     // Define valid categories
-    $validCategories = ['landscaping', 'swimmingpool', 'maintenance', 'renovation'];
-    $validTypes = ['landscaping', 'swimmingpool'];
+    $validCategories = ['landscaping', 'swimmingpool', 'maintenance', 'renovation', 'package'];
+    $validTypes = ['landscaping', 'swimmingpool', 'maintenance', 'renovation', 'package'];
     
     
     // Validate service category
@@ -46,6 +46,15 @@ class QuotationController extends Controller
     return response()->json($designs);
 }
 
+
+public function details($id)
+{
+    // Retrieve the specific quotation using the id
+    $quotation = Quotation::findOrFail($id);
+
+    // Pass the quotation data to the view
+    return view('quotation.details', compact('quotation'));
+}
     
     
 
@@ -198,7 +207,7 @@ return view('quotation.form', compact('cities'));
         $user = auth()->user();
         $quotations = Quotation::where('user_id', $user->id)->get();
 
-        return view('quotations.index', compact('quotations'));
+        return view('quotation.index', compact('quotations'));
     }
 
     public function view()
@@ -282,6 +291,22 @@ return view('quotation.form', compact('cities'));
                 'very_hard' => 2900,
             ],
         ],
+        'package' => [
+            'northern_mindanao' => [
+                'very_easy' => 1000,
+                'easy' => 1100,
+                'medium' => 1200,
+                'hard' => 1300,
+                'very_hard' => 1400,
+            ],
+            'other' => [
+                'very_easy' => 1500,
+                'easy' => 1600,
+                'medium' => 1700,
+                'hard' => 1800,
+                'very_hard' => 1900,
+            ],
+        ],
     ];
 
     $workingDaysByService = [
@@ -333,6 +358,22 @@ return view('quotation.form', compact('cities'));
                 'very_hard' => 1,
             ],
         ],
+        'package' => [
+            'northern_mindanao' => [
+                'very_easy' => 1,
+                'easy' => 1,
+                'medium' => 1,
+                'hard' => 1,
+                'very_hard' => 1,
+            ],
+            'other' => [
+                'very_easy' => 1,
+                'easy' => 1,
+                'medium' => 1,
+                'hard' => 1,
+                'very_hard' => 1,
+            ],
+        ],
     ];
 
     // Determine region type
@@ -360,7 +401,7 @@ return view('quotation.form', compact('cities'));
     // Calculate working days based on lot area
     $lotArea = $request->lot_area;
 
-    if (in_array($effectiveServiceType, ['landscaping', 'swimmingpool'])) {
+    if (in_array($effectiveServiceType, ['landscaping', 'swimmingpool', 'renovation', 'package'])) {
         if ($lotArea <= 20) {
             $workingDays = 3;
         } elseif ($lotArea <= 30) {

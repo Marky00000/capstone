@@ -43,13 +43,13 @@
                             <td>{{ $service->description }}</td>
                             <td>
                                 <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#serviceModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}" data-description="{{ $service->description }}" data-design="{{ asset('storage/' . $service->design) }}">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-eye"></i> view
                                 </button>
                                 <a href="{{ route('swimmingpool-services.edit', $service->id) }}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Edit Service">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit"></i> edit
                                 </a>
                                 <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#archiveConfirmModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}">
-                                    <i class="fas fa-archive" style="color:white"></i>
+                                    <i class="fas fa-archive" style="color:white"></i> archive
                                 </button>
                             </td>
                         </tr>

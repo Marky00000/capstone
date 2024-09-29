@@ -28,7 +28,7 @@
             margin-bottom: 20px;
             padding: 20px 0;
             border-radius: 8px 8px 0 0;
-            background: #e0e0e0; /* Grayish background for header */
+            background: #256b76; /* Grayish background for header */
         }
         .header img {
             max-width: 80px; /* Adjust size of the logo */
@@ -57,6 +57,9 @@
             text-align: center;
             font-size: 12px;
             color: #aaa;
+        }
+        .header p a {
+            color: #555;
         }
     </style>
 </head>

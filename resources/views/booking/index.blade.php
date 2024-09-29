@@ -3,6 +3,8 @@
 @section('title', 'Bookings')
 <title>Arfil's Landscaping Services</title>
 <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 @section('content')
     <div class="pricing-factors mb-4">
         <h5>Booking Overview</h5>
@@ -10,12 +12,12 @@
     </div>
     <div class="card shadow-sm rounded-lg border-0">
         <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
-            <h4 class="mb-0">Bookings</h4>
+            <h1>Bookings</h1>
             <div>
-                <a href="{{ route('booking.form') }}" class="btn btn-info btn-sm">
+                <a href="{{ route('booking.form') }}" class="btn btn-light text-info btn-sm">
                     <i class="fas fa-calendar-check"></i> Make a Booking
                 </a>
-                <a href="{{ route('welcome') }}" class="btn btn-info btn-sm">
+                <a href="{{ route('welcome') }}" class="btn btn-light text-info btn-sm">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
             </div>
@@ -32,17 +34,18 @@
                     <table class="table table-bordered table-hover">
                         <thead class="thead-light">
                             <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Contact</th>
-                                <th>Email</th>
-                                <th>Address</th>
-                                <th>Province</th>
-                                <th>City</th>
-                                <th>Site Visit Date</th>
-                                <th>Booking Status</th>
-                                <th>Actions</th>
+                                <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
+                                <th><i class="fas fa-user icon-faded-gray"></i> Name</th>
+                                <th><i class="fas fa-phone-alt icon-faded-gray"></i> Contact</th>
+                                <th><i class="fas fa-envelope icon-faded-gray"></i> Email</th>
+                                <th><i class="fas fa-map-marker-alt icon-faded-gray"></i> Address</th>
+                                <th><i class="fas fa-map"></i> Province</th>
+                                <th><i class="fas fa-city icon-faded-gray"></i> City</th>
+                                <th><i class="fas fa-calendar-alt icon-faded-gray"></i> Site Visit Date</th>
+                                <th><i class="fas fa-clock icon-faded-gray"></i> Booking Status</th>
+                                <th><i class="fas fa-cogs icon-faded-gray"></i> Actions</th>
                             </tr>
+
                         </thead>
                         <tbody>
                             @foreach ($bookings as $booking)
@@ -64,22 +67,55 @@
                                     <td>
                                         <span
                                             class="badge 
-                                            @if ($booking->booking_status == 'pending') badge-warning 
-                                            @elseif($booking->booking_status == 'scheduled') badge-success 
-                                            @else badge-secondary @endif">
+                                        @if ($booking->booking_status == 'pending') badge-warning 
+                                        @elseif($booking->booking_status == 'confirmed') badge-primary 
+                                        @elseif($booking->booking_status == 'visited') badge-success 
+                                        @elseif($booking->booking_status == 'cancelled') badge-danger 
+                                        @elseif($booking->booking_status == 'declined') badge-secondary 
+                                        @else badge-secondary @endif">
+
+                                            @if ($booking->booking_status == 'pending')
+                                                <i class="fas fa-hourglass-half"></i>
+                                            @elseif($booking->booking_status == 'confirmed')
+                                                <i class="fas fa-check-circle"></i>
+                                            @elseif($booking->booking_status == 'visited')
+                                                <i class="fas fa-check-double"></i>
+                                            @elseif($booking->booking_status == 'cancelled')
+                                                <i class="fas fa-times-circle"></i>
+                                            @elseif($booking->booking_status == 'declined')
+                                                <i class="fas fa-ban"></i> <!-- Icon for declined status -->
+                                            @endif
+
                                             {{ ucfirst($booking->booking_status) }}
                                         </span>
+
+
+
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#bookingModal"
-                                            data-site_visit_date="{{ $booking->site_visit_date }} "
-                                            data-user_id="{{ $booking->user_id }}" data-name="{{ $booking->name }}"
-                                            data-address="{{ $booking->address }}"
-                                            data-province="{{ $booking->province }}" data-city="{{ $booking->city }}"
-                                            data-contact="{{ $booking->contact }}" data-email="{{ $booking->email }} "
-                                            data-booking_status="{{ $booking->booking_status }}">
+
+                                        <a href="{{ route('booking.view', $booking->id) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i> View
+                                        </a>
+
+                                        <!-- Add Edit Button -->
+                                        <a href="{{ route('booking.edit', $booking->id) }}" class="btn btn-warning btn-sm"
+                                            @if ($booking->booking_status !== 'pending') style="display: none;" @endif>
+                                            <i class="fas fa-pencil-alt"></i> Edit
+
+                                        </a>
+
+                                        <button type="button" class="btn btn-sm btn-secondary cancel-button"
+                                            data-toggle="modal" data-target="#cancelModal"
+                                            data-booking_id="{{ $booking->id }}"
+                                            @if (
+                                                $booking->booking_status === 'visited' ||
+                                                    $booking->booking_status === 'cancelled' ||
+                                                    $booking->booking_status === 'confirmed') style="display: none;" @endif>
+                                            <i class="fas fa-times"></i> Cancel
                                         </button>
+
+
                                     </td>
                                 </tr>
                             @endforeach
@@ -90,38 +126,29 @@
         </div>
     </div>
 
-    <!-- Booking Modal -->
-    <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
+
+
+    <!-- Cancel Booking Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white flex-column align-items-center"
-                    style="max-height: 80px; margin-bottom: 10px;">
-                    <div class="d-flex align-items-center">
-                        <img src="{{ asset('arfil_logo1.png') }}" alt="Logo" class="img-fluid logo"
-                            style="max-height: 50px; margin-right: 10px;">
-                        <h5 class="modal-title" id="bookingModalLabel">Booking Details</h5>
-                    </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
-                    <div class="receipt-details">
-                        <p><strong>Name: </strong> <span id="modalName"></span></p>
-                        <p><strong>Contact: </strong> <span id="modalContact"></span></p>
-                        <p><strong>Email: </strong> <span id="modalEmail"></span></p>
-                        <p><strong>Address: </strong> <span id="modalAddress"></span></p>
-                        <p><strong>Province: </strong> <span id="modalProvince"></span></p>
-                        <p><strong>City: </strong> <span id="modalCity"></span></p>
-                        <p><strong>Site Visit Date: </strong> <span id="modalSiteVisitDate"></span></p>
-                        <p><strong>Booking Status: </strong> <span id="modalBookingStatus"></span></p>
-                    </div>
+                    Are you sure you want to cancel this booking?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="confirmCancelButton" class="btn btn-danger">Yes, Cancel</button>
                 </div>
             </div>
         </div>
     </div>
-
 @endsection
 
 @section('styles')
@@ -266,52 +293,113 @@
     </style>
 @endsection
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 @section('scripts')
     <script>
         $(document).ready(function() {
+            // Show the booking details in the modal when clicking the "View" button
             $('#bookingModal').on('show.bs.modal', function(event) {
                 const button = $(event.relatedTarget);
-                const name = button.data('name');
-                const contact = button.data('contact');
-                const email = button.data('email');
-                const address = button.data('address');
-                const province = button.data('province');
-                const city = button.data('city');
-                const site_visit_date = button.data('site_visit_date');
-                const booking_status = button.data('booking_status');
+                const bookingDetails = {
+                    name: button.data('name'),
+                    contact: button.data('contact'),
+                    email: button.data('email'),
+                    address: button.data('address'),
+                    province: button.data('province'),
+                    city: button.data('city'),
+                    siteVisitDate: button.data('site_visit_date'),
+                    bookingStatus: button.data('booking_status'),
+                    bookingId: button.data('booking_id') // Store booking ID for later use
+                };
 
                 const modal = $(this);
-                modal.find('#modalName').text(name);
-                modal.find('#modalContact').text(contact);
-                modal.find('#modalEmail').text(email);
-                modal.find('#modalAddress').text(address);
-                modal.find('#modalProvince').text(province);
-                modal.find('#modalCity').text(city);
-                modal.find('#modalSiteVisitDate').text(site_visit_date ? new Date(site_visit_date)
-                    .toLocaleDateString() : 'No site visit scheduled.');
+                modal.find('#modalName').text(bookingDetails.name);
+                modal.find('#modalContact').text(bookingDetails.contact);
+                modal.find('#modalEmail').text(bookingDetails.email);
+                modal.find('#modalAddress').text(bookingDetails.address);
+                modal.find('#modalProvince').text(bookingDetails.province);
+                modal.find('#modalCity').text(bookingDetails.city);
+                modal.find('#modalSiteVisitDate').text(
+                    bookingDetails.siteVisitDate ?
+                    new Date(bookingDetails.siteVisitDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }) :
+                    'No site visit scheduled.'
+                );
 
-                // Set the booking status badge
-                var bookingBadgeClass = '';
-                switch (booking_status) {
-                    case 'pending':
-                        bookingBadgeClass = 'badge-warning';
-                        break;
-                    case 'confirmed':
-                        bookingBadgeClass = 'badge-success';
-                        break;
-                    case 'canceled':
-                        bookingBadgeClass = 'badge-danger';
-                        break;
-                    case 'completed':
-                        bookingBadgeClass = 'badge-primary';
-                        break;
-                }
+                // Set the booking status badge class and text
+                const bookingBadgeClass = getBadgeClass(bookingDetails.bookingStatus);
+                modal.find('#modalBookingStatus')
+                    .text(capitalizeFirstLetter(bookingDetails.bookingStatus))
+                    .removeClass()
+                    .addClass('badge ' + bookingBadgeClass);
+                modal.find('#confirmBookingButton').data('booking_id', bookingDetails.bookingId);
 
-                // Set the booking status badge
-                modal.find('#modalBookingStatus').text(booking_status.charAt(0).toUpperCase() +
-                        booking_status.slice(1))
-                    .removeClass().addClass('badge ' + bookingBadgeClass);
             });
+
+            // Show the cancel confirmation modal
+            $('#cancelModal').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const bookingId = button.data('booking_id');
+                $(this).data('booking_id', bookingId); // Store booking ID for confirmation
+            });
+
+            // Handle booking cancellation
+            $('#confirmCancelButton').on('click', function() {
+                const bookingId = $('#cancelModal').data('booking_id');
+
+                // Make an AJAX request to cancel the booking
+                $.ajax({
+                    url: `/bookings/${bookingId}/cancel`, // Adjust this route according to your application
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr(
+                            'content') // CSRF token for security
+                    },
+                    success: function(response) {
+                        $('#cancelModal').modal('hide');
+                        location.reload(); // Reload the page to reflect changes
+
+                        // Hide the cancel button for the specific booking
+                        const bookingStatus = response
+                            .booking_status; // Assuming the response contains booking status
+                        if (bookingStatus === 'visited') {
+                            $(`button[data-booking_id="${bookingId}"]`)
+                                .hide(); // Hide if visited
+                        }
+                    },
+                    error: function(xhr) {
+                        // Improved error handling
+                        const errorMessage = xhr.responseJSON?.message ||
+                            'Error canceling booking.';
+                        alert(errorMessage);
+                    }
+                });
+            });
+
+            // Helper function to get the badge class based on booking status
+            function getBadgeClass(status) {
+                switch (status) {
+                    case 'pending':
+                        return 'badge-warning';
+                    case 'cancelled':
+                        return 'badge-danger';
+                    case 'confirmed':
+                        return 'badge-primary'; // Fixed typo here
+                    case 'visited':
+                        return 'badge-success'; // Corrected mapping here
+                    default:
+                        return 'badge-secondary';
+                }
+            }
+
+            // Helper function to capitalize the first letter of a string
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
         });
     </script>
 @endsection

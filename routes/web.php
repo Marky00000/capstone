@@ -14,7 +14,11 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\RegisterController; 
 use App\Http\Controllers\LoginController;   
-use App\Http\Controllers\OTPController;  
+use App\Http\Controllers\OTPController; 
+use App\Http\Controllers\PackageController;
+use App\Http\Controllers\PaymentController;
+
+
 
 
 // Landing page
@@ -70,6 +74,14 @@ Route::middleware('auth')->group(function () {
     Route::put('renovation/{id}', [RenovationController::class, 'update'])->name('renovation-services.update');
     Route::put('renovation/{id}/archive', [RenovationController::class, 'archive'])->name('renovation-services.archive');
 
+     // Package routes
+     Route::get('package', [PackageController::class, 'index'])->name('package');
+     Route::get('package/create', [PackageController::class, 'create'])->name('package-services.create');
+     Route::post('package', [PackageController::class, 'store'])->name('package-services.store');
+     Route::get('package/{id}/edit', [PackageController::class, 'edit'])->name('package-services.edit');
+     Route::put('package/{id}', [PackageController::class, 'update'])->name('package-services.update');
+     Route::put('package/{id}/archive', [PackageController::class, 'archive'])->name('package-services.archive');
+
 
     Route::get('quotations', [QuotationController::class, 'index'])->name('quotation.index');
     Route::get('quotations/create', [QuotationController::class, 'create'])->name('quotation.create');
@@ -82,12 +94,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/save-design-id', [DesignController::class, 'saveDesignId'])->name('save.design.id');
     Route::get('/api/cities/{regionId}', [QuotationController::class, 'getCitiesByRegion']);
     Route::post('/calculate-price', [PricingController::class, 'calculatePrice']);
+    Route::get('/quotation/{id}', [QuotationController::class, 'details'])->name('quotation.details');
+
 
     Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
     Route::get('/booking/form', [BookingController::class, 'create'])->name('booking.form');
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
     Route::get('/bookings', [BookingController::class, 'adminBooking'])->name('booking.adminBooking');
-
+    Route::post('/bookings/{id}/confirm', [BookingController::class, 'confirmBooking'])->name('bookings.confirm');
+    Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancelBooking'])->name('bookings.cancel');
+    Route::post('/bookings/{id}/decline', [BookingController::class, 'declineBooking'])->name('bookings.decline');
+    Route::get('/bookings/view/{id}', [BookingController::class, 'view'])->name('booking.view');
+    Route::get('/booking/{id}/edit', [BookingController::class, 'edit'])->name('booking.edit');
+    Route::put('/bookings/{id}', [BookingController::class, 'update'])->name('booking.update');
+    
 
     
     Route::get('/projects/{booking_id?}', [ProjectController::class, 'index'])->name('project.index');
@@ -96,15 +116,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/store', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/designs/{category}', [ProjectController::class, 'getDesigns']);
     Route::post('/calculate-cost', [ProjectController::class, 'calculateCost'])->name('calculate.cost');
-
-
-
+    Route::get('/project/{id}', [ProjectController::class, 'view'])->name('project.view');
     Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory');
+
+    Route::get('/projects/{id}/pay', [PaymentController::class, 'create'])->name('pay');
+    // routes/web.php
+    Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::get('/create/{projectId}', [PaymentController::class, 'showPaymentForm'])->name('payment.create');
+    Route::post('/payments/store/initial', [PaymentController::class, 'storeInitial'])->name('payment.store.initial');
+    Route::post('/store/midterm', [PaymentController::class, 'storeMidterm'])->name('payment.store.midterm');
+    Route::post('/store/final', [PaymentController::class, 'storeFinal'])->name('payment.store.final');
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/project/{projectId}', [PaymentController::class, 'viewPayments'])->name('payments.view');
 
 
 
     });
-    
 
     Auth::routes();
 
@@ -124,6 +151,3 @@ Route::middleware('auth')->group(function () {
 
 
     Auth::routes();
-
-
-

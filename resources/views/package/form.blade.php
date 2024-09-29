@@ -3,8 +3,6 @@
 @section('title', isset($service) ? 'Edit Landscape Service' : 'Create Landscape Service')
 
 @section('content')
-<h4>{{ isset($service) ? 'Edit Landscape Service' : 'Create Landscape Service' }}</h4>
-
 <div class="container mt-5">
     <div class="card shadow-lg">
         <div class="card-header" style="background-image: url('{{ asset('landscaping.jpg') }}'); height: 180px; background-size: cover; background-position: center;">
@@ -32,7 +30,7 @@
                 </div>
             @endif
 
-            <form id="landscapeServiceForm" action="{{ isset($service) ? route('landscape-services.update', $service->id) : route('landscape-services.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="packageServiceForm" action="{{ isset($service) ? route('package-services.update', $service->id) : route('package-services.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @if (isset($service))
                     @method('PUT')
@@ -70,7 +68,7 @@
                 </div>
 
                 @if (!isset($service))
-                    <input type="hidden" name="category_id" value="{{ $landscape_id}}">
+                    <input type="hidden" name="category_id" value="{{ $package_id }}">
                 @endif
 
                 <div class="form-group mb-4">
@@ -82,7 +80,7 @@
                     <button type="submit" id="submitBtn" class="btn btn-outline-info rounded-pill px-4 py-2">
                         {{ isset($service) ? 'Update Service' : 'Add Service' }}
                     </button>
-                    <a href="{{ route('landscape') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2">Cancel</a>
+                    <a href="{{ route('package') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2">Cancel</a>
                 </div>
             </form>
         </div>

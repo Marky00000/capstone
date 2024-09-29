@@ -424,6 +424,8 @@
                         href="{{ route('services.byCategory', ['category' => 'renovation']) }}">Renovation</a>
                     <a class="dropdown-item"
                         href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
+                    <a class="dropdown-item"
+                        href="{{ route('services.byCategory', ['category' => 'package']) }}">packages</a>
                 </div>
             </li>
 
@@ -458,27 +460,52 @@
                     <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->name }}</span>
                     <img class="img-profile rounded-circle" src="{{ asset('man.png') }}" alt="Profile Image">
                 </a>
+                <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Profile
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Settings
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Activity Log
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('logout') }}" data-toggle="modal"
-                        data-target="#logoutModal">
-                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Logout
-                    </a>
+                    @auth
+                        <a class="dropdown-item" href="{{ route('quotation.view') }}">
+                            <i class="fas fa-file-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            My Quotations
+                        </a>
+
+                        <a class="dropdown-item" href="{{ route('booking.index') }}">
+                            <i class="fas fa-calendar-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            My Bookings
+                        </a>
+                        <a class="dropdown-item" href="{{ route('project.index') }}">
+                            <i class="fas fa-briefcase fa-sm fa-fw mr-2 text-gray-400"></i>
+                            My Projects
+                        </a>
+
+                        <a class="dropdown-item" href="{{ route('payments.index') }}">
+                            <i class="fas fa-dollar-sign fa-sm fa-fw mr-2 text-gray-400"></i>
+                            My Payments
+                        </a>
+                        
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Logout
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
+                    @else
+                        <a class="dropdown-item" href="{{ route('login') }}">
+                            <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Sign in
+                        </a>
+                        @if (Route::has('register'))
+                            <a class="dropdown-item" href="{{ route('register') }}">
+                                <i class="fas fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Sign Up
+                            </a>
+                        @endif
+                    @endauth
                 </div>
             </li>
+
         </ul>
     </nav>
 

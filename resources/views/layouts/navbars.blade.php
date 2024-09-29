@@ -31,7 +31,8 @@
                                 <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
                             </div>
                         </li>
-                        
+
+
                         <!-- Contact -->
                         <li class="nav-item mr-4">
                             <a class="nav-link text-dark" href="#contact">Contact</a>
@@ -84,6 +85,12 @@
                                     <i class="fas fa-briefcase fa-sm fa-fw mr-2 text-gray-400"></i>
                                     My Projects
                                 </a>
+
+                                <a class="dropdown-item" href="{{ route('payments.index') }}">
+                                    <i class="fas fa-dollar-sign fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    My Payments
+                                </a>
+                                
     
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

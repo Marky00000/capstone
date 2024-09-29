@@ -3,46 +3,46 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Service;
+use App\Models\Service; // Make sure to import the correct Package model
 use Illuminate\Support\Facades\Storage;
 
-class LandscapeController extends Controller
+class PackageController extends Controller
 {
     public function index()
     {
         try {
-            $services = Service::where('category', 'landscaping')
+            $service = Service::where('category', 'package')
                                 ->where('status', 'available')
                                 ->paginate(10); // Limit to 10 items per page
+
+
     
-            return view('landscape.index', ['services' => $services]);
+            return view('package.index', ['packages' => $service]);
         } catch (\Exception $e) {
             // Log the error message
-            \Log::error('Error fetching landscape services: ' . $e->getMessage());
-            return redirect()->route('dashboard')->with('error', 'Failed to fetch landscape services.');
+            \Log::error('Error fetching packages: ' . $e->getMessage());
+            return redirect()->route('dashboard')->with('error', 'Failed to fetch package packages.');
         }
     }
     
-    
-
-    public function countLandscapeServices()
+    public function countPackages()
     {
         try {
             return Service::where('status', 'available')->count();
         } catch (\Exception $e) {
-            Log::error('Error counting landscape services: ' . $e->getMessage());
+            \Log::error('Error counting packages: ' . $e->getMessage());
             return 0;
         }
     }
     
-    
-
     public function create()
     {
-        $landscape_id = 1; 
+        $package_id = 1; 
         $complexityLevels = ['very_easy','easy', 'medium', 'hard', 'very_hard'];
-        return view('landscape.form', ['landscape_id' => $landscape_id]);
+        $service = null; // Ensure this is defined
+        return view('package.form', ['package_id' => $package_id, 'complexityLevels' => $complexityLevels, 'service' => $service]);
     }
+    
 
     public function store(Request $request)
     {
@@ -56,22 +56,23 @@ class LandscapeController extends Controller
         // Store the design file
         $path = $request->file('design')->store('designs', 'public');
     
-        // Create the SwimmingPool service
+        // Create the Package
         Service::create([
             'name' => $request->name,
             'design' => $path,
             'complexity' => $request->complexity,
             'description' => $request->description,
-            'category' => 'landscaping', // Ensure the category is correctly set
+            'category' => 'package', // Ensure the category is correctly set
         ]);
     
-        return redirect()->route('landscape')->with('success', 'Service added successfully.');
+        return redirect()->route('package')->with('success', 'Package added successfully.');
     }
+
     public function edit($id)
     {
         $service = Service::findOrFail($id);
         $complexityLevels = ['very_easy','easy', 'medium', 'hard', 'very_hard'];
-        return view('landscape.form', [
+        return view('package.form', [
             'service' => $service,
             'complexityLevels' => $complexityLevels,
         ]);
@@ -99,9 +100,8 @@ class LandscapeController extends Controller
 
         $service->save();
 
-        return redirect()->route('landscape')->with('success', 'Service updated successfully.');
+        return redirect()->route('package')->with('success', 'Package updated successfully.');
     }
-
 
     public function archive($id)
     {
@@ -109,11 +109,10 @@ class LandscapeController extends Controller
             $service = Service::findOrFail($id);
             $service->status = 'archive';
             $service->save();
-            return redirect()->route('landscape')->with('success', 'Service archived successfully.');
+            return redirect()->route('package')->with('success', 'Package archived successfully.');
         } catch (\Exception $e) {
-            \Log::error('Error archiving service: ' . $e->getMessage());
-            return redirect()->route('landscape')->with('error', 'An error occurred while archiving the service.');
+            \Log::error('Error archiving package: ' . $e->getMessage());
+            return redirect()->route('package')->with('error', 'An error occurred while archiving the package.');
         }
     }
-    
 }

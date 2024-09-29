@@ -3,6 +3,8 @@
 @section('title')
 
 @section('content')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     <style>
         /* General Styles */
         .card {
@@ -18,8 +20,8 @@
 
         /* If you still need overflow: hidden for other reasons, consider overriding it here */
         /* .card {
-                                                            overflow: visible;
-                                                        } */
+                                                                    overflow: visible;
+                                                                } */
 
         .card-header {
             position: relative;
@@ -228,6 +230,23 @@
             display: block;
         }
 
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            /* Semi-transparent background */
+            backdrop-filter: blur(5px);
+            /* Blur effect */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            /* Behind alert message */
+        }
+
         /* Alert Styles */
         #alert-message {
             display: none;
@@ -271,6 +290,14 @@
                 </div>
             </div>
 
+            <div id="alert-message"
+                style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+                <div class="alert" id="alert-container">
+                    <i id="alert-icon" class="fas fa-exclamation-circle"></i>
+                    <span id="alert-text"></span>
+                </div>
+            </div>
+
             <div class="card-body p-4">
                 <div class="modal fade" id="designModal" tabindex="-1" aria-labelledby="designModalLabel"
                     aria-hidden="true">
@@ -303,6 +330,7 @@
                     <!-- Category Selection -->
                     <div class="form-group mb-4">
                         <label for="category" class="form-label">Category</label>
+                        <span class="text-danger">*</span>
                         <select name="category" class="form-select" id="category" required>
                             <option value="">Select a category</option>
                             <option value="landscaping" {{ old('category') == 'landscaping' ? 'selected' : '' }}>Landscaping
@@ -310,6 +338,10 @@
                             <option value="swimmingpool" {{ old('category') == 'swimmingpool' ? 'selected' : '' }}>Swimming
                                 Pool</option>
                             <option value="renovation" {{ old('category') == 'renovation' ? 'selected' : '' }}>Renovation
+                            </option>
+                            <option value="package" {{ old('category') == 'package' ? 'selected' : '' }}>Package
+                            </option>
+                            <option value="maintenance" {{ old('category') == 'maintenance' ? 'selected' : '' }}>Maintenance
                             </option>
                         </select>
                     </div>
@@ -320,51 +352,54 @@
                     <input type="hidden" name="service_id" id="service_id">
                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
-                    <!-- Lot Area -->
                     <div class="mb-4">
-                        <label for="lot_area" class="form-label">Lot Area (sqm)</label>
-                        <input type="number" name="lot_area" id="lot_area"
+                        <label for="lot_area" class="form-label">Lot Area (sqm) <span class="text-danger">*</span></label>
+                        <input placeholder="min 20 - max 300" name="lot_area" id="lot_area"
                             class="form-control @error('lot_area') is-invalid @enderror" value="{{ old('lot_area') }}"
-                            min="0" step="0.01" required>
+                            min="20" max="300" step="0.01" required>
                         @error('lot_area')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                        <div class="invalid-feedback" id="lotAreaFeedback" style="display: none;">
+                            Lot Area must be between 20 and 300 sqm.
+                        </div>
                     </div>
 
                     <!-- Discount Selection -->
                     <div class="mb-4">
-                        <label for="discount" class="form-label">Discount</label>
+                        <label for="discount" class="form-label">Discount<span class="text-danger">*</span></label>
                         <select name="discount" class="form-select" id="discount">
                             <option value="">Select a discount</option>
                             @foreach ($discounts as $discount)
                                 <!-- Assume $discounts is passed from the controller -->
-                                <option value="{{ $discount }}">{{ $discount }}</option>
+                                <option value="{{ $discount }}">{{ $discount }}%</option>
                             @endforeach
                         </select>
                     </div>
 
                     <!-- Design ID Display -->
                     <div class="text-center mb-4">
-                        <strong>Service ID:</strong> <span id="selectedServiceName">Not selected</span>
+                        <strong>Service Name:</strong> <span id="selectedServiceName">Not selected</span>
                     </div>
 
                     <!-- Add Design Button -->
                     <div class="text-center mb-4">
-                        <button type="button" class="btn btn-grey" id="addDesignButton">
+                        <button type="button" class="btn btn-outline-secondary" id="addDesignButton">
                             <i class="fas fa-plus me-2"></i> Add Design
                         </button>
                     </div>
-                    <div id="totalCost" class="total-cost">
-                        Total Cost: <span id="costValue">₱0.00</span>
-                    </div>
-
 
                     <!-- Save and Cancel Buttons -->
                     <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-outline-info rounded-pill px-4 py-2">Save Project</button>
+                        <button type="submit" class="btn btn-sm btn-info me-2 rounded-pill px-4 py-2">
+                            <i class="fas fa-save me-1"></i> Save Project
+                        </button>
                         <a href="{{ route('project.adminIndex') }}"
-                            class="btn btn-outline-secondary rounded-pill px-4 py-2">Cancel</a>
+                            class="btn btn-sm btn-secondary me-2 rounded-pill px-4 py-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -374,6 +409,8 @@
 @endsection
 
 @section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -381,7 +418,6 @@
             // Event listener for input changes
             $('#category, #complexity, #lot_area, #discount').on('change input', function() {
                 const selectedCategory = $('#category').val();
-                const selectedComplexity = $('#complexity').val(); // Assuming there's a complexity dropdown
                 const lotArea = parseFloat($('#lot_area').val()) || 0; // Get lot area
                 const discount = parseFloat($('#discount').val()) || 0; // Get discount percentage
 
@@ -393,7 +429,6 @@
                         type: 'POST',
                         data: {
                             category: selectedCategory,
-                            complexity: selectedComplexity,
                             lot_area: lotArea,
                             discount: discount,
                             _token: $('meta[name="csrf-token"]').attr(
@@ -401,7 +436,7 @@
                         },
                         success: function(response) {
                             $('#costValue').text('₱' + parseFloat(response.cost).toFixed(
-                            2)); // Update displayed cost
+                                2)); // Update displayed cost
                         },
                         error: function(xhr) {
                             $('#costValue').text('₱0.00'); // Reset to zero if an error occurs
@@ -510,12 +545,14 @@
                                     var id = $(this).data('id');
                                     var name = $(this).data('name');
                                     var complexity = $(this).data(
-                                    'complexity'); // Get the complexity of the service
+                                        'complexity'
+                                    ); // Get the complexity of the service
                                     $('#service_id').val(id);
                                     $('#selectedServiceId').text(id);
                                     $('#selectedServiceName').text(name);
                                     $('#selectedComplexity').val(
-                                    complexity); // Store complexity in a hidden field
+                                        complexity
+                                    ); // Store complexity in a hidden field
 
                                     // Hide the modal using Bootstrap's method
                                     var designModal = bootstrap.Modal.getInstance(
@@ -527,9 +564,9 @@
                                     // Ensure the backdrop is removed and CSS adjustments are reset
                                     $('.modal-backdrop').remove();
                                     $('body').removeClass(
-                                    'modal-open'); // Allow scrolling again
+                                        'modal-open'); // Allow scrolling again
                                     $('body').css('padding-right',
-                                    ''); // Reset any padding adjustments
+                                        ''); // Reset any padding adjustments
                                 });
 
                                 // Show the modal
@@ -552,4 +589,3 @@
 
 
 @endsection
-

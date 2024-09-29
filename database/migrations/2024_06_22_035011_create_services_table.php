@@ -13,7 +13,7 @@ class CreateServicesTable extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id(); 
-            $table->enum('category', ['landscaping', 'swimmingpool', 'maintenance', 'renovation']);
+            $table->enum('category', ['landscaping', 'swimmingpool', 'maintenance', 'renovation','package']);
             $table->string('name');
             $table->string('design');
             $table->text('description');
@@ -29,7 +29,7 @@ class CreateServicesTable extends Migration
                 'name' => 'Landscaping Maintenance Service',
                 'design' => 'designs/yeYQCJ9fwaiG24PN5MvX70GEDCCo70MmKeIdCAj9.jpg',
                 'description' => 'Our Landscaping Maintenance Service provides comprehensive upkeep for your outdoor spaces, including lawn care, plant health monitoring, and seasonal cleanups. Designed to ensure your landscape remains vibrant and well-maintained throughout the year, this service caters specifically to the unique needs of landscaping, offering professional and reliable care for a pristine environment.',
-                'complexity' => 'medium',
+                'complexity' => 'easy',
                 'status' => 'available',
                 'type' => 'landscaping',
                 'created_at' => now(),
@@ -40,7 +40,7 @@ class CreateServicesTable extends Migration
                 'name' => 'Swimming Pool Maintenance Service',
                 'design' => 'designs/M1YmF9BwZkQrQ70Jrmd0kLz03Sn3h2PJi6F96Qc2.jpg',
                 'description' => 'The Swimming Pool Maintenance Service offers meticulous care for your pool, including cleaning, chemical balancing, and equipment checks. Our service ensures that your swimming pool remains in optimal condition, providing a safe and enjoyable swimming experience. Ideal for keeping your pool sparkling clean and functioning smoothly throughout the year.',
-                'complexity' => 'medium',
+                'complexity' => 'easy',
                 'status' => 'available',
                 'type' => 'swimmingpool',
                 'created_at' => now(),

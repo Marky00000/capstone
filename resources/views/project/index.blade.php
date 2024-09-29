@@ -1,10 +1,13 @@
 @extends('layouts.app')
 
-@section('title')
-    My Projects
+@section('title', 'My Projects')
+
+<!-- Move the title and favicon link into the head section -->
+@section('head')
+    <title>Arfil's Landscaping Services</title>
+    <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
 @endsection
-<title>Arfil's Landscaping Services</title>
-<link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
+
 @section('content')
     <div class="pricing-factors mb-4">
         <h5>Project Overview</h5>
@@ -32,18 +35,21 @@
                     <table class="table table-striped table-bordered">
                         <thead class="thead-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Booking ID</th>
-                                <th>Service Name</th>
-                                <th>Site Visit Date</th>
-                                <th>Address</th>
-                                <th>Province</th>
-                                <th>City</th>
-                                <th>Lot Area</th>
-                                <th>Total Cost</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
+                                <th><i class="fas fa-book"></i> Booking ID</th>
+                                <th><i class="fas fa-concierge-bell"></i> Service Name</th>
+                                <th><i class="fas fa-calendar-alt"></i> Site Visit Date</th>
+                                <th><i class="fas fa-map-marker-alt"></i> Address</th>
+                                <th><i class="fas fa-map"></i> Province</th>
+                                <th><i class="fas fa-city"></i> City</th>
+                                <th><i class="fas fa-arrows-alt-h icon-faded-gray"></i> Lot Area</th>
+                                <th><i class="fas fa-money-bill-wave"></i> Total Cost</th>
+                                <th><i class="fas fa-money-bill-wave"></i> Total Paid</th>
+
+                                <th><i class="fas fa-clipboard-check"></i> Status</th>
+                                <th><i class="fas fa-cogs"></i> Actions</th>
                             </tr>
+
                         </thead>
                         <tbody>
                             @foreach ($projects as $project)
@@ -56,33 +62,67 @@
                                     <td>{{ $project->booking->address }}</td>
                                     <td>{{ $project->booking->province }}</td>
                                     <td>{{ $project->booking->city }}</td>
-                                    <td>{{ $project->lot_area }}</td>
-                                    <td>₱{{ number_format($project->total_cost, 2) }} </td>
+                                    <td>{{ $project->lot_area }} sqm</td>
+                                    <td>₱{{ number_format($project->total_cost, 2) }}</td>
+                                    <td>₱{{ number_format($project->total_paid, 2) }}</td>
+
                                     <td>
-                                        <span
-                                            class="badge 
-                                        @if ($project->project_status == 'pending') badge-warning 
-                                        @elseif($project->project_status == 'active') badge-success 
-                                        @elseif($project->project_status == 'hold') badge-danger    
-                                        @elseif($project->project_status == 'finish') badge-primary @endif">
+                                        @php
+                                            // Set the icon class based on the project status
+                                            $iconClass = '';
+                                            $badgeClass = '';
+
+                                            if ($project->project_status == 'pending') {
+                                                $iconClass = 'fas fa-hourglass-start';
+                                                $badgeClass = 'badge-warning';
+                                            } elseif ($project->project_status == 'active') {
+                                                $iconClass = 'fas fa-check-circle';
+                                                $badgeClass = 'badge-success';
+                                            } elseif ($project->project_status == 'hold') {
+                                                $iconClass = 'fas fa-pause-circle';
+                                                $badgeClass = 'badge-danger';
+                                            } elseif ($project->project_status == 'finish') {
+                                                $iconClass = 'fas fa-check-double';
+                                                $badgeClass = 'badge-primary';
+                                            }
+                                        @endphp
+
+                                        <span class="badge {{ $badgeClass }}">
+                                            <i class="{{ $iconClass }}"></i>
                                             {{ ucfirst($project->project_status) }}
                                         </span>
                                     </td>
 
                                     <td>
-                                        <button class="btn btn-outline-info btn-sm" data-toggle="modal"
-                                            data-target="#projectModal" data-id="{{ $project->id }}"
-                                            data-booking_id="{{ $project->booking->id }}"
-                                            data-service_id="{{ $project->service_id }}"
-                                            data-lot_area="{{ $project->lot_area }}"
-                                            data-total_cost="{{ $project->total_cost }}"
-                                            data-project_status="{{ $project->project_status }}"
-                                            data-site_visit_date="{{ $project->booking->site_visit_date }}"
-                                            data-address="{{ $project->booking->address }}"
-                                            data-province="{{ $project->booking->province }}"
-                                            data-city="{{ $project->booking->city }}">
+                                        <a href="{{ route('project.view', $project->id) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i> View
-                                        </button>
+                                        </a>
+
+
+                                        @php
+                                            $totalCost = $project->total_cost;
+                                            $totalPaid = $project->total_paid;
+                                            $buttonLabel = '';
+
+                                            // Determine button label based on total_paid
+                                            if ($totalPaid < 0.5 * $totalCost) {
+                                                $buttonLabel = 'Initial Payment';
+                                            } elseif ($totalPaid < 0.75 * $totalCost) {
+                                                $buttonLabel = 'Midterm Payment';
+                                            } elseif ($totalPaid < $totalCost) {
+                                                $buttonLabel = 'Final Payment';
+                                            }
+                                        @endphp
+
+                                        @if ($totalPaid < $totalCost)
+                                            <!-- Show button only if total_paid is less than total_cost -->
+                                            <a href="{{ route('pay', ['id' => $project->id]) }}"
+                                                class="btn btn-success btn-sm">
+                                                <i class="fas fa-dollar-sign"></i> {{ $buttonLabel }}
+                                            </a>
+                                        @endif
+
+
                                     </td>
                                 </tr>
                             @endforeach
@@ -92,42 +132,6 @@
             @endif
             <div class="pagination-wrapper">
                 {{ $projects->links('pagination::bootstrap-4') }}
-            </div>
-        </div>
-    </div>
-
-    <!-- Project Modal -->
-    <div class="modal fade" id="projectModal" tabindex="-1" role="dialog" aria-labelledby="projectModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white flex-column align-items-center"
-                    style="max-height: 80px; margin-bottom: 10px;">
-                    <div class="d-flex align-items-center">
-                        <img src="{{ asset('arfil_logo1.png') }}" alt="Logo" class="img-fluid logo"
-                            style="max-height: 50px; margin-right: 10px;">
-                        <h5 class="modal-title" id="bookingModalLabel">Project Details</h5>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <div class="receipt-details">
-                        <p><strong>ID: </strong> <span id="modalId"></span></p>
-                        <p><strong>Booking ID: </strong> <span id="modalBookingId"></span></p>
-                        <p><strong>Service ID: </strong> <span id="modalServiceId"></span></p>
-                        <p><strong>Site Visit Date: </strong> <span id="modalSiteVisitDate"></span></p>
-                        <p><strong>Address: </strong> <span id="modalAddress"></span></p>
-                        <p><strong>Province: </strong> <span id="modalProvince"></span></p>
-                        <p><strong>City: </strong> <span id="modalCity"></span></p>
-                        <p><strong>Lot Area: </strong> <span id="modalLotArea"></span></p>
-                        <p><strong>Total Cost: </strong> <span id="modalTotalCost"></span></p>
-                        <p><strong>Status: </strong>
-                            <span id="modalStatus" class="badge"></span>
-                        </p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
             </div>
         </div>
     </div>
@@ -316,8 +320,8 @@
                     break;
             }
 
-            modal.find('#modalStatus').text(project_status.charAt(0).toUpperCase() + project_status.slice(1))
-                .removeClass().addClass('badge ' + badgeClass);
+            modal.find('#modalStatus').text(project_status.charAt(0).toUpperCase() + project_status.slice(1)).attr(
+                'class', 'badge ' + badgeClass);
         });
     </script>
 @endsection

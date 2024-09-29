@@ -2,7 +2,7 @@
     <ul class="navbar-nav bg-gradient-info sidebar sidebar-dark accordion" id="accordionSidebar">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="dashboard">
             <div class="sidebar-brand-icon rotate-n-15"></div>
-            <img src="{{ asset('arfil_logo.png') }}" class="img-fluid" alt="Logo" style="max-width: 100px;">
+            <img src="{{ asset('arfil_logo.png') }}" class="img-fluid" alt="Logo" style="max-width: 140px;">
         </a>
 
         <!-- Sidebar - Brand -->
@@ -41,6 +41,9 @@
                     </a>
                     <a class="collapse-item" href="{{ route('renovation') }}">
                         <i class="fas fa-tools"></i> Renovation Services
+                    </a>
+                    <a class="collapse-item" href="{{ route('package') }}">
+                        <i class="fas fa-tools"></i> Packages
                     </a>
                 </div>
             </div>

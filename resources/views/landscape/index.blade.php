@@ -3,6 +3,8 @@
 @section('title', 'Landscape Services')
 
 @section('content')
+<h4>Landscape Services</h4>
+
 <div class="card">
     <div class="card-header stylish-header">
         <div class="card-tools">
@@ -43,13 +45,13 @@
                             <td>{{ $service->description }}</td>
                             <td>
                                 <button class="btn btn-sm btn-info" data-toggle="modal" title="View Service" data-target="#serviceModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}" data-description="{{ $service->description }}" data-design="{{ asset('storage/' . $service->design) }}">
-                                    <i class="fas fa-eye"></i> 
+                                    <i class="fas fa-eye"></i> view
                                 </button>
                                 <a href="{{ route('landscape-services.edit', $service->id) }}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Edit Service">
-                                    <i class="fas fa-edit"></i> 
+                                    <i class="fas fa-edit"></i> edit
                                 </a>
                                 <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#archiveConfirmModal" data-toggle="tooltip" title="Archive Service" data-id="{{ $service->id }}" data-name="{{ $service->name }}">
-                                    <i class="fas fa-archive"  style="color: white;"></i> 
+                                    <i class="fas fa-archive"  style="color: white;"></i> archive
                                 </button>
                             </td>
                         </tr>

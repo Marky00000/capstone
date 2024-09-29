@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Address; // Ensure this is imported
 
 class SendOtpMail extends Mailable
 {
@@ -20,21 +21,13 @@ class SendOtpMail extends Mailable
         $this->otp = $otp;
     }
 
-    public function build()
-    {
-        return $this->from('no-reply@arfil-landscaping.com', 'Arfil\'s Landscaping Services')
-                    ->view('emails.send_otp')
-                    ->subject('Your OTP Code')
-                    ->with(['otp' => $this->otp]);
-    }
-
     /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('no-reply@arfil-landscaping.com', "Arfil's Landscaping Services"), // Updated here
+            from: new Address('no-reply@arfil-landscaping.com', "Arfil's Landscaping Services"), // Sender's name and email
             subject: 'Your OTP Code'
         );
     }
@@ -47,6 +40,12 @@ class SendOtpMail extends Mailable
         return new Content(
             view: 'emails.send_otp', // Ensure this matches your email view
         );
+    }
+
+    public function build()
+    {
+        return $this->view('emails.send_otp')
+                    ->with(['otp' => $this->otp]);
     }
 
     /**

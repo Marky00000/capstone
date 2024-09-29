@@ -32,6 +32,7 @@
                                 <th>Province</th>
                                 <th>City</th>
                                 <th>Lot Area</th>
+                                <th>Discount</th>
                                 <th>Total Cost</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -50,20 +51,31 @@
                                     <td>{{ $project->booking->province }}</td>
                                     <td>{{ $project->booking->city }}</td>
                                     <td>{{ $project->lot_area }} sqm</td>
+                                    <td>{{ ($project->discount) }}%</td>
                                     <td>₱{{ number_format($project->total_cost, 2) }}</td>
                                     <td>
-                                        <span
-                                            class="badge 
+                                        <span class="badge 
                                         @if ($project->project_status == 'pending') badge-warning 
                                         @elseif($project->project_status == 'active') badge-success 
                                         @elseif($project->project_status == 'hold') badge-danger    
                                         @elseif($project->project_status == 'finish') badge-primary @endif">
+                                            @if ($project->project_status == 'pending')
+                                                <i class="fas fa-hourglass-half"></i> 
+                                            @elseif($project->project_status == 'active')
+                                            <i class="fas fa-spinner fa-spin"></i>  <!-- Changed icon for active to spinner -->
+                                            @elseif($project->project_status == 'hold')
+                                                <i class="fas fa-pause-circle"></i> 
+                                            @elseif($project->project_status == 'finish')
+                                                <i class="fas fa-check"></i>  <!-- Changed icon for finish to check -->
+                                            @endif
                                             {{ ucfirst($project->project_status) }}
                                         </span>
                                     </td>
+                                    
+                                    
 
                                     <td>
-                                        <button class="btn btn-outline-info btn-sm" data-toggle="modal"
+                                        <button class="btn btn-sm btn-info" data-toggle="modal"
                                             data-target="#projectModal" data-id="{{ $project->id }}"
                                             data-booking_id="{{ $project->booking->id }}"
                                             data-service_name="{{ $project->service->name }}"

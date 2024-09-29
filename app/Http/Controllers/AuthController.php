@@ -65,6 +65,7 @@ class AuthController extends Controller
             if (Auth::user()->usertype === 'admin') {
                 return redirect()->route('dashboard');
             } else {
+                
                 return redirect('/');
             }
         }

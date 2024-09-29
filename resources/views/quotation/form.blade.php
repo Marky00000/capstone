@@ -638,6 +638,8 @@
                                 <option value="landscaping">Landscaping</option>
                                 <option value="swimmingpool">Swimming Pool</option>
                                 <option value="renovation">Renovation</option>
+                                <option value="package">Package</option>
+
                             </select>
                             @error('service')
                                 <span class="invalid-feedback" role="alert">

@@ -72,7 +72,8 @@ class OTPController extends Controller
             ]);
     
             Auth::login($checkUser);
-    
+            session()->flash('alert', 'You have successfully logged in!');
+
             // Route based on user role
             if ($checkUser->usertype === 'admin') {
                 return redirect()->route('dashboard'); // Adjust the route name if needed
