@@ -34,6 +34,7 @@
                                 <th>Lot Area</th>
                                 <th>Discount</th>
                                 <th>Total Cost</th>
+                                <th>Approved Paid</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -53,6 +54,8 @@
                                     <td>{{ $project->lot_area }} sqm</td>
                                     <td>{{ ($project->discount) }}%</td>
                                     <td>₱{{ number_format($project->total_cost, 2) }}</td>
+                                    <td>₱{{ number_format($project->total_paid, 2) }}</td>
+
                                     <td>
                                         <span class="badge 
                                         @if ($project->project_status == 'pending') badge-warning 
@@ -78,6 +81,7 @@
                                         <button class="btn btn-sm btn-info" data-toggle="modal"
                                             data-target="#projectModal" data-id="{{ $project->id }}"
                                             data-booking_id="{{ $project->booking->id }}"
+                                            data-booking_name="{{ $project->booking->name }}"
                                             data-service_name="{{ $project->service->name }}"
                                             data-lot_area="{{ $project->lot_area }}"
                                             data-total_cost="{{ $project->total_cost }}"
@@ -117,6 +121,7 @@
                 <div class="modal-body">
                     <div class="receipt-details">
                         <p><strong>Booking ID: </strong> <span id="modalBookingId"></span></p>
+                        <p><strong>Customer: </strong> <span id="modalBookingName"></span></p>
                         <p><strong>Service Name: </strong> <span id="modalServiceName"></span></p>
                         <p><strong>Site Visit Date: </strong> <span id="modalSiteVisitDate"></span></p>
                         <p><strong>Address: </strong> <span id="modalAddress"></span></p>
@@ -279,6 +284,7 @@
         $('#projectModal').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget);
             var bookingId = button.data('booking_id');
+            var bookingName = button.data('booking_name');
             var serviceName = button.data('service_name');
             var lotArea = button.data('lot_area');
             var totalCost = parseFloat(button.data('total_cost')); // Ensure total_cost is treated as a float
@@ -290,6 +296,7 @@
 
             var modal = $(this);
             modal.find('#modalBookingId').text(bookingId);
+            modal.find('#modalBookingName').text(bookingName);
             modal.find('#modalServiceName').text(serviceName);
             modal.find('#modalSiteVisitDate').text(moment(siteVisitDate).format('MMMM D, YYYY'));
             modal.find('#modalAddress').text(address);

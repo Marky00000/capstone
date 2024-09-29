@@ -122,12 +122,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{id}/pay', [PaymentController::class, 'create'])->name('pay');
     // routes/web.php
     Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::get('/admin/payments/{id}', [PaymentController::class, 'adminshow'])->name('admin.payments.show');
     Route::get('/create/{projectId}', [PaymentController::class, 'showPaymentForm'])->name('payment.create');
     Route::post('/payments/store/initial', [PaymentController::class, 'storeInitial'])->name('payment.store.initial');
     Route::post('/store/midterm', [PaymentController::class, 'storeMidterm'])->name('payment.store.midterm');
     Route::post('/store/final', [PaymentController::class, 'storeFinal'])->name('payment.store.final');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/admin/payments', [PaymentController::class, 'adminIndex'])->name('admin.payments.index');
     Route::get('/payments/project/{projectId}', [PaymentController::class, 'viewPayments'])->name('payments.view');
+    Route::get('/payments/project/{projectId}', [PaymentController::class, 'adminviewPayments'])->name('admin.payments.view');
+    Route::post('/admin/payments/{id}/approve', [PaymentController::class, 'approve'])->name('admin.payments.approve');
+    Route::post('/admin/payments/{id}/decline', [PaymentController::class, 'decline'])->name('admin.payments.decline');
+    Route::get('/admin/payments/{id}/edit', [PaymentController::class, 'edit'])->name('admin.payments.edit');
+    Route::post('/admin/payments/{id}/update', [PaymentController::class, 'update'])->name('admin.payments.update');
+
+
 
 
 

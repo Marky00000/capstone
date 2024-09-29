@@ -28,6 +28,9 @@
                             class="text-success">₱{{ number_format($project->total_cost * 0.25, 2) }}</span></p>
                     <p class="fw-bold">Total Paid: <span
                             class="text-success">₱{{ number_format($project->total_paid, 2) }}</span></p>
+                    <p class="fw-bold">Remaining Payables: <span
+                            class="text-danger">₱{{ number_format($project->total_cost - $project->total_paid, 2) }}</span>
+                    </p>
                 </div>
 
                 <!-- Vertical Divider -->
@@ -55,13 +58,11 @@
                         <input type="number" name="payment_amount" id="payment_amount" class="form-control" required
                             min="{{ $project->total_paid == 0 ? $project->total_cost * 0.25 : 0 }}"
                             max="{{ $project->total_cost - $project->total_paid }}" step="0.01">
-                        <div class="form-text text-muted">
+                        <div class="form-text text-primary">
                             The payment amount must be between ₱{{ number_format($project->total_cost * 0.25, 2) }} and
                             ₱{{ number_format($project->total_cost - $project->total_paid, 2) }}.
                         </div>
-                        <p class="fw-bold">Remaining Payables: <span
-                                class="text-danger">₱{{ number_format($project->total_cost - $project->total_paid, 2) }}</span>
-                        </p>
+
                     </div>
 
 

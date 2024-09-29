@@ -26,6 +26,17 @@ class PaymentController extends Controller
         return view('payment.initial', compact('project'));
     }
 
+    public function adminIndex()
+    {
+        // Fetch all payments with additional data if necessary
+        $payments = Payment::all(); // You can add admin-specific filtering here if needed
+    
+        // Return the admin payments view, passing the payments data
+        return view('payment.adminIndex', compact('payments'));
+    }
+    
+
+
     public function storeInitial(Request $request)
     {
         // Validate the incoming request data for the initial payment
@@ -42,24 +53,24 @@ class PaymentController extends Controller
         // Find the project
         $project = Project::findOrFail($request->project_id);
     
+        // Determine the payment type based on project cost
+        if ($request->payment_amount <= ($project->total_cost * 0.50)) {
+            $paymentType = 'initial';
+        } elseif ($request->payment_amount > ($project->total_cost * 0.50) && $request->payment_amount <= ($project->total_cost * 0.80)) {
+            $paymentType = 'midterm';
+        } else {
+            $paymentType = 'final';
+        }
+    
         // Create a new payment record
         $payment = Payment::create([
             'project_id' => $request->project_id,
-            'payment_type' => 'initial',
+            'payment_type' => $paymentType,
             'payment_image' => $imagePath,
             'payment_method' => $request->payment_method,
             'amount' => $request->payment_amount, // Store the payment amount
             'remarks' => $request->remarks, // Add remarks if needed
         ]);
-    
-        // Calculate the total paid amount for all payments of this project
-        $totalPaid = Payment::where('project_id', $request->project_id)->sum('amount');
-    
-        // Update the total_paid field in the project
-        $project->total_paid = $totalPaid;
-        
-        // Save the updated project
-        $project->save();
     
         // Return a JSON response
         return response()->json([
@@ -68,9 +79,55 @@ class PaymentController extends Controller
         ]);
     }
     
+    public function edit($id)
+    {
+        // Retrieve the payment by its ID
+        $payment = Payment::findOrFail($id);
+    
+        // Get the associated project using the relationship
+        $project = $payment->project; // Assuming you have a 'project' relationship in Payment model
+    
+        // Pass both payment and project data to the view
+        return view('payment.adminEdit', compact('payment', 'project'));
+    }
+    
+    public function update(Request $request, $id)
+{
+    // Validate the request
+    $request->validate([
+        'payment_method' => 'required|string',
+        'amount' => 'required|numeric|min:0',
+    ]);
+
+    // Find the payment record
+    $payment = Payment::findOrFail($id);
+
+    // Update payment details
+    $payment->payment_method = $request->input('payment_method');
+    $payment->amount = $request->input('amount');
+    $payment->payment_status = 'approve'; // Set status to approved
+    $payment->save();
+
+    // Update total_paid in the project
+    $project = Project::findOrFail($payment->project_id);
+    $totalPayments = Payment::where('project_id', $project->id)
+        ->where('payment_status', 'approve') // Only sum approved payments
+        ->sum('amount');
+
+    // Update the project's total_paid
+    $project->total_paid = $totalPayments;
+    $project->save();
+
+    return redirect()->route('admin.payments.index')->with('success', 'Payment approved and total paid updated successfully.');
+}
     
  
 
+public function showPaymentForm($id)
+{
+    $project = Project::findOrFail($id);
+    return view('your.view.name', compact('project'));
+}
 
 
 public function show($id)
@@ -80,6 +137,15 @@ public function show($id)
     // Fetch total paid amount for the specific project
 
     return view('payment.show', compact('payment')); // Pass payment and totalPaid to the view
+}
+
+public function adminshow($id)
+{
+    $payment = Payment::findOrFail($id); // Fetch the payment record by ID
+
+    // Fetch total paid amount for the specific project
+
+    return view('payment.adminShow', compact('payment')); // Pass payment and totalPaid to the view
 }
 
     
@@ -95,4 +161,39 @@ public function viewPayments($projectId)
     // Pass total paid to the view correctly
     return view('payment.view', compact('project', 'payments', 'totalPaid')); // Pass the correct variable name
 }
+
+
+public function adminviewPayments($projectId)
+{
+    $project = Project::findOrFail($projectId); // Fetch the project
+    $payments = Payment::where('project_id', $projectId)->get(); // Fetch payments for the project
+
+    // Calculate total paid amount for the project
+    $totalPaid = Payment::where('project_id', $projectId)->sum('amount'); // Sum the 'amount' for the project
+
+    // Pass total paid to the view correctly
+    return view('payment.view', compact('project', 'payments', 'totalPaid')); // Pass the correct variable name
+}
+
+  // Approve a payment
+  public function approve($id)
+  {
+      $payment = Payment::findOrFail($id);
+      $payment->payment_status = 'approve';
+      $payment->save();
+
+      return redirect()->route('admin.payments.index')->with('success', 'Payment approved successfully!');
+  }
+
+  // Decline a payment
+  public function decline($id)
+  {
+      $payment = Payment::findOrFail($id);
+      $payment->payment_status = 'decline';
+      $payment->save();
+
+      return redirect()->route('admin.payments.index')->with('success', 'Payment has been Declined!');
+  }
+
+
 }

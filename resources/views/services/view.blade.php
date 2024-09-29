@@ -385,6 +385,19 @@
                 opacity: 1;
             }
         }
+
+        /* Add smooth transition and initial state */
+        .card-img-top {
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            /* Makes the image clickable */
+        }
+
+        /* Class that will be added on click to scale the image */
+        .img-scale {
+            transform: scale(1.5);
+            /* Adjust the scale factor to your liking */
+        }
     </style>
 </head>
 
@@ -481,7 +494,7 @@
                             <i class="fas fa-dollar-sign fa-sm fa-fw mr-2 text-gray-400"></i>
                             My Payments
                         </a>
-                        
+
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -561,8 +574,17 @@
             const backdrop = document.querySelector('.backdrop');
             backdrop.classList.toggle('active');
         }
+        // JavaScript to handle the image click and toggle the scale
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.card-img-top');
 
-        // Example usage: Call toggleBackdrop() when opening or closing a modal
+            images.forEach((img) => {
+                img.addEventListener('click', function() {
+                    // Toggle the class to scale the image
+                    img.classList.toggle('img-scale');
+                });
+            });
+        });
     </script>
 
 </body>

@@ -71,7 +71,7 @@
 
             <!-- Nav Item - Payments (Only for admin) -->
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('dashboard') }}">
+                <a class="nav-link" href="{{ route('admin.payments.index') }}">
                     <i class="fas fa-cash-register"></i>
                     <span>Payments</span>
                 </a>

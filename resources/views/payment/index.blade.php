@@ -28,6 +28,7 @@
                         <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
                         <th><i class="fas fa-project-diagram"></i> Project ID</th>
                         <th><i class="fas fa-money-check-alt"></i> Payment Method</th>
+                        <th><i class="fas fa-money-check-alt"></i> Payment Type</th>
                         <th><i class="fas fa-coins"></i> Amount</th>
                         <th><i class="fas fa-image"></i> Image</th>
                         <th><i class="fas fa-info-circle"></i> Payment Status</th>
@@ -41,6 +42,7 @@
                             <td>{{ $payment->id }}</td>
                             <td>{{ $payment->project_id }}</td>
                             <td>{{ ucfirst($payment->payment_method) }}</td>
+                            <td>{{ ucfirst($payment->payment_type) }}</td>
                             <td>₱{{ number_format($payment->amount, 2) }}</td>
                             <td>
                                 @if ($payment->payment_image)
