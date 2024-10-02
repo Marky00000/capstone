@@ -1,12 +1,12 @@
-@if(auth()->user()->usertype !== 'user')
+@if (auth()->user()->usertype !== 'user')
     <ul class="navbar-nav bg-gradient-info sidebar sidebar-dark accordion" id="accordionSidebar">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="dashboard">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
             <div class="sidebar-brand-icon rotate-n-15"></div>
             <img src="{{ asset('arfil_logo.png') }}" class="img-fluid" alt="Logo" style="max-width: 140px;">
         </a>
 
         <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="dashboard">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center"  href="{{ route('dashboard') }}">
             <div class="sidebar-brand-icon rotate-n-15"></div>
             <div class="sidebar-brand-text mx-3">Arfil's Admin</div>
         </a>
@@ -24,11 +24,13 @@
 
         <!-- Nav Item - Services -->
         <li class="nav-item">
-            <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="false" aria-controls="collapseServices">
+            <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseServices"
+                aria-expanded="false" aria-controls="collapseServices">
                 <i class="fas fa-seedling"></i>
                 <span>Services</span>
             </a>
-            <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
+            <div id="collapseServices" class="collapse" aria-labelledby="headingServices"
+                data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{{ route('archive.index') }}">
                         <i class="fas fa-archive"></i> Archived Services
@@ -57,7 +59,7 @@
             </a>
         </li>
 
-        @if(auth()->user()->usertype === 'admin')
+        @if (auth()->user()->usertype === 'admin')
             <!-- Nav Item - Projects (Visible for admin) -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('project.adminIndex') }}">
@@ -77,12 +79,24 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Sales (Only for admin) -->
+            <!-- Nav Item - Services -->
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('dashboard') }}">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Sales</span>
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseReports"
+                    aria-expanded="false" aria-controls="collapseReports">
+                    <i class="fas fa-seedling"></i>
+                    <span>Reports</span>
                 </a>
+                <div id="collapseReports" class="collapse" aria-labelledby="headingServices"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        {{-- <a class="collapse-item"  href="{{ route('reports.projects') }}">
+                            <i class="fas fa-archive"></i> Project Reports
+                        </a> --}}
+                        <a class="collapse-item" href="{{ route('reports.rates') }}">
+                            <i class="fas fa-tree"></i> Rates Reports
+                        </a>
+                    </div>
+                </div>
             </li>
         @else
             <!-- Nav Item - Projects (Visible for super_admin) -->

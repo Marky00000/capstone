@@ -18,6 +18,7 @@
                 <!-- Payment Overview Section -->
                 <div class="me-2" style="flex: 1; padding: 20px;">
                     <h5 class="text-muted">Payment Overview</h5>
+                    <br>
                     <p class="fw-bold">Total Cost: <span
                             class="text-success">₱{{ number_format($project->total_cost, 2) }}</span></p>
                     <p class="fw-bold">Initial Payment (50%): <span
@@ -56,13 +57,8 @@
                         <label for="payment_amount" class="form-label">Payment Amount <span
                                 style="color: red;">*</span></label>
                         <input type="number" name="payment_amount" id="payment_amount" class="form-control" required
-                            min="{{ $project->total_paid == 0 ? $project->total_cost * 0.25 : 0 }}"
+                            min="{{ $project->total_paid == 0 ? $project->total_cost * 0.50 : 0 }}"
                             max="{{ $project->total_cost - $project->total_paid }}" step="0.01">
-                        <div class="form-text text-primary">
-                            The payment amount must be between ₱{{ number_format($project->total_cost * 0.25, 2) }} and
-                            ₱{{ number_format($project->total_cost - $project->total_paid, 2) }}.
-                        </div>
-
                     </div>
 
 
@@ -74,13 +70,14 @@
                     <hr style="border-top: 1px solid #343a40;" />
 
                     <div class="d-flex justify-content-between mt-4">
-                        <button type="submit" class="btn btn-info hover-effect">
-                            <i class="fas fa-paper-plane"></i> Submit Initial Payment
-                        </button>
-                        <a href="{{ route('project.index', ['booking_id' => $project->booking_id]) }}"
+                        <a href="{{ route('project.index')}}"
                             class="btn btn-secondary hover-effect">
-                            <i class="fas fa-arrow-left"></i> Back to Projects
+                            <i class="fas fa-arrow-left"></i> Back
                         </a>
+                        <button type="submit" class="btn btn-info hover-effect">
+                            <i class="fas fa-paper-plane"></i> Submit Payment
+                        </button>
+
                     </div>
                 </form>
             </div>

@@ -14,8 +14,8 @@ class CreateServicesTable extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id(); 
             $table->enum('category', ['landscaping', 'swimmingpool', 'maintenance', 'renovation','package']);
-            $table->string('name');
-            $table->string('design');
+            $table->string('name',50);
+            $table->string('design',100);
             $table->text('description');
             $table->enum('complexity', ['very_easy','easy', 'medium' , 'hard', 'very_hard']);
             $table->enum('status', ['available', 'archive'])->default('available');

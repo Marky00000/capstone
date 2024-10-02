@@ -17,6 +17,11 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\OTPController; 
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportsController;
+
+
 
 
 
@@ -44,6 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Archive routes
     Route::get('archive', [ArchiveController::class, 'index'])->name('archive.index');
@@ -100,7 +107,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
     Route::get('/booking/form', [BookingController::class, 'create'])->name('booking.form');
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
-    Route::get('/bookings', [BookingController::class, 'adminBooking'])->name('booking.adminBooking');
+    Route::get('/admin/bookings', [BookingController::class, 'adminBooking'])->name('booking.adminBooking');
     Route::post('/bookings/{id}/confirm', [BookingController::class, 'confirmBooking'])->name('bookings.confirm');
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancelBooking'])->name('bookings.cancel');
     Route::post('/bookings/{id}/decline', [BookingController::class, 'declineBooking'])->name('bookings.decline');
@@ -109,15 +116,44 @@ Route::middleware('auth')->group(function () {
     Route::put('/bookings/{id}', [BookingController::class, 'update'])->name('booking.update');
     
 
+// Admin Routes
+Route::get('/admin/projects', [ProjectController::class, 'adminIndex'])->name('project.adminIndex'); // Admin project listing
+Route::get('/admin/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create'); // Admin create project
+Route::post('/admin/projects/store', [ProjectController::class, 'store'])->name('projects.store'); // Store new project
+Route::get('/admin/projects/{id}', [ProjectController::class, 'adminShow'])->name('project.adminShow'); // Admin view single project
+Route::patch('/admin/projects/{project}/hold', [ProjectController::class, 'hold'])->name('project.hold'); // Hold a project
+Route::patch('/admin/projects/{id}/activate', [ProjectController::class, 'activate'])->name('project.activate'); // Activate a project
+Route::get('/admin/projects/reports', [ProjectController::class, 'generateReport'])->name('project.reports'); // Generate project report
+// Route::get('/projects/{id}/edit', [ProjectController::class, 'edit'])->name('project.edit');
+// Route::post('/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
+
+
+// User Routes
+Route::get('/projects/{booking_id?}', [ProjectController::class, 'index'])->name('project.index'); // User project listing
+Route::get('/projects/{id}', [ProjectController::class, 'show'])->name('project.show'); // User view single project
+Route::get('/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create'); // Create project for user (if applicable)
+Route::post('/projects/store', [ProjectController::class, 'store'])->name('projects.store'); // Store new project for user (if applicable)
+
+// Additional Routes
+Route::get('/designs/{category}', [ProjectController::class, 'getDesigns']); // Get designs by category
+Route::post('/calculate-cost', [ProjectController::class, 'calculateCost'])->name('calculate.cost'); // Calculate project cost
+Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory'); // Show services by category
+
+
+
+
+    // routes/web.php
+
+    Route::post('/tracking', [ProgressController::class, 'update'])->name('progress.update');
+    Route::get('/projects/{project}/tracking', [ProgressController::class, 'show'])->name('tracking.show');
+    Route::post('/tracking', [ProgressController::class, 'store'])->name('progress.store');
+    Route::get('/progress/{projectId}', [ProgressController::class, 'index'])->name('progress.index');
+    Route::get('/progress/{projectId}/view', [ProgressController::class, 'view'])->name('progress.view');
     
-    Route::get('/projects/{booking_id?}', [ProjectController::class, 'index'])->name('project.index');
-    Route::get('/admin/projects/{booking_id?}', [ProjectController::class, 'adminIndex'])->name('project.adminIndex');
-    Route::get('/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create');
-    Route::post('/projects/store', [ProjectController::class, 'store'])->name('projects.store');
-    Route::get('/designs/{category}', [ProjectController::class, 'getDesigns']);
-    Route::post('/calculate-cost', [ProjectController::class, 'calculateCost'])->name('calculate.cost');
-    Route::get('/project/{id}', [ProjectController::class, 'view'])->name('project.view');
-    Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory');
+
+
+
+
 
     Route::get('/projects/{id}/pay', [PaymentController::class, 'create'])->name('pay');
     // routes/web.php
@@ -136,8 +172,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/payments/{id}/edit', [PaymentController::class, 'edit'])->name('admin.payments.edit');
     Route::post('/admin/payments/{id}/update', [PaymentController::class, 'update'])->name('admin.payments.update');
 
-
-
+    // Route::get('/reports/projects', [ReportsController::class, 'projects'])->name('reports.projects');
+    Route::get('/reports/rates', [ReportsController::class, 'rates'])->name('reports.rates');
 
 
     });

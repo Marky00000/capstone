@@ -3,6 +3,7 @@
 @section('title', 'Project Details')
 
 @section('content')
+
     <div class="container mt-4" id="printableArea">
         <div class="card shadow-sm border-light">
             <div class="card-header text-white bg-info text-center d-flex flex-column align-items-center">
@@ -89,23 +90,65 @@
 
                 <hr class="my-4">
 
-                <!-- Project Terms Section -->
-                <div class="project-terms">
-                    <h4>Project Terms</h4>
-                    <p>1. The project will commence upon the signing of the contract.</p>
-                    <p>2. Any changes in the project scope will require a written request.</p>
-                    <p>3. Payment terms will be outlined in the contract.</p>
-                    <p>4. Please retain this document for your records.</p>
+
+                <!-- Progress Bar Section -->
+                <div class="mt-4">
+                    <h4>Project Progress</h4>
+                    <div class="progress">
+                        @php
+                            // Assuming you're fetching the latest progress entry
+$latestProgress = $project->progress->last(); // Get the last entry (latest progress)
+$progress = $latestProgress ? $latestProgress->phase_progress : 0; // Fallback to 0 if no progress
+$currentPhase = $latestProgress ? $latestProgress->phase : 'Not Started'; // Fallback to 'Not Started' if no phase
+
+// Map phase identifiers to readable names
+$phaseNames = [
+    'phase_one' => 'Phase One',
+    'phase_two' => 'Phase Two',
+    'phase_three' => 'Phase Three',
+    // Add more phases as needed
+];
+
+// Get the readable phase name, default to 'Not Started'
+$readablePhase = $phaseNames[$currentPhase] ?? 'Not Started';
+
+$phaseColor = 'bg-success'; // Default color for success
+if ($progress < 50) {
+    $phaseColor = 'bg-warning'; // Color for warning
+} elseif ($progress == 100) {
+    $phaseColor = 'bg-primary'; // Color for complete
+                            }
+                        @endphp
+                        <div class="progress-bar {{ $phaseColor }}" role="progressbar"
+                            style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                            {{ $progress }}%
+                        </div>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <i class="fas fa-check-circle"></i>
+                        @if ($progress == 100)
+                            Project Complete
+                        @elseif ($progress > 0)
+                            Phase: {{ $readablePhase }} (In Progress)
+                        @else
+                            Project Not Started
+                        @endif
+                    </div>
                 </div>
+
+
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('project.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back
                     </a>
-                    @if ($project->project_status !== 'pending')
-                        <button class="btn btn-info" onclick="printDocument()">
-                            <i class="fas fa-print"></i> Print
-                        </button>
+
+                    @if ($project->project_status === 'active')
+                        <a href="{{ route('progress.view', ['projectId' => $project->id]) }}"
+                            class="btn btn-primary btn-md">
+                            <i class="fas fa-sync-alt"></i> View Progress
+                        </a>
                     @endif
 
                 </div>

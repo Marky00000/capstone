@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->enum('phase', ['phase_one','phase_two','phase_three'])->nullable();
             $table->enum('phase_progress', ['0','10', '20', '30', '40', '50', '60', '70', '80', '90', '100'])->nullable();
-            $table->string('image')->nullable();
+            $table->string('image',100)->nullable();
             $table->text('remarks')->nullable();
 
 

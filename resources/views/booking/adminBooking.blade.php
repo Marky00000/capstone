@@ -12,119 +12,172 @@
             <h1>Bookings</h1>
         </div>
         <div class="card-body">
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+            <!-- Filter and Sort Form -->
+            <form action="{{ route('booking.adminBooking') }}" method="GET" class="mb-4">
+                <div class="d-flex align-items-center"> <!-- Use flexbox for closer alignment -->
 
-            @if ($bookings->isEmpty())
-                <p class="text-muted">You do not have any bookings at this time. Please contact us to make a booking.</p>
-            @else
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead class="thead-light">
+                    <!-- Booking Status Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <select name="booking_status" class="form-select form-select-sm custom-dropdown">
+                                <option value="">All Statuses</option>
+                                <option value="pending" {{ request('booking_status') == 'pending' ? 'selected' : '' }}>
+                                    Pending</option>
+                                <option value="confirmed" {{ request('booking_status') == 'confirmed' ? 'selected' : '' }}>
+                                    Confirmed</option>
+                                <option value="cancelled" {{ request('booking_status') == 'cancelled' ? 'selected' : '' }}>
+                                    Cancelled</option>
+                                <option value="declined" {{ request('booking_status') == 'declined' ? 'selected' : '' }}>
+                                    Declined</option>
+                                <option value="visited" {{ request('booking_status') == 'visited' ? 'selected' : '' }}>
+                                    Visited</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Start Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="start_date" class="form-control form-control-sm"
+                                value="{{ request('start_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- End Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="end_date" class="form-control form-control-sm"
+                                value="{{ request('end_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-sm"> <!-- Added 'btn-sm' for smaller size -->
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
+
+
+        </div>
+
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        <!-- Booking Table -->
+        @if ($bookings->isEmpty())
+            <p class="text-muted">You do not have any bookings at this time. Please contact us to make a booking.</p>
+        @else
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Province</th>
+                            <th>City</th>
+                            <th>Site Visit Date</th>
+                            <th>Booking Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($bookings as $booking)
                             <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Contact</th>
-                                <th>Email</th>
-                                <th>Address</th>
-                                <th>Province</th>
-                                <th>City</th>
-                                <th>Site Visit Date</th>
-                                <th>Booking Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($bookings as $booking)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $booking->name }}</td>
-                                    <td>{{ $booking->contact }}</td>
-                                    <td>{{ $booking->email }}</td>
-                                    <td>{{ $booking->address }}</td>
-                                    <td>{{ $booking->province }}</td>
-                                    <td>{{ $booking->city }}</td>
-                                    <td>
-                                        @if ($booking->site_visit_date)
-                                            {{ (new DateTime($booking->site_visit_date))->format('F j, Y') }}
-                                        @else
-                                            No site visit scheduled.
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $booking->name }}</td>
+                                <td>{{ $booking->contact }}</td>
+                                <td>{{ $booking->email }}</td>
+                                <td>{{ $booking->address }}</td>
+                                <td>{{ $booking->province }}</td>
+                                <td>{{ $booking->city }}</td>
+                                <td>
+                                    @if ($booking->site_visit_date)
+                                        {{ (new DateTime($booking->site_visit_date))->format('F j, Y') }}
+                                    @else
+                                        No site visit scheduled.
+                                    @endif
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge 
+                                        @if ($booking->booking_status == 'pending') badge-warning 
+                                        @elseif($booking->booking_status == 'confirmed') badge-primary 
+                                        @elseif($booking->booking_status == 'visited') badge-success 
+                                        @elseif($booking->booking_status == 'cancelled') badge-danger 
+                                        @elseif($booking->booking_status == 'declined') badge-danger 
+                                        @else badge-secondary @endif">
+                                        @if ($booking->booking_status == 'pending')
+                                            <i class="fas fa-hourglass-half"></i>
+                                        @elseif($booking->booking_status == 'confirmed')
+                                            <i class="fas fa-check-circle"></i>
+                                        @elseif($booking->booking_status == 'visited')
+                                            <i class="fas fa-check-double"></i>
+                                        @elseif($booking->booking_status == 'cancelled')
+                                            <i class="fas fa-times-circle"></i>
+                                        @elseif($booking->booking_status == 'declined')
+                                            <i class="fas fa-ban"></i>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <span
-                                            class="badge 
-                                    @if ($booking->booking_status == 'pending') badge-warning 
-                                    @elseif($booking->booking_status == 'confirmed') badge-primary 
-                                    @elseif($booking->booking_status == 'visited') badge-success 
-                                    @elseif($booking->booking_status == 'cancelled') badge-danger 
-                                    @elseif($booking->booking_status == 'declined') badge-danger 
-                                    @else badge-secondary @endif">
+                                        {{ ucfirst($booking->booking_status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-start">
+                                        <!-- Existing View Button -->
+                                        <button class="btn btn-sm btn-info btn-sm me-2" data-toggle="modal"
+                                            data-target="#bookingModal"
+                                            data-site_visit_date="{{ $booking->site_visit_date }}"
+                                            data-user_id="{{ $booking->user_id }}" data-name="{{ $booking->name }}"
+                                            data-address="{{ $booking->address }}"
+                                            data-province="{{ $booking->province }}" data-city="{{ $booking->city }}"
+                                            data-contact="{{ $booking->contact }}" data-email="{{ $booking->email }}"
+                                            data-booking_status="{{ $booking->booking_status }}">
+                                            <i class="fas fa-eye"></i>View
+                                        </button>
 
-                                            @if ($booking->booking_status == 'pending')
-                                                <i class="fas fa-hourglass-half"></i>
-                                            @elseif($booking->booking_status == 'confirmed')
-                                                <i class="fas fa-check-circle"></i>
-                                            @elseif($booking->booking_status == 'visited')
-                                                <i class="fas fa-check-double"></i>
-                                            @elseif($booking->booking_status == 'cancelled')
-                                                <i class="fas fa-times-circle"></i>
-                                            @elseif($booking->booking_status == 'declined')
-                                                <i class="fas fa-ban"></i> <!-- Icon for declined status -->
-                                            @endif
-
-                                            {{ ucfirst($booking->booking_status) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex justify-content-start">
-                                            <!-- Existing View Button -->
-                                            <button class="btn btn-sm btn-info btn-sm me-2" data-toggle="modal"
-                                                data-target="#bookingModal"
-                                                data-site_visit_date="{{ $booking->site_visit_date }}"
-                                                data-user_id="{{ $booking->user_id }}" data-name="{{ $booking->name }}"
-                                                data-address="{{ $booking->address }}"
-                                                data-province="{{ $booking->province }}" data-city="{{ $booking->city }}"
-                                                data-contact="{{ $booking->contact }}" data-email="{{ $booking->email }}"
-                                                data-booking_status="{{ $booking->booking_status }}">
-                                                <i class="fas fa-eye"></i> View
+                                        <!-- Confirm and Decline Buttons -->
+                                        @if ($booking->booking_status === 'pending')
+                                            <button type="button" class="btn btn-sm btn-info confirm-booking-button"
+                                                data-toggle="modal" data-target="#confirmModal"
+                                                data-booking_id="{{ $booking->id }}">
+                                                <i class="fas fa-check-circle"></i>Confirm
                                             </button>
 
-                                            <!-- Confirm Booking Button -->
-                                            @if ($booking->booking_status === 'pending')
-                                                <button type="button" class="btn btn-sm btn-info confirm-booking-button"
-                                                    data-toggle="modal" data-target="#confirmModal"
-                                                    data-booking_id="{{ $booking->id }}">
-                                                    <i class="fas fa-check-circle"></i> Confirm
-                                                </button>
+                                            <button type="button"
+                                                class="btn btn-sm btn-danger btn-sm me-2 decline-booking-button"
+                                                data-toggle="modal" data-target="#declineModal"
+                                                data-booking_id="{{ $booking->id }}">
+                                                <i class="fas fa-times-circle"></i>Decline
+                                            </button>
+                                        @endif
 
-                                                <!-- Decline Booking Button -->
-                                                <button type="button"
-                                                    class="btn btn-sm btn-danger btn-sm me-2 decline-booking-button"
-                                                    data-toggle="modal" data-target="#declineModal"
-                                                    data-booking_id="{{ $booking->id }}">
-                                                    <i class="fas fa-times-circle"></i> Decline
-                                                </button>
-                                            @endif
-
-                                            <!-- Make Project Button -->
-                                            @if ($booking->booking_status === 'confirmed' && $booking->projects->count() < 3)
-                                                <a href="{{ route('projects.create', ['booking_id' => $booking->id]) }}"
-                                                    class="btn btn-sm btn-info btn-sm me-2">
-                                                    <i class="fas fa-plus-circle"></i> Make Project
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
+                                        <!-- Make Project Button -->
+                                        @if (
+                                            $booking->booking_status === 'confirmed' ||
+                                                ($booking->booking_status === 'visited' && $booking->projects->count() < 3))
+                                            <a href="{{ route('projects.create', ['booking_id' => $booking->id]) }}"
+                                                class="btn btn-sm btn-info btn-sm me-2">
+                                                <i class="fas fa-plus-circle"></i>Make Project
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
     </div>
+    </div>
+
 
     <!-- Booking Modal -->
     <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
@@ -212,6 +265,12 @@
             border-radius: 8px;
             border: none;
         }
+
+        .custom-dropdown {
+            width: 120px;
+            /* Adjust the width as needed */
+        }
+
 
         .card-header {
             border-bottom: none;
@@ -411,7 +470,7 @@
 
                 $.ajax({
                     url: '/bookings/' + bookingId +
-                    '/confirm', // Adjust the URL based on your route
+                        '/confirm', // Adjust the URL based on your route
                     type: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
@@ -441,7 +500,7 @@
 
                 $.ajax({
                     url: '/bookings/' + bookingId +
-                    '/decline', // Adjust the URL based on your route
+                        '/decline', // Adjust the URL based on your route
                     type: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),

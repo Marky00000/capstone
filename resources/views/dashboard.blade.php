@@ -13,8 +13,8 @@
                             <h5 class="card-title text-info">
                                 <i class="fas fa-cogs"></i> Total Services
                             </h5>
-                            <p class="card-text display-4">50</p>
-                            <a href="#" class="btn btn-outline-info">View Details</a>
+                            <p class="card-text display-4">{{ $totalServices }}</p>
+                            <a href="{{ route('landscape') }}" class="btn btn-outline-info">View Details</a>
                         </div>
                     </div>
                 </div>
@@ -26,8 +26,8 @@
                             <h5 class="card-title text-info">
                                 <i class="fas fa-calendar-check"></i> Total Bookings
                             </h5>
-                            <p class="card-text display-4">30</p>
-                            <a href="#" class="btn btn-outline-info">View Details</a>
+                            <p class="card-text display-4">{{ $totalBookings }}</p>
+                            <a href="{{ route('booking.adminBooking') }}"class="btn btn-outline-info">View Details</a>
                         </div>
                     </div>
                 </div>
@@ -39,8 +39,8 @@
                             <h5 class="card-title text-info">
                                 <i class="fas fa-briefcase"></i> Total Projects
                             </h5>
-                            <p class="card-text display-4">20</p>
-                            <a href="#" class="btn btn-outline-info">View Details</a>
+                            <p class="card-text display-4">{{ $totalProjects }}</p>
+                            <a href="{{ route('project.adminIndex') }}" class="btn btn-outline-info">View Details</a>
                         </div>
                     </div>
                 </div>
@@ -52,8 +52,8 @@
                             <h5 class="card-title text-info">
                                 <i class="fas fa-money-bill-wave"></i> Total Revenue
                             </h5>
-                            <p class="card-text display-4">₱500,000</p>
-                            <a href="#" class="btn btn-outline-info">View Details</a>
+                            <p class="card-text display-4">₱{{ number_format($totalRevenue, 2) }}</p>
+                            <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-info">View Details</a>
                         </div>
                     </div>
                 </div>
@@ -65,12 +65,11 @@
                     <div class="card shadow-sm border-info">
                         <div class="card-body">
                             <h5 class="card-title text-info">Revenue Overview</h5>
-                            <canvas id="revenueChart" style="width: 100%; height: 400px;"></canvas> <!-- Set height to 400px -->
+                            <canvas id="revenueChart" style="width: 100%; height: 400px;"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-
 
             <div class="row">
                 <!-- Recent Activities Table -->
@@ -185,9 +184,7 @@
     <style>
         .bg-overlay {
             background-color: #e0f7f9;
-            /* Light cyan complement to your primary color */
             padding: 15px;
-            /* Reduced padding */
             border-radius: 10px;
         }
 
@@ -198,21 +195,40 @@
 
         .card:hover {
             transform: scale(1.02);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .table th {
-            background-color: #f8f9fa;
+        .display-4 {
+            font-size: 2.5rem;
+            font-weight: bold;
             color: #17a2b8;
         }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: rgba(23, 162, 184, 0.1);
-            /* Lightened version of your primary color */
-        }
-
-        .text-info {
-            color: #17a2b8 !important;
-        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const chartData = @json($chartData);
+
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line', // Change this to 'bar', 'pie', etc., if you want a different type of chart
+            data: {
+                labels: chartData.labels, // Month names
+                datasets: [{
+                    label: 'Total Revenue',
+                    data: chartData.data, // Revenue data
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 @endsection

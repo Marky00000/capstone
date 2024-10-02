@@ -58,28 +58,6 @@
 
             <hr class="my-4">
 
-            <!-- Description of Pricing and Working Days -->
-            <div class="pricing-details">
-                <h5>Pricing and Working Days Information</h5>
-                <p>
-                    The pricing for our services is determined by several factors:
-                </p>
-                <ul>
-                    <li>
-                        <strong>Region:</strong> If the project is located within <em>Northern Mindanao</em>, we offer more competitive and lower rates. For regions outside of Northern Mindanao, the prices may vary depending on travel and logistical requirements.
-                    </li>
-                    <li>
-                        <strong>Service Complexity:</strong> The complexity of the service also affects the overall pricing. More specialized or intricate services tend to have higher costs due to the expertise and resources involved.
-                    </li>
-                    <li>
-                        <strong>Lot Area:</strong> The size of the lot significantly influences the total cost. Larger areas generally require more materials and labor, which will reflect in the final quotation.
-                    </li>
-                </ul>
-                <p>
-                    <strong>Working Days:</strong> The estimated working days for the project are calculated based on the complexity of the service and the land area. Projects that involve larger areas or more complicated designs will naturally require additional time to complete.
-                </p>
-            </div>
-
             <div class="d-flex justify-content-between mt-4">
                 <a href="{{ route('quotation.view') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back

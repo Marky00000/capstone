@@ -16,6 +16,56 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
+            <!-- Filter and Sort Form -->
+            <form action="{{ route('project.adminIndex') }}" method="GET" class="mb-4">
+                <div class="d-flex align-items-center"> <!-- Use flexbox for closer alignment -->
+
+                    <!-- Project Status Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <select name="project_status" class="form-select form-select-sm" style="max-width: 120px;">
+                                <option value="">All Statuses</option>
+                                <option value="pending" {{ request('project_status') == 'pending' ? 'selected' : '' }}>
+                                    Pending</option>
+                                <option value="active" {{ request('project_status') == 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="hold" {{ request('project_status') == 'hold' ? 'selected' : '' }}>On Hold
+                                </option>
+                                <option value="finish" {{ request('project_status') == 'finish' ? 'selected' : '' }}>
+                                    Finished</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Start Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="start_date" class="form-control form-control-sm"
+                                value="{{ request('start_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- End Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="end_date" class="form-control form-control-sm"
+                                value="{{ request('end_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
+
+
+
+
             @if ($projects->isEmpty())
                 <p class="text-muted">You do not have any projects at this time.</p>
             @else
@@ -52,46 +102,124 @@
                                     <td>{{ $project->booking->province }}</td>
                                     <td>{{ $project->booking->city }}</td>
                                     <td>{{ $project->lot_area }} sqm</td>
-                                    <td>{{ ($project->discount) }}%</td>
+                                    <td>{{ $project->discount }}%</td>
                                     <td>₱{{ number_format($project->total_cost, 2) }}</td>
                                     <td>₱{{ number_format($project->total_paid, 2) }}</td>
 
                                     <td>
-                                        <span class="badge 
+                                        <span
+                                            class="badge 
                                         @if ($project->project_status == 'pending') badge-warning 
                                         @elseif($project->project_status == 'active') badge-success 
                                         @elseif($project->project_status == 'hold') badge-danger    
                                         @elseif($project->project_status == 'finish') badge-primary @endif">
                                             @if ($project->project_status == 'pending')
-                                                <i class="fas fa-hourglass-half"></i> 
+                                                <i class="fas fa-hourglass-half"></i>
                                             @elseif($project->project_status == 'active')
-                                            <i class="fas fa-spinner fa-spin"></i>  <!-- Changed icon for active to spinner -->
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                                <!-- Changed icon for active to spinner -->
                                             @elseif($project->project_status == 'hold')
-                                                <i class="fas fa-pause-circle"></i> 
+                                                <i class="fas fa-pause-circle"></i>
                                             @elseif($project->project_status == 'finish')
-                                                <i class="fas fa-check"></i>  <!-- Changed icon for finish to check -->
+                                                <i class="fas fa-check"></i> <!-- Changed icon for finish to check -->
                                             @endif
                                             {{ ucfirst($project->project_status) }}
                                         </span>
                                     </td>
-                                    
-                                    
+
+
 
                                     <td>
-                                        <button class="btn btn-sm btn-info" data-toggle="modal"
-                                            data-target="#projectModal" data-id="{{ $project->id }}"
-                                            data-booking_id="{{ $project->booking->id }}"
-                                            data-booking_name="{{ $project->booking->name }}"
-                                            data-service_name="{{ $project->service->name }}"
-                                            data-lot_area="{{ $project->lot_area }}"
-                                            data-total_cost="{{ $project->total_cost }}"
-                                            data-project_status="{{ $project->project_status }}"
-                                            data-site_visit_date="{{ $project->booking->site_visit_date }}"
-                                            data-address="{{ $project->booking->address }}"
-                                            data-province="{{ $project->booking->province }}"
-                                            data-city="{{ $project->booking->city }}">
-                                            <i class="fas fa-eye"></i> View
-                                        </button>
+                                        <a href="{{ route('project.adminShow', $project->id) }}"
+                                            class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>View
+                                        </a>
+
+                                        {{-- <a href="{{ route('project.edit', $project->id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> Edit
+                                        </a> --}}
+
+
+                                        <!-- Show Hold button only if project_status is 'active' -->
+                                        @if ($project->project_status === 'active')
+                                            <button class="btn btn-sm btn-warning" data-toggle="modal"
+                                                data-target="#holdModal{{ $project->id }}">
+                                                <i class="fas fa-pause"></i>Hold
+                                            </button>
+
+                                            <!-- Confirmation Modal for Hold -->
+                                            <div class="modal fade" id="holdModal{{ $project->id }}" tabindex="-1"
+                                                role="dialog" aria-labelledby="holdModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="holdModalLabel">Confirm Hold</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to put this project on hold?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Cancel</button>
+                                                            <form action="{{ route('project.hold', $project->id) }}"
+                                                                method="POST" id="hold-form-{{ $project->id }}">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit" class="btn btn-warning">Confirm
+                                                                    Hold</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <!-- Show Activate button only if project_status is 'hold' -->
+                                        @if ($project->project_status === 'hold')
+                                            <button class="btn btn-sm btn-success" data-toggle="modal"
+                                                data-target="#activateModal{{ $project->id }}">
+                                                <i class="fas fa-check"></i>Active
+                                            </button>
+
+                                            <!-- Confirmation Modal for Activate -->
+                                            <div class="modal fade" id="activateModal{{ $project->id }}" tabindex="-1"
+                                                role="dialog" aria-labelledby="activateModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="activateModalLabel">Confirm
+                                                                Activation</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to activate this project?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Cancel</button>
+                                                            <form action="{{ route('project.activate', $project->id) }}"
+                                                                method="POST" id="activate-form-{{ $project->id }}">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit" class="btn btn-success">Confirm
+                                                                    Activation</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </td>
+
+
+
                                     </td>
                                 </tr>
                             @endforeach
@@ -104,42 +232,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Project Modal -->
-    <div class="modal fade" id="projectModal" tabindex="-1" role="dialog" aria-labelledby="projectModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white flex-column align-items-center"
-                    style="max-height: 80px; margin-bottom: 10px;">
-                    <div class="d-flex align-items-center">
-                        <img src="{{ asset('arfil_logo1.png') }}" alt="Logo" class="img-fluid logo"
-                            style="max-height: 50px; margin-right: 10px;">
-                        <h5 class="modal-title" id="bookingModalLabel">Project Details</h5>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <div class="receipt-details">
-                        <p><strong>Booking ID: </strong> <span id="modalBookingId"></span></p>
-                        <p><strong>Customer: </strong> <span id="modalBookingName"></span></p>
-                        <p><strong>Service Name: </strong> <span id="modalServiceName"></span></p>
-                        <p><strong>Site Visit Date: </strong> <span id="modalSiteVisitDate"></span></p>
-                        <p><strong>Address: </strong> <span id="modalAddress"></span></p>
-                        <p><strong>Province: </strong> <span id="modalProvince"></span></p>
-                        <p><strong>City: </strong> <span id="modalCity"></span></p>
-                        <p><strong>Lot Area: </strong> <span id="modalLotArea"></span></p>
-                        <p><strong>Total Cost: </strong> <span id="modalTotalCost"></span></p>
-                        <p><strong>Status: </strong>
-                            <span id="modalStatus" class="badge"></span>
-                        </p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('styles')
@@ -148,6 +240,14 @@
             background-color: #e9ecef;
             /* Example of a custom light gray */
         }
+
+        .custom-dropdown {
+            height: 35px;
+            /* Adjust height as needed */
+            font-size: 0.9rem;
+            /* Adjust font size if needed */
+        }
+
 
         /* General Card Styles */
         .card {
@@ -275,55 +375,4 @@
             background-color: #e2e6ea;
         }
     </style>
-@endsection
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-
-
-@section('scripts')
-    <script>
-        $('#projectModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget);
-            var bookingId = button.data('booking_id');
-            var bookingName = button.data('booking_name');
-            var serviceName = button.data('service_name');
-            var lotArea = button.data('lot_area');
-            var totalCost = parseFloat(button.data('total_cost')); // Ensure total_cost is treated as a float
-            var projectStatus = button.data('project_status');
-            var siteVisitDate = button.data('site_visit_date');
-            var address = button.data('address');
-            var province = button.data('province');
-            var city = button.data('city');
-
-            var modal = $(this);
-            modal.find('#modalBookingId').text(bookingId);
-            modal.find('#modalBookingName').text(bookingName);
-            modal.find('#modalServiceName').text(serviceName);
-            modal.find('#modalSiteVisitDate').text(moment(siteVisitDate).format('MMMM D, YYYY'));
-            modal.find('#modalAddress').text(address);
-            modal.find('#modalProvince').text(province);
-            modal.find('#modalCity').text(city);
-            modal.find('#modalLotArea').text(lotArea + ' sqm');
-            modal.find('#modalTotalCost').text('₱' + totalCost.toLocaleString('en-US'));
-
-            var statusBadge = modal.find('#modalStatus');
-            statusBadge.removeClass('badge-warning badge-success badge-danger badge-primary');
-            statusBadge.addClass(getStatusBadgeClass(projectStatus));
-            statusBadge.text(projectStatus.charAt(0).toUpperCase() + projectStatus.slice(1));
-        });
-
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'pending':
-                    return 'badge-warning';
-                case 'active':
-                    return 'badge-success';
-                case 'hold':
-                    return 'badge-danger';
-                case 'finish':
-                    return 'badge-primary';
-                default:
-                    return '';
-            }
-        }
-    </script>
 @endsection

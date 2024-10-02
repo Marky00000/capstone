@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('booking_id');
             $table->unsignedBigInteger('service_id');
             $table->enum('project_status', ['pending', 'active','hold', 'finish'])->default('pending');
-            $table->string('lot_area');
+            $table->integer('lot_area');
             $table->decimal('total_cost', 10, 2);
             $table->decimal('total_paid', 10, 2)->nullable(); // Amount with precision and scale
             $table->enum('discount', ['0', '1','2','3','4','5','6','7','8','9','10','12','15'])->default('0');

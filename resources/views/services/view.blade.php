@@ -278,6 +278,9 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            flex: 0 1 calc(33.333% - 20px);
+            margin-bottom: 30px;
+            /* Space below each card */
             width: 300px;
             text-align: center;
             margin: 15px;
@@ -356,12 +359,19 @@
             z-index: 2;
         }
 
-        /* Service Container Styles */
         .service-container {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-between;
+            /* This will help distribute the space evenly */
+            padding: 30px;
+            background-color: transparent;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* Creates three equal columns */
             gap: 30px;
+            /* Space between the cards */
             padding: 30px;
             background-color: transparent;
             border-radius: 8px;

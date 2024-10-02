@@ -13,14 +13,15 @@ use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
-    use RegistersUsers;
-
+    // Disable the automatic login by NOT using RegistersUsers trait
+    // We are now manually handling registration.
+    
     /**
      * Where to redirect users after registration.
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/login'; // Redirect to login after successful registration
 
     /**
      * Create a new controller instance.
@@ -30,6 +31,33 @@ class RegisterController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+
+    /**
+     * Show the registration form.
+     */
+    public function showRegistrationForm()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        $user = $this->create($request->all());
+
+        // Send registration success email
+        Mail::to($user->email)->send(new RegistrationSuccessMail($user));
+
+        // Redirect to login with a success message
+        return redirect($this->redirectPath())->with('status', 'Registration successful! Please log in.');
     }
 
     /**
@@ -55,28 +83,21 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $user = User::create([
+        return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'level' => 'Admin', // Set default level as Admin
         ]);
-    
-        // Send the registration success email
-        Mail::to($user->email)->send(new RegistrationSuccessMail($user));
-    
-        return $user;
     }
 
     /**
-     * Handle a registration request for the application.
+     * Get the redirect path after registration.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @return string
      */
-    protected function registered(Request $request, $user)
+    public function redirectPath()
     {
-        // Redirect to the login page with a success message
-        return redirect()->route('login')->with('status', 'Registration successful! Please log in.');
+        return '/login';
     }
 }

@@ -262,17 +262,17 @@ return view('quotation.form', compact('cities'));
         'swimmingpool' => [
             'northern_mindanao' => [
                 'very_easy' => 10000,
-                'easy' => 11000,
-                'medium' => 12000,
-                'hard' => 13000,
-                'very_hard' => 14000,
+                'easy' => 10500,
+                'medium' => 11000,
+                'hard' => 11500,
+                'very_hard' => 12000,
             ],
             'other' => [
-                'very_easy' => 15000,
-                'easy' => 16000,
-                'medium' => 17000,
-                'hard' => 18000,
-                'very_hard' => 19000,
+                'very_easy' => 12500,
+                'easy' => 13000,
+                'medium' => 13500,
+                'hard' => 14000,
+                'very_hard' => 14500,
             ],
         ],
         'renovation' => [
@@ -289,6 +289,22 @@ return view('quotation.form', compact('cities'));
                 'medium' => 2700,
                 'hard' => 2800,
                 'very_hard' => 2900,
+            ],
+        ],
+        'maintenance' => [ // New maintenance category added
+            'northern_mindanao' => [
+                'very_easy' => 200,
+                'easy' => 200,
+                'medium' => 200,
+                'hard' => 200,
+                'very_hard' => 200,
+            ],
+            'other' => [
+                'very_easy' => 400,
+                'easy' => 400,
+                'medium' => 400,
+                'hard' => 400,
+                'very_hard' => 400
             ],
         ],
         'package' => [

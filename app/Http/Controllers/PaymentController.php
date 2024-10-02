@@ -6,34 +6,55 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Project;
+use Illuminate\Support\Facades\Auth; // Import Auth to get the logged-in user
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
 
-    // Method to show all payments
+    // Method to show all payments for the logged-in user
     public function index()
     {
-        // Fetch all payments
-        $payments = Payment::all();
+        // Fetch only payments that belong to the currently logged-in user
+        $payments = Payment::where('id', Auth::id())->get();
 
-        // Return the view for payments, passing the payments data
+        // Return the view for payments, passing the filtered payments data
         return view('payment.index', compact('payments'));
     }
+
     public function create($projectId)
     {
         $project = Project::findOrFail($projectId);
         return view('payment.initial', compact('project'));
     }
 
-    public function adminIndex()
+
+    public function adminIndex(Request $request)
     {
-        // Fetch all payments with additional data if necessary
-        $payments = Payment::all(); // You can add admin-specific filtering here if needed
+        $query = Payment::query();
     
-        // Return the admin payments view, passing the payments data
+        // Filter by payment status
+        if ($request->has('payment_status') && $request->payment_status != '') {
+            $query->where('payment_status', $request->payment_status);
+        }
+    
+        // Apply date filters if present
+        if ($request->has('start_date') && $request->start_date != '') {
+            $query->where('created_at', '>=', $request->start_date);
+        }
+    
+        if ($request->has('end_date') && $request->end_date != '') {
+            $query->where('created_at', '<=', $request->end_date);
+        }
+    
+        // Default sorting is latest to oldest
+        $query->orderBy('created_at', 'desc'); // Adjust this as needed for default behavior.
+    
+        $payments = $query->paginate(10); // Adjust pagination as needed
+    
         return view('payment.adminIndex', compact('payments'));
     }
+    
     
 
 
@@ -116,6 +137,7 @@ class PaymentController extends Controller
 
     // Update the project's total_paid
     $project->total_paid = $totalPayments;
+    $project->project_status = 'active';
     $project->save();
 
     return redirect()->route('admin.payments.index')->with('success', 'Payment approved and total paid updated successfully.');
@@ -176,14 +198,28 @@ public function adminviewPayments($projectId)
 }
 
   // Approve a payment
-  public function approve($id)
-  {
-      $payment = Payment::findOrFail($id);
-      $payment->payment_status = 'approve';
-      $payment->save();
+public function approve($id)
+{
+    // Fetch the payment and ensure it exists
+    $payment = Payment::findOrFail($id);
+    
+    // Change the payment status to 'approve'
+    $payment->payment_status = 'approve';
+    
+    // Update the total_paid in the project
+    $project = Project::findOrFail($payment->project_id);
+    $project->project_status = 'active'; // Increment total_paid by the payment amount
 
-      return redirect()->route('admin.payments.index')->with('success', 'Payment approved successfully!');
-  }
+    // Add the current payment amount to the project's total_paid
+    $project->total_paid += $payment->amount; // Increment total_paid by the payment amount
+    $project->save(); // Save the updated project
+
+    // Save the approved payment
+    $payment->save();
+
+    return redirect()->route('admin.payments.index')->with('success', 'Payment approved successfully!');
+}
+
 
   // Decline a payment
   public function decline($id)

@@ -72,15 +72,6 @@
 
                 <hr class="my-4">
 
-                <!-- Payment Terms Section -->
-                <div class="payment-terms">
-                    <h4>Payment Terms</h4>
-                    <p>1. Initial Payment: 50% of the total project cost is required to initiate the project.</p>
-                    <p>2. Midterm Payment: 25% of the total project cost is due at the midpoint of the project.</p>
-                    <p>3. Final Payment: 25% of the total project cost is due upon completion of the project.</p>
-                    <p>4. Please retain this receipt for your records.</p>
-                </div>
-
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('payments.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back

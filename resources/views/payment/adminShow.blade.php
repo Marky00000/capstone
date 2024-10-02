@@ -85,12 +85,6 @@
                         </a>
                     @endif
 
-                    @if ($payment->payment_status === 'approve')
-                        <button class="btn btn-info" onclick="printDocument()">
-                            <i class="fas fa-print"></i> Print
-                        </button>
-                    @endif
-
                 </div>
             </div>
         </div>
@@ -230,9 +224,4 @@
     <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <script>
-        function printDocument() {
-            window.print();
-        }
-    </script>
 @endsection

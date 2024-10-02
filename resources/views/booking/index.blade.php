@@ -12,7 +12,7 @@
     </div>
     <div class="card shadow-sm rounded-lg border-0">
         <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
-            <h1>Bookings</h1>
+            <h4 class="mb-0">My bookings</h4>
             <div>
                 <a href="{{ route('booking.form') }}" class="btn btn-light text-info btn-sm">
                     <i class="fas fa-calendar-check"></i> Make a Booking

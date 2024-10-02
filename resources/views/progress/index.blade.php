@@ -1,0 +1,297 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+
+
+        <!-- Display Project Information -->
+        <div class="mb-4">
+            @if ($progress->isNotEmpty())
+                <h4 class="mb-4">Progress for Project: <span class="text-primary">{{ $project->id }}</span></h4>
+                <h5 class="mb-4">Service: {{ $project->service->name }}</h5>
+                <strong>Current Phase:</strong> <span class="text-success">{{ $progress->last()->phase }}</span><br>
+                <strong>Current Progress:</strong> <span
+                    class="text-success">{{ $progress->last()->phase_progress }}%</span><br>
+            @else
+                <strong>No progress recorded for this project yet.</strong><br>
+            @endif
+        </div>
+
+        <!-- Table for Project Progress -->
+        <h2>Progress History</h2>
+
+        <!-- Success message -->
+        <div id="successMessage" class="alert alert-success" style="display: none;"></div>
+        <table class="table table-striped">
+            <thead class="thead">
+                <tr>
+                    <th><i class="fas fa-chart-line"></i> Phase</th>
+                    <th><i class="fas fa-chart-line"></i> Phase Progress</th>
+                    <th><i class="fas fa-image"></i> Image</th>
+                    <th><i class="fas fa-comment-dots"></i> Remarks</th>
+                    <th><i class="fas fa-calendar-alt"></i>Updated at</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($progress as $item)
+                    <tr>
+                        <td class="hover-animation">{{ $item->phase }}</td>
+                        <td class="hover-animation">{{ $item->phase_progress }}%</td>
+                        <td>
+                            @if ($item->image)
+                                <img src="{{ asset('storage/' . $item->image) }}" alt="Project Image"
+                                    class="img-thumbnail img-preview" data-image="{{ asset('storage/' . $item->image) }}"
+                                    style="width: 100px; cursor: pointer;">
+                            @else
+                                No Image
+                            @endif
+                        </td>
+                        <td class="hover-animation">{{ $item->remarks }}</td>
+                        <td class="hover-animation">{{ $item->created_at->format('F j, Y') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <a class="btn btn-secondary btn-md" href="{{ route('project.adminIndex') }}">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+
+        <button class="btn btn-warning btn-md" onclick="openUpdateModal('{{ $project->id }}')">
+            <i class="fas fa-plus-circle"></i> Update Progress
+        </button>
+
+        <!-- Modal for Updating Progress -->
+        <div class="modal fade" id="updateProjectProgressModal" tabindex="-1" role="dialog"
+            aria-labelledby="updateProjectProgressModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" id="updateProjectProgressModalLabel">Update Project Progress</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="updateProjectProgressForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" id="project_id" name="project_id" value="{{ $project->id }}">
+
+                            <div class="form-group">
+                                <div id="errorMessages" class="text-danger" style="display: none;"></div>
+
+                                <input type="hidden" id="project_phase" name="phase" required>
+                                <label>Current Phase</label>
+                                <span id="currentPhaseDisplay" class="form-control-plaintext" readonly></span>
+                                <!-- Display current phase -->
+                            </div>
+
+                            <div class="form-group">
+                                <label for="project_phase_progress">Phase Progress</label>
+                                <select id="project_phase_progress" class="form-control custom-select" name="phase_progress"
+                                    required>
+                                    <option value="">Select Progress</option>
+                                    @for ($i = 0; $i <= 100; $i += 10)
+                                        <option value="{{ $i }}">{{ $i }}%</option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="project_image">Upload Image</label>
+                                <input type="file" class="form-control-file" id="project_image" name="image"
+                                    accept="image/*" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="project_remarks">Remarks</label>
+                                <textarea class="form-control" id="project_remarks" name="remarks" rows="3" required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveProjectProgressButton" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Progress Image</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <img id="expandedImage" src="" alt="Expanded Project Image" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+@section('scripts')
+    <script>
+        function openUpdateModal(projectId) {
+            const lastProgress = @json($progress->last());
+            let phase = "phase_one";
+            let currentProgress = 0;
+
+            if (lastProgress) {
+                currentProgress = lastProgress.phase_progress;
+                if (currentProgress == 100) {
+                    if (lastProgress.phase === "phase_one") {
+                        phase = "phase_two";
+                    } else if (lastProgress.phase === "phase_two") {
+                        phase = "phase_three"; // Automatically move to phase_three if phase_two is complete
+                    }
+                } else {
+                    phase = lastProgress.phase; // Keep the current phase if progress is not 100
+                }
+            }
+
+            document.getElementById('project_id').value = projectId;
+            document.getElementById('project_phase').value = phase; // Set phase based on last progress
+            document.getElementById('currentPhaseDisplay').innerText = phase.replace(/_/g, ' ').replace(/\b\w/g, c => c
+                .toUpperCase()); // Display the current phase in a readable format
+            document.getElementById('errorMessages').style.display = 'none'; // Reset error messages
+            document.getElementById('successMessage').style.display = 'none'; // Reset success message
+            $('#updateProjectProgressModal').modal('show');
+
+            // Reset all progress options to enabled initially
+            const progressSelect = document.getElementById('project_phase_progress');
+            for (let option of progressSelect.options) {
+                option.disabled = false;
+                option.classList.remove('disabled-option');
+            }
+
+            // Disable options based on the current phase and progress
+            if (lastProgress && lastProgress.phase === phase) {
+                for (let option of progressSelect.options) {
+                    if (parseInt(option.value) <= currentProgress) {
+                        option.disabled = true;
+                        option.classList.add('disabled-option'); // Add custom class for disabled options
+                    }
+                }
+            }
+        }
+
+
+
+        // Event listener for the save button
+        document.getElementById('saveProjectProgressButton').addEventListener('click', function() {
+            const imageInput = document.getElementById('project_image');
+            const phaseInput = document.getElementById('project_phase');
+            const progressInput = document.getElementById('project_phase_progress');
+            const remarksInput = document.getElementById('project_remarks');
+            const errorMessagesDiv = document.getElementById('errorMessages');
+            const successMessageDiv = document.getElementById('successMessage');
+            let errorMessages = [];
+
+            // Check if all inputs are filled
+            if (!progressInput.value) {
+                errorMessages.push('Phase progress is required.');
+            }
+            if (!imageInput.files.length) {
+                errorMessages.push('Image is required.');
+            }
+
+            // Show error messages if any
+            if (errorMessages.length) {
+                errorMessagesDiv.innerHTML = errorMessages.join('<br>'); // Join messages into a single string
+                errorMessagesDiv.style.display = 'block'; // Show the error messages
+                successMessageDiv.style.display = 'none'; // Hide success message
+                return; // Stop execution
+            } else {
+                errorMessagesDiv.style.display = 'none'; // Hide error messages if all fields are filled
+            }
+
+            const formData = new FormData(document.getElementById('updateProjectProgressForm'));
+
+            // Send AJAX request to store project progress
+            fetch('{{ route('progress.store') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle success
+                    if (data.success) {
+                        location.reload();
+                        successMessageDiv.innerHTML = data.success; // Show success message
+                        successMessageDiv.style.display = 'block'; // Show the success message
+                    } else {
+                        errorMessagesDiv.innerHTML = data.error ||
+                            'An error occurred. Please try again.'; // Show error
+                        errorMessagesDiv.style.display = 'block'; // Show error messages
+                        successMessageDiv.style.display = 'none'; // Hide success message
+                    }
+                })
+                .catch(error => {
+                    errorMessagesDiv.innerHTML = 'An error occurred. Please try again.'; // Show error
+                    errorMessagesDiv.style.display = 'block'; // Show error messages
+                    successMessageDiv.style.display = 'none'; // Hide success message
+                    console.error('Error:', error);
+                });
+        });
+
+        // Image click event to open modal
+        document.querySelectorAll('.img-preview').forEach(image => {
+            image.addEventListener('click', function() {
+                const imgSrc = this.dataset.image; // Get image source
+                const expandedImage = document.getElementById('expandedImage');
+                expandedImage.src = imgSrc; // Set source to the modal image
+                $('#imageModal').modal('show'); // Show modal
+            });
+        });
+    </script>
+@endsection
+
+<style>
+    .btn {
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+    }
+
+    .hover-animation {
+        transition: background-color 0.3s;
+    }
+
+    .disabled-option {
+        background-color: #f0f0f0;
+        color: #aaa;
+        pointer-events: none;
+    }
+
+    .img-thumbnail {
+        border: none;
+        transition: transform 0.3s;
+    }
+
+    .img-thumbnail:hover {
+        transform: scale(1.1);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .modal-header {
+        border-bottom: none;
+    }
+</style>
+@endsection

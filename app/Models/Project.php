@@ -18,7 +18,9 @@ class Project extends Model
         'total_cost',
         'description',
         'project_status',
-        'discount'
+        'discount',
+        'start_date',
+        'end_date',
     ];
 
     /**
@@ -28,6 +30,12 @@ class Project extends Model
     {
         return $this->belongsTo(Service::class);
     }
+    public function progress()
+    {
+        return $this->hasMany(Progress::class); // Adjust based on your actual relationship
+    }
+    
+
 
     /**
      * Get the booking associated with the project.

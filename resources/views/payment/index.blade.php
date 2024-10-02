@@ -12,28 +12,31 @@
             {{ session('success') }}
         </div>
     @endif
- 
+
     <div class="card shadow-sm border-light">
         <div class="card-header bg-info text-white d-flex justify-content-between">
-            <h3 class="mb-0">Payment Records</h3>
+            <h4 class="mb-0">Payment Records</h4>
             <a href="{{ route('welcome') }}" class="btn btn-light text-info btn-sm ml-auto">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
         </div>
 
         <div class="card-body">
+            @if($payments->isEmpty())
+            <p class="text-muted">You do not have any Payment Records</p>
+            @else
             <table class="table table-bordered" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
-                        <th><i class="fas fa-project-diagram"></i> Project ID</th>
-                        <th><i class="fas fa-money-check-alt"></i> Payment Method</th>
-                        <th><i class="fas fa-money-check-alt"></i> Payment Type</th>
-                        <th><i class="fas fa-coins"></i> Amount</th>
-                        <th><i class="fas fa-image"></i> Image</th>
-                        <th><i class="fas fa-info-circle"></i> Payment Status</th>
-                        <th><i class="fas fa-calendar-alt"></i> Payment Date</th>
-                        <th><i class="fas fa-tasks"></i> Action</th>
+                        <th>#</th>
+                        <th>Project ID</th>
+                        <th>Payment Method</th>
+                        <th>Payment Type</th>
+                        <th>Amount</th>
+                        <th>Image</th>
+                        <th>Payment Status</th>
+                        <th>Payment Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,7 +49,7 @@
                             <td>₱{{ number_format($payment->amount, 2) }}</td>
                             <td>
                                 @if ($payment->payment_image)
-                                    <img src="{{ asset('storage/' . $payment->payment_image) }}" alt="Payment Image" style="width: 100px; height: auto; border: 1px solid #ccc; display: block; margin: 0 auto;">
+                                    <img src="{{ asset('storage/' . $payment->payment_image) }}" alt="Payment Image" style="width: 100px; height: auto; border: 1px solid #ccc;">
                                 @else
                                     No Image
                                 @endif
@@ -77,6 +80,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @endif
         </div>
     </div>
 </div>

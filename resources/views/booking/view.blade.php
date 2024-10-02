@@ -92,14 +92,6 @@
 
                 <hr class="my-4">
 
-                <!-- Terms Section -->
-                <div class="payment-terms">
-                    <h4>Booking Terms</h4>
-                    <p>1. A booking confirmation is required to secure the date.</p>
-                    <p>2. Changes to the booking must be made at least 48 hours in advance.</p>
-                    <p>3. Please retain this receipt for your records.</p>
-                </div>
-
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('booking.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back

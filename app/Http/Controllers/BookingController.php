@@ -23,11 +23,33 @@ class BookingController extends Controller
         return view('booking.index', compact('bookings'));
     }
     
-    public function adminBooking()
+    public function adminBooking(Request $request)
     {
-        $bookings = Booking::with('projects')->paginate(10);
+        $query = Booking::query();
+
+        // Apply booking status filter if provided
+        if ($request->filled('booking_status')) {
+            $query->where('booking_status', $request->input('booking_status'));
+        }
+    
+        // Apply date filters if provided
+        if ($request->filled('start_date')) {
+            $query->where('created_at', '>=', $request->input('start_date'));
+        }
+    
+        if ($request->filled('end_date')) {
+            $query->where('created_at', '<=', $request->input('end_date'));
+        }
+    
+        // Fetch filtered bookings
+        $bookings = $query->get();
+    
+    
+        // Pass the filters and sort order to the view
         return view('booking.adminBooking', compact('bookings'));
     }
+    
+    
     
     
     

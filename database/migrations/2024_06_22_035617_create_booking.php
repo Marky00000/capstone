@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id(); // Auto-incrementing ID for the booking
             $table->unsignedBigInteger('user_id');
-            $table->string('name');
-            $table->string('contact');
-            $table->string('email');
-            $table->string('address');
-            $table->string('city');
-            $table->string('province');
+            $table->string('name',20);
+            $table->string('contact',20);
+            $table->string('email',40);
+            $table->string('address',20);
+            $table->string('city',20);
+            $table->string('province',20);
             $table->date('site_visit_date');
             $table->enum('booking_status', ['pending', 'cancelled','confirmed','visited','declined'])->default('pending');
             $table->timestamps();

@@ -15,6 +15,54 @@
             </div>
 
             <div class="card-body">
+                <!-- Filter and Sort Form -->
+                <form action="{{ route('admin.payments.index') }}" method="GET" class="mb-4">
+                    <div class="d-flex align-items-center"> <!-- Use flexbox for closer alignment -->
+
+                        <!-- Payment Status Filter -->
+                        <div class="me-2"> <!-- Added margin to the right -->
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                <select name="payment_status" class="form-select form-select-sm custom-dropdown">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>
+                                        Pending
+                                    </option>
+                                    <option value="approve" {{ request('payment_status') == 'approve' ? 'selected' : '' }}>
+                                        Approved
+                                    </option>
+                                    <option value="decline" {{ request('payment_status') == 'decline' ? 'selected' : '' }}>
+                                        Declined
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Start Date Filter -->
+                        <div class="me-2"> <!-- Added margin to the right -->
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                <input type="date" name="start_date" class="form-control form-control-sm"
+                                    value="{{ request('start_date') }}">
+                            </div>
+                        </div>
+
+                        <!-- End Date Filter -->
+                        <div class="me-2"> <!-- Added margin to the right -->
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                <input type="date" name="end_date" class="form-control form-control-sm"
+                                    value="{{ request('end_date') }}">
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-sm"> <!-- Added 'btn-sm' for smaller size -->
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </form>
+
                 <table class="table table-bordered" style="width: 100%;">
                     <thead>
                         <tr>
@@ -41,7 +89,8 @@
                                     @if ($payment->payment_image)
                                         <a href="#" class="payment-image"
                                             data-image-url="{{ asset('storage/' . $payment->payment_image) }}">
-                                            <img src="{{ asset('storage/' . $payment->payment_image) }}" alt="Payment Image"
+                                            <img src="{{ asset('storage/' . $payment->payment_image) }}"
+                                                alt="Payment Image"
                                                 style="width: 100px; height: auto; border: 1px solid #ccc; display: block; margin: 0 auto;">
                                         </a>
                                     @else
@@ -115,7 +164,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="actionConfirmationModalLabel">Confirmation</h5>
-                    <button type="button" id="cancelActionButton" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" id="cancelActionButton" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to <span id="actionType"></span> this payment?</p>
@@ -158,55 +208,54 @@
         }
     </style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const paymentImageLinks = document.querySelectorAll('.payment-image');
-        const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-        const modalImage = document.getElementById('modalImage');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentImageLinks = document.querySelectorAll('.payment-image');
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            const modalImage = document.getElementById('modalImage');
 
-        paymentImageLinks.forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent the default anchor click behavior
-                const imageUrl = this.getAttribute('data-image-url');
-                modalImage.src = imageUrl; // Set the modal image source
-                modal.show(); // Show the modal
+            paymentImageLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent the default anchor click behavior
+                    const imageUrl = this.getAttribute('data-image-url');
+                    modalImage.src = imageUrl; // Set the modal image source
+                    modal.show(); // Show the modal
+                });
+            });
+
+            // Reset scale on modal close and cleanup
+            document.getElementById('imageModal').addEventListener('hidden.bs.modal', function() {
+                modalImage.style.transform = 'scale(1)'; // Reset scale when the modal closes
+                modalImage.src = ''; // Clear the image source to free memory
+            });
+
+            // Action confirmation modal logic
+            const actionConfirmationModal = new bootstrap.Modal(document.getElementById('actionConfirmationModal'));
+            const actionForm = document.getElementById('actionForm');
+            const actionTypeSpan = document.getElementById('actionType');
+
+            document.querySelectorAll('.approve-btn, .decline-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const paymentId = this.getAttribute('data-id');
+                    const actionType = this.getAttribute('data-action');
+                    actionTypeSpan.innerText = actionType.charAt(0).toUpperCase() + actionType
+                        .slice(1);
+                    actionForm.action = actionType === 'approve' ?
+                        "{{ route('admin.payments.approve', ':id') }}".replace(':id', paymentId) :
+                        "{{ route('admin.payments.decline', ':id') }}".replace(':id', paymentId);
+                    actionConfirmationModal.show();
+                });
+            });
+
+            // Refresh page on cancel
+            document.getElementById('cancelActionButton').addEventListener('click', function() {
+                window.location.reload(); // Refresh the page
+            });
+
+            // Reset action form on modal close
+            document.getElementById('actionConfirmationModal').addEventListener('hidden.bs.modal', function() {
+                actionForm.reset(); // Reset the form inputs if any
             });
         });
-
-        // Reset scale on modal close and cleanup
-        document.getElementById('imageModal').addEventListener('hidden.bs.modal', function() {
-            modalImage.style.transform = 'scale(1)'; // Reset scale when the modal closes
-            modalImage.src = ''; // Clear the image source to free memory
-        });
-
-        // Action confirmation modal logic
-        const actionConfirmationModal = new bootstrap.Modal(document.getElementById('actionConfirmationModal'));
-        const actionForm = document.getElementById('actionForm');
-        const actionTypeSpan = document.getElementById('actionType');
-
-        document.querySelectorAll('.approve-btn, .decline-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const paymentId = this.getAttribute('data-id');
-                const actionType = this.getAttribute('data-action');
-                actionTypeSpan.innerText = actionType.charAt(0).toUpperCase() + actionType.slice(1);
-                actionForm.action = actionType === 'approve' ? 
-                    "{{ route('admin.payments.approve', ':id') }}".replace(':id', paymentId) : 
-                    "{{ route('admin.payments.decline', ':id') }}".replace(':id', paymentId);
-                actionConfirmationModal.show();
-            });
-        });
-
-        // Refresh page on cancel
-        document.getElementById('cancelActionButton').addEventListener('click', function() {
-            window.location.reload(); // Refresh the page
-        });
-
-        // Reset action form on modal close
-        document.getElementById('actionConfirmationModal').addEventListener('hidden.bs.modal', function() {
-            actionForm.reset(); // Reset the form inputs if any
-        });
-    });
-</script>
-
-
+    </script>
 @endsection

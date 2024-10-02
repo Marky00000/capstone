@@ -20,8 +20,8 @@
 
         /* If you still need overflow: hidden for other reasons, consider overriding it here */
         /* .card {
-                                                                    overflow: visible;
-                                                                } */
+                                                                                            overflow: visible;
+                                                                                        } */
 
         .card-header {
             position: relative;
@@ -289,15 +289,6 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
-
-            <div id="alert-message"
-                style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
-                <div class="alert" id="alert-container">
-                    <i id="alert-icon" class="fas fa-exclamation-circle"></i>
-                    <span id="alert-text"></span>
-                </div>
-            </div>
-
             <div class="card-body p-4">
                 <div class="modal fade" id="designModal" tabindex="-1" aria-labelledby="designModalLabel"
                     aria-hidden="true">
@@ -377,6 +368,21 @@
                         </select>
                     </div>
 
+                    <!-- Start Date Input -->
+                    <div class="mb-4">
+                        <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
+                        <input type="date" name="start_date" id="start_date"
+                            class="form-control @error('start_date') is-invalid @enderror"
+                            value="{{ old('start_date', \Carbon\Carbon::now()->addDays(2)->format('Y-m-d')) }}" required
+                            min="{{ \Carbon\Carbon::now()->addDays(2)->format('Y-m-d') }}">
+
+                        @error('start_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+
+
                     <!-- Design ID Display -->
                     <div class="text-center mb-4">
                         <strong>Service Name:</strong> <span id="selectedServiceName">Not selected</span>
@@ -385,7 +391,7 @@
                     <!-- Add Design Button -->
                     <div class="text-center mb-4">
                         <button type="button" class="btn btn-outline-secondary" id="addDesignButton">
-                            <i class="fas fa-plus me-2"></i> Add Design
+                            <i class="fas fa-plus me-2"></i> Choose Service
                         </button>
                     </div>
 
@@ -455,18 +461,44 @@
                     return; // Prevent further submissions if button is already disabled
                 }
 
+                // Check if service is selected
+                var serviceId = $('#service_id').val();
+                if (!serviceId) {
+                    $('#alert-message')
+                        .removeClass('alert-success')
+                        .addClass('alert-danger')
+                        .find('#alert-icon')
+                        .removeClass('fas fa-check-circle')
+                        .addClass('fas fa-exclamation-circle')
+                        .end()
+                        .find('#alert-text')
+                        .html('Service is required.') // Custom error message
+                        .end()
+                        .fadeIn();
+
+                    return; // Exit the function if service is not selected
+                }
+
+                // Gather form data, including the start_date and discount
+                var discount = $('#discount').val(); // Get the discount value
+                if (!discount) {
+                    discount = 0; // Set discount to 0 if null or empty
+                }
+
+                var formData = $(this).serialize() + '&start_date=' + $('#start_date').val() +
+                    '&discount=' + discount;
+
                 // Disable the button to prevent multiple submissions
                 $submitButton.prop('disabled', true);
                 // Show spinner
                 $('#spinner').show(); // Assuming you have a spinner element with this ID
 
-                var formData = $(this).serialize();
-
                 $.ajax({
-                    url: $(this).attr('action'),
+                    url: $(this).attr('action'), // Use form's action attribute
                     type: 'POST',
                     data: formData,
                     success: function(response) {
+                        // Handle success scenario
                         $('#alert-message')
                             .removeClass('alert-danger')
                             .addClass('alert-success')
@@ -475,12 +507,16 @@
                             .addClass('fas fa-check-circle')
                             .end()
                             .find('#alert-text')
-                            .html(response.message)
+                            .html(response.message ||
+                                'Project saved successfully.'
+                            ) // Default message if none provided
                             .end()
                             .fadeIn();
 
-                        // Update total cost display (optional: if needed to reflect the final cost)
-                        $('#costValue').text('₱' + parseFloat(response.cost).toFixed(2));
+                        // Update total cost display (if needed)
+                        if (response.cost) {
+                            $('#costValue').text('₱' + parseFloat(response.cost).toFixed(2));
+                        }
 
                         // Fade out alert after 3 seconds
                         setTimeout(function() {
@@ -490,10 +526,13 @@
                         // Redirect after 3 seconds
                         setTimeout(function() {
                             window.location.href =
-                                "{{ route('project.adminIndex') }}"; // Adjust route as necessary
+                                "{{ route('project.adminIndex') }}"; // Adjust route as needed
                         }, 3000);
                     },
                     error: function(xhr) {
+                        // Handle error scenario
+                        var errors = xhr.responseJSON ? xhr.responseJSON.errors : null;
+
                         $('#alert-message')
                             .removeClass('alert-success')
                             .addClass('alert-danger')
@@ -502,19 +541,38 @@
                             .addClass('fas fa-exclamation-circle')
                             .end()
                             .find('#alert-text')
-                            .html('Please fix the errors below.')
+                            .html('Please fix the errors below.') // Default error message
                             .end()
                             .fadeIn();
 
-                        // Re-enable the button
-                        $submitButton.prop('disabled', false);
+                        // Show specific error messages (if available)
+                        if (errors) {
+                            for (var field in errors) {
+                                if (errors.hasOwnProperty(field)) {
+                                    var $input = $('[name=' + field + ']');
+                                    $input.addClass(
+                                        'is-invalid'); // Highlight input field with error
+                                    $input.siblings('.invalid-feedback').text(errors[field][0])
+                                        .show();
+                                }
+                            }
+                        }
 
+                        // Re-enable the submit button
+                        $submitButton.prop('disabled', false);
+                        // Hide spinner
+                        $('#spinner').hide();
+
+                        // Fade out alert after 3 seconds
                         setTimeout(function() {
                             $('#alert-message').fadeOut();
                         }, 3000);
                     }
                 });
             });
+
+
+
 
             // Handle Add Design Button Click
             $('#addDesignButton').on('click', function() {

@@ -36,7 +36,6 @@ class AuthController extends Controller
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
-        'level' => 'Admin'
     ]);
 
     // Return a JSON response with success message and redirect URL
@@ -61,7 +60,6 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             
-            // Check the user's level and redirect accordingly
             if (Auth::user()->usertype === 'admin') {
                 return redirect()->route('dashboard');
             } else {

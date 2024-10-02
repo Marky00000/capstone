@@ -426,15 +426,15 @@
 
                     <div class="form-group mb-3">
                         <label for="site_visit_date">Date <span class="required">*</span></label>
-                        <input id="site_visit_date" type="date"
-                            class="form-control @error('site_visit_date') is-invalid @enderror" name="site_visit_date"
-                            required>
+                        <input id="site_visit_date" type="date" class="form-control @error('site_visit_date') is-invalid @enderror" 
+                               name="site_visit_date" required min="{{ date('Y-m-d', strtotime('+1 week')) }}">
                         @error('site_visit_date')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
                     </div>
+                    
 
                     <!-- Button Container -->
                     <div class="button-container mb-3">
@@ -495,7 +495,7 @@
                 });
             }
 
-            
+
             // Update confirmation step
             function updateConfirmation() {
                 document.getElementById('confirmName').innerText = document.getElementById('name').value;
@@ -627,6 +627,20 @@
                     });
                 }
             });
+
+            // Set the minimum date to two days from today
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setDate(today.getDate() + 2);
+
+            // Format the date as YYYY-MM-DD
+            const dd = String(minDate.getDate()).padStart(2, '0');
+            const mm = String(minDate.getMonth() + 1).padStart(2, '0'); // January is 0!
+            const yyyy = minDate.getFullYear();
+            const formattedMinDate = `${yyyy}-${mm}-${dd}`;
+
+            // Set the min attribute of the input field
+            document.getElementById('site_visit_date').setAttribute('min', formattedMinDate);
         });
     </script>
 </body>
