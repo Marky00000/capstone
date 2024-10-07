@@ -12,12 +12,15 @@ use Illuminate\Http\Request;
 class PaymentController extends Controller
 {
 
-    // Method to show all payments for the logged-in user
     public function index()
     {
-        // Fetch only payments that belong to the currently logged-in user
-        $payments = Payment::where('id', Auth::id())->get();
-
+        $user = Auth::user();
+    
+        // Fetch payments by traversing the user -> booking -> project -> payment relationships
+        $payments = Payment::whereHas('project.booking', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->get();
+    
         // Return the view for payments, passing the filtered payments data
         return view('payment.index', compact('payments'));
     }

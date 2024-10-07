@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Mail\BookingSuccessMail;
+use App\Mail\BookingConfirmed;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth; // Make sure to include this at the top
@@ -259,19 +260,26 @@ class BookingController extends Controller
     }
     
 
-    public function confirmBooking($id) {
+    public function confirmBooking($id) 
+    {
         $booking = Booking::findOrFail($id);
     
-        // Only change status if it's pending
+        // Check if the booking status is 'pending' before confirming
         if ($booking->booking_status === 'pending') {
             $booking->booking_status = 'confirmed'; // Change status to confirmed
             $booking->save();
-        }
     
-        session()->flash('success', 'Booking confirmed successfully!'); // Set flash message
-        return response()->json(['message' => 'Booking confirmed successfully.']);
+            // Send confirmation email to the booking's email
+            Mail::to($booking->email)->send(new BookingConfirmed($booking));
+            
+            session()->flash('success', 'Booking confirmed successfully!'); // Set flash message
+            return response()->json(['message' => 'Booking confirmed successfully.']);
+        } else {
+            // Handle the case where the booking cannot be confirmed
+            return response()->json(['message' => 'Booking cannot be confirmed as it is already confirmed or cancelled.'], 400);
+        }
     }
-
+    
     
     public function declineBooking($id, Request $request) {
         $booking = Booking::find($id);

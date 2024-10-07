@@ -124,6 +124,8 @@ Route::get('/admin/projects/{id}', [ProjectController::class, 'adminShow'])->nam
 Route::patch('/admin/projects/{project}/hold', [ProjectController::class, 'hold'])->name('project.hold'); // Hold a project
 Route::patch('/admin/projects/{id}/activate', [ProjectController::class, 'activate'])->name('project.activate'); // Activate a project
 Route::get('/admin/projects/reports', [ProjectController::class, 'generateReport'])->name('project.reports'); // Generate project report
+Route::get('/project/{id}', [ProjectController::class, 'view'])->name('project.view');
+
 // Route::get('/projects/{id}/edit', [ProjectController::class, 'edit'])->name('project.edit');
 // Route::post('/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
 

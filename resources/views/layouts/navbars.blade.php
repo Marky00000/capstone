@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <!-- Logo positioned to the far left -->
         @auth
-            @if(Auth::user()->usertype != 'super_admin' && Auth::user()->usertype != 'admin')
+            @if (Auth::user()->usertype != 'super_admin' && Auth::user()->usertype != 'admin')
                 <a class="navbar-brand mr-auto" href="{{ route('welcome') }}" style="display: flex; align-items: center;">
                     <img src="{{ asset('arfil_logo1.png') }}" alt="Arfil's Logo" style="max-width: 55px; margin-right: 10px;">
                     <span>Arfil's Landscaping and Swimmingpool Services</span>
@@ -14,21 +14,27 @@
         <div class="collapse navbar-collapse justify-content-end">
             <ul class="navbar-nav">
                 @auth
-                    @if(Auth::user()->usertype != 'super_admin' && Auth::user()->usertype != 'admin')
+                    @if (Auth::user()->usertype != 'super_admin' && Auth::user()->usertype != 'admin')
                         <!-- About -->
                         <li class="nav-item mr-4">
                             <a class="nav-link text-dark" href="#about">About</a>
                         </li>
-                    
+
                         <li class="nav-item dropdown mr-4">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="servicesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="servicesDropdown"
+                                role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Services
                             </a>
                             <div class="dropdown-menu" aria-labelledby="servicesDropdown">
-                                <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'landscaping']) }}">Landscaping</a>
-                                <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'swimmingpool']) }}">Swimming Pool</a>
-                                <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'renovation']) }}">Renovation</a>
-                                <a class="dropdown-item" href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
+                                <a class="dropdown-item"
+                                    href="{{ route('services.byCategory', ['category' => 'landscaping']) }}">Landscaping</a>
+                                <a class="dropdown-item"
+                                    href="{{ route('services.byCategory', ['category' => 'swimmingpool']) }}">Swimming
+                                    Pool</a>
+                                <a class="dropdown-item"
+                                    href="{{ route('services.byCategory', ['category' => 'renovation']) }}">Renovation</a>
+                                <a class="dropdown-item"
+                                    href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
                             </div>
                         </li>
 
@@ -38,38 +44,66 @@
                             <a class="nav-link text-dark" href="#contact">Contact</a>
                         </li>
 
-                        <!-- Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">0</span>
+                                <span
+                                    class="badge badge-danger badge-counter">{{ session('alerts') ? count(session('alerts')) : 0 }}</span>
                             </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header bg-info">Alerts Center</h6>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header bg-info">
+                                    Alerts Center
+                                </h6>
+                                @if (session('alerts') && is_array(session('alerts')) && count(session('alerts')) > 0)
+                                    @foreach (array_slice(session('alerts'), 0, 5) as $alert)
+                                        @if (is_array($alert) && isset($alert['project_id'], $alert['service_id'], $alert['service_name'], $alert['message']))
+                                            @php
+                                                $url = route('project.view', ['id' => $alert['project_id']]);
+                                            @endphp
+                                            <a class="dropdown-item text-center small text-gray-500"
+                                                href="{{ $url }}">
+                                                Project ID: {{ $alert['project_id'] }} - Service:
+                                                {{ $alert['service_name'] }}<br>
+                                                {{ $alert['message'] }}
+                                            </a>
+                                        @else
+                                            <a class="dropdown-item text-center small text-gray-500" href="#">
+                                                {{ is_array($alert) ? implode(', ', $alert) : $alert }}
+                                                <!-- Convert array to string if needed -->
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <a class="dropdown-item text-center small text-gray-500" href="#">No alerts</a>
+                                @endif
                             </div>
                         </li>
+
                     @endif
                 @endauth
 
                 <!-- Nav Item - User Dropdown -->
                 <li class="nav-item dropdown no-arrow">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @auth
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->name }}</span>
                         @endauth
                         <img class="img-profile rounded-circle" src="{{ asset('man.png') }}">
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                        aria-labelledby="userDropdown">
                         @auth
-                            @if(Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
-                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            @if (Auth::user()->usertype == 'super_admin' || Auth::user()->usertype == 'admin')
+                                <a class="dropdown-item" href="#"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                    style="display: none;">
                                     @csrf
                                 </form>
                             @else
@@ -90,14 +124,16 @@
                                     <i class="fas fa-dollar-sign fa-sm fa-fw mr-2 text-gray-400"></i>
                                     My Payments
                                 </a>
-                                
-    
+
+
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <a class="dropdown-item" href="#"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                    style="display: none;">
                                     @csrf
                                 </form>
                             @endif

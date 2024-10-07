@@ -1,13 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Bookings')
-<title>Arfil's Landscaping Services</title>
-<link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
 @section('content')
-
-    <div class="card shadow-sm rounded-lg border-0">
+    <title>Arfil's Landscaping Services</title>
+    <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <div class="card shadow-sm rounded-lg border-1">
         <div class="card-header stylish-header text-black">
             <h1>Bookings</h1>
         </div>
@@ -73,7 +71,7 @@
             <p class="text-muted">You do not have any bookings at this time. Please contact us to make a booking.</p>
         @else
             <div class="table-responsive">
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover table-striped">
                     <thead class="thead-light">
                         <tr>
                             <th>#</th>
@@ -108,12 +106,12 @@
                                 <td>
                                     <span
                                         class="badge 
-                                        @if ($booking->booking_status == 'pending') badge-warning 
-                                        @elseif($booking->booking_status == 'confirmed') badge-primary 
-                                        @elseif($booking->booking_status == 'visited') badge-success 
-                                        @elseif($booking->booking_status == 'cancelled') badge-danger 
-                                        @elseif($booking->booking_status == 'declined') badge-danger 
-                                        @else badge-secondary @endif">
+                                @if ($booking->booking_status == 'pending') badge-warning 
+                                @elseif($booking->booking_status == 'confirmed') badge-primary 
+                                @elseif($booking->booking_status == 'visited') badge-success 
+                                @elseif($booking->booking_status == 'cancelled') badge-danger 
+                                @elseif($booking->booking_status == 'declined') badge-danger 
+                                @else badge-secondary @endif">
                                         @if ($booking->booking_status == 'pending')
                                             <i class="fas fa-hourglass-half"></i>
                                         @elseif($booking->booking_status == 'confirmed')
@@ -177,6 +175,7 @@
         @endif
     </div>
     </div>
+
 
 
     <!-- Booking Modal -->
@@ -256,159 +255,34 @@
     </div>
 
 
-@endsection
-
-@section('styles')
     <style>
-        /* General Card Styles */
-        .card {
-            border-radius: 8px;
-            border: none;
-        }
-
-        .custom-dropdown {
-            width: 120px;
-            /* Adjust the width as needed */
-        }
-
-
-        .card-header {
-            border-bottom: none;
-            padding: 1rem 1.5rem;
-            font-size: 1.25rem;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .table {
-            margin-bottom: 0;
-            border: none;
-        }
-
-        .table thead th {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f1f3f5;
-        }
-
-        /* Modal Styles */
-        .modal-content {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-header {
-            border-bottom: none;
-            padding: 1rem 1.5rem;
-            background-color: #007bff;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-title {
-            flex: 1;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 10px 0 0;
-        }
-
-        .modal-body {
-            padding: 2rem;
-            background-color: #f9f9f9;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .modal-footer {
-            padding: 1rem 1.5rem;
-            border-top: none;
-            background-color: #f9f9f9;
-            border-radius: 0 0 15px 15px;
-        }
-
-        /* Button Styles */
-        .btn {
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-info {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-        }
-
-        /* Pagination Styles */
-        .pagination-wrapper {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .pagination-wrapper .pagination {
-            display: inline-flex;
-            list-style: none;
+        /* Container styling to remove padding for full-width table */
+        .container-fluid {
             padding: 0;
-            margin: 0;
         }
 
-        .pagination-wrapper .page-item {
-            margin: 0 2px;
+        /* Table styling */
+        .table {
+            font-size: 15px;
+            /* Increase font size */
         }
 
-        .pagination-wrapper .page-link {
-            padding: 10px 15px;
-            border-radius: 8px;
-            background-color: #007bff;
-            color: #fff;
-            border: 1px solid #007bff;
-        }
-
-        .pagination-wrapper .page-link:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-
-        /* Modal Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Pricing Factors Styles */
-        .pricing-factors {
-            border: 1px solid #ddd;
+        th,
+        td {
             padding: 15px;
-            border-radius: 8px;
-            background-color: #f9f9f9;
+            /* Increase cell padding */
         }
 
-        .logo {
-            max-height: 50px;
+        th {
+            background-color: #d3d3d3;
+            /* Grey background for table headers */
+            color: #333;
+            /* Optional: change text color for better visibility */
         }
     </style>
-@endsection
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-@section('scripts')
     <script>
         $(document).ready(function() {
             // Show the booking details in the modal when clicking the "View" button

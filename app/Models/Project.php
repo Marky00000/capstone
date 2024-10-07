@@ -14,7 +14,9 @@ class Project extends Model
     protected $fillable = [
         'booking_id',
         'service_id',
+        'service_ids',
         'lot_area',
+        'cost',
         'total_cost',
         'description',
         'project_status',
@@ -26,6 +28,10 @@ class Project extends Model
     /**
      * Get the service associated with the project.
      */
+    protected $casts = [
+        'service_ids' => 'array',
+    ];
+    
     public function service()
     {
         return $this->belongsTo(Service::class);

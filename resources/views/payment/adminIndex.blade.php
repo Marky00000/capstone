@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+<title>Arfil's Landscaping Services</title>
+<link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
     <div class="container-fluid mt-4">
 
         @if (session('success'))
@@ -9,7 +11,7 @@
             </div>
         @endif
 
-        <div class="card shadow-sm border-light">
+        <div class="card shadow-sm rounded-lg border-1">
             <div class="card-header stylish-header text-black">
                 <h1>Payments</h1>
             </div>
@@ -63,7 +65,7 @@
                     </div>
                 </form>
 
-                <table class="table table-bordered" style="width: 100%;">
+                <table class="table table-bordered table-striped" style="width: 100%;">
                     <thead>
                         <tr>
                             <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
@@ -113,12 +115,12 @@
                                     @endif
                                 </td>
                                 <td>{{ $payment->created_at->format('F j, Y') }}</td>
-
+                
                                 <td>
                                     <a href="{{ route('admin.payments.show', $payment->id) }}" class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i> View
                                     </a>
-
+                
                                     <!-- Approve and Decline Buttons -->
                                     @if ($payment->payment_status === 'pending')
                                         <button type="button" class="btn btn-success btn-sm approve-btn"
@@ -137,6 +139,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                
             </div>
         </div>
     </div>

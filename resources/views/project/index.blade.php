@@ -35,19 +35,18 @@
                     <table class="table table-striped table-bordered">
                         <thead class="thead-light">
                             <tr>
-                                <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
+                                <th><i class="fas fa-hashtag"></i> #</th>
                                 <th><i class="fas fa-book"></i> Booking ID</th>
-                                <th><i class="fas fa-concierge-bell"></i> Service Name</th>
-                                <th><i class="fas fa-calendar-alt"></i> Site Visit Date</th>
+                                <th><i class="fas fa-briefcase"></i> Service Name</th>
+                                <th><i class="fas fa-calendar-check"></i> Site Visit Date</th>
                                 <th><i class="fas fa-map-marker-alt"></i> Address</th>
                                 <th><i class="fas fa-map"></i> Province</th>
                                 <th><i class="fas fa-city"></i> City</th>
-                                <th><i class="fas fa-arrows-alt-h icon-faded-gray"></i> Lot Area</th>
+                                <th><i class="fas fa-ruler-combined"></i> Lot Area</th>
                                 <th><i class="fas fa-money-bill-wave"></i> Total Cost</th>
-                                <th><i class="fas fa-money-bill-wave"></i> Total Paid</th>
-
-                                <th><i class="fas fa-clipboard-check"></i> Status</th>
-                                <th><i class="fas fa-cogs"></i> Actions</th>
+                                <th><i class="fas fa-wallet"></i> Total Paid</th>
+                                <th><i class="fas fa-tasks"></i> Status</th>
+                                <th><i class="fas fa-cog"></i> Actions</th>
                             </tr>
 
                         </thead>
@@ -68,25 +67,18 @@
 
                                     <td>
                                         @php
-                                            // Set the icon class based on the project status
-                                            $iconClass = '';
-                                            $badgeClass = '';
-
-                                            if ($project->project_status == 'pending') {
-                                                $iconClass = 'fas fa-hourglass-start';
-                                                $badgeClass = 'badge-warning';
-                                            } elseif ($project->project_status == 'active') {
-                                                $iconClass = 'fas fa-check-circle';
-                                                $badgeClass = 'badge-success';
-                                            } elseif ($project->project_status == 'hold') {
-                                                $iconClass = 'fas fa-pause-circle';
-                                                $badgeClass = 'badge-danger';
-                                            } elseif ($project->project_status == 'finish') {
-                                                $iconClass = 'fas fa-check-double';
-                                                $badgeClass = 'badge-primary';
-                                            }
+                                            // Set the icon class and badge based on the project status
+                                            $statusClasses = [
+                                                'pending' => ['fas fa-hourglass-start', 'badge-warning'],
+                                                'active' => ['fas fa-check-circle', 'badge-success'],
+                                                'hold' => ['fas fa-pause-circle', 'badge-danger'],
+                                                'finish' => ['fas fa-check-double', 'badge-primary'],
+                                            ];
+                                            [$iconClass, $badgeClass] = $statusClasses[$project->project_status] ?? [
+                                                'fas fa-question-circle',
+                                                'badge-secondary',
+                                            ];
                                         @endphp
-
                                         <span class="badge {{ $badgeClass }}">
                                             <i class="{{ $iconClass }}"></i>
                                             {{ ucfirst($project->project_status) }}
@@ -97,7 +89,6 @@
                                         <a href="{{ route('project.view', $project->id) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i> View
                                         </a>
-
 
                                         @php
                                             $totalCost = $project->total_cost;
@@ -115,14 +106,11 @@
                                         @endphp
 
                                         @if ($totalPaid < $totalCost)
-                                            <!-- Show button only if total_paid is less than total_cost -->
                                             <a href="{{ route('pay', ['id' => $project->id]) }}"
                                                 class="btn btn-success btn-sm">
                                                 <i class="fas fa-dollar-sign"></i> {{ $buttonLabel }}
                                             </a>
                                         @endif
-
-
                                     </td>
                                 </tr>
                             @endforeach
@@ -134,9 +122,8 @@
                 {{ $projects->links('pagination::bootstrap-4') }}
             </div>
         </div>
-
-        
     </div>
+
 @endsection
 
 @section('styles')

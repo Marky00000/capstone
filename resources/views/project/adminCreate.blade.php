@@ -20,8 +20,8 @@
 
         /* If you still need overflow: hidden for other reasons, consider overriding it here */
         /* .card {
-                                                                                            overflow: visible;
-                                                                                        } */
+                                                                                                                                                            overflow: visible;
+                                                                                                                                                        } */
 
         .card-header {
             position: relative;
@@ -289,13 +289,14 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
+
             <div class="card-body p-4">
                 <div class="modal fade" id="designModal" tabindex="-1" aria-labelledby="designModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="designModalLabel">Choose a Design</h5>
+                                <h5 class="modal-title" id="designModalLabel">Choose Services</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
@@ -306,7 +307,7 @@
                     </div>
                 </div>
 
-                <div id="alert-message" class="alert alert-dismissible fade show" role="alert">
+                <div id="alert-message" class="alert alert-dismissible fade show" role="alert" style="display:none;">
                     <span class="icon">
                         <i id="alert-icon" class="fas"></i>
                     </span>
@@ -317,32 +318,9 @@
                 <form id="project-form" action="{{ route('projects.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="booking_id" value="{{ $booking_id }}">
-
-                    <!-- Category Selection -->
-                    <div class="form-group mb-4">
-                        <label for="category" class="form-label">Category</label>
-                        <span class="text-danger">*</span>
-                        <select name="category" class="form-select" id="category" required>
-                            <option value="">Select a category</option>
-                            <option value="landscaping" {{ old('category') == 'landscaping' ? 'selected' : '' }}>Landscaping
-                            </option>
-                            <option value="swimmingpool" {{ old('category') == 'swimmingpool' ? 'selected' : '' }}>Swimming
-                                Pool</option>
-                            <option value="renovation" {{ old('category') == 'renovation' ? 'selected' : '' }}>Renovation
-                            </option>
-                            <option value="package" {{ old('category') == 'package' ? 'selected' : '' }}>Package
-                            </option>
-                            <option value="maintenance" {{ old('category') == 'maintenance' ? 'selected' : '' }}>Maintenance
-                            </option>
-                        </select>
-                    </div>
-
-
-
-                    <!-- Hidden Inputs -->
-                    <input type="hidden" name="service_id" id="service_id">
                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
+                    <!-- Lot Area -->
                     <div class="mb-4">
                         <label for="lot_area" class="form-label">Lot Area (sqm) <span class="text-danger">*</span></label>
                         <input placeholder="min 20 - max 300" name="lot_area" id="lot_area"
@@ -351,49 +329,87 @@
                         @error('lot_area')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <div class="invalid-feedback" id="lotAreaFeedback" style="display: none;">
-                            Lot Area must be between 20 and 300 sqm.
-                        </div>
                     </div>
 
-                    <!-- Discount Selection -->
+                    <!-- Category Selection -->
+                    <div class="form-group mb-4">
+                        <label for="category" class="form-label">Category</label>
+                        <span class="text-danger">*</span>
+                        <select name="category" class="form-select" id="category" required>
+                            <option value="">Select a category</option>
+                            <option value="landscaping" {{ old('category') == 'landscaping' ? 'selected' : '' }}>
+                                Landscaping
+                            </option>
+                            <option value="swimmingpool" {{ old('category') == 'swimmingpool' ? 'selected' : '' }}>
+                                Swimming
+                                Pool</option>
+                            <option value="renovation" {{ old('category') == 'renovation' ? 'selected' : '' }}>Renovation
+                            </option>
+                            <option value="package" {{ old('category') == 'package' ? 'selected' : '' }}>Package</option>
+                            <option value="maintenance" {{ old('category') == 'maintenance' ? 'selected' : '' }}>
+                                Maintenance
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <!-- Hidden Input for Service IDs -->
+                    <input type="hidden" name="service_ids" id="service_ids">
+
+
+
+
+
+                    <div class="mb-4">
+                        <label for="cost" class="form-label">Cost (PHP) <span class="text-danger">*</span></label>
+                        <input type="number" name="cost" id="cost" class="form-control" placeholder="Enter cost"
+                            required min="0" step="0.01">
+                    </div>
+
+                    <!-- Discount -->
                     <div class="mb-4">
                         <label for="discount" class="form-label">Discount<span class="text-danger">*</span></label>
                         <select name="discount" class="form-select" id="discount">
                             <option value="">Select a discount</option>
                             @foreach ($discounts as $discount)
-                                <!-- Assume $discounts is passed from the controller -->
                                 <option value="{{ $discount }}">{{ $discount }}%</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- Start Date Input -->
+                    <div class="mb-4">
+                        <label for="total_cost" class="form-label">Total Cost (PHP)</label>
+                        <input type="text" id="total_cost" class="form-control" value="₱0.00" readonly>
+                    </div>
+
+
+                    <!-- Start Date -->
                     <div class="mb-4">
                         <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
                         <input type="date" name="start_date" id="start_date"
                             class="form-control @error('start_date') is-invalid @enderror"
                             value="{{ old('start_date', \Carbon\Carbon::now()->addDays(2)->format('Y-m-d')) }}" required
                             min="{{ \Carbon\Carbon::now()->addDays(2)->format('Y-m-d') }}">
-
                         @error('start_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
 
-
-                    <!-- Design ID Display -->
+                    <!-- Selected Services Display -->
                     <div class="text-center mb-4">
-                        <strong>Service Name:</strong> <span id="selectedServiceName">Not selected</span>
+                        <strong>Selected Services:</strong>
+                        <ul id="selectedServicesList"></ul> <!-- Display selected services -->
                     </div>
 
-                    <!-- Add Design Button -->
                     <div class="text-center mb-4">
-                        <button type="button" class="btn btn-outline-secondary" id="addDesignButton">
-                            <i class="fas fa-plus me-2"></i> Choose Service
+                        <button type="button" class="btn btn-outline-secondary" id="addDesignButton"
+                            data-bs-toggle="modal" data-bs-target="#designModal">
+                            <i class="fas fa-plus me-2"></i> Choose Services
                         </button>
                     </div>
+
+
 
                     <!-- Save and Cancel Buttons -->
                     <div class="d-flex justify-content-between">
@@ -405,188 +421,147 @@
                             <i class="fas fa-times me-1"></i> Cancel
                         </a>
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
 
 
+
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Event listener for input changes
-            $('#category, #complexity, #lot_area, #discount').on('change input', function() {
-                const selectedCategory = $('#category').val();
-                const lotArea = parseFloat($('#lot_area').val()) || 0; // Get lot area
-                const discount = parseFloat($('#discount').val()) || 0; // Get discount percentage
+<script>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-                // Check if required inputs are filled
-                if (selectedCategory && selectedComplexity && lotArea > 0) {
-                    // Call the server to calculate the total cost
-                    $.ajax({
-                        url: '/calculate-cost', // Update with your route for calculating cost
-                        type: 'POST',
-                        data: {
-                            category: selectedCategory,
-                            lot_area: lotArea,
-                            discount: discount,
-                            _token: $('meta[name="csrf-token"]').attr(
-                                'content') // Include CSRF token
-                        },
-                        success: function(response) {
-                            $('#costValue').text('₱' + parseFloat(response.cost).toFixed(
-                                2)); // Update displayed cost
-                        },
-                        error: function(xhr) {
-                            $('#costValue').text('₱0.00'); // Reset to zero if an error occurs
-                        }
-                    });
-                } else {
-                    $('#costValue').text('₱0.00'); // Reset to zero if inputs are invalid
-                }
-            });
+<script>
+    $(document).ready(function() {
+        // Array to hold selected services
+        let selectedServices = [];
 
-            $('#project-form').on('submit', function(event) {
-                event.preventDefault(); // Prevent default form submission
+        // Event listener for input changes
+        $('#category, #complexity, #lot_area, #discount').on('change input', function() {
+            const selectedCategory = $('#category').val();
+            const lotArea = parseFloat($('#lot_area').val()) || 0;
+            const cost = parseFloat($('#cost').val()) || 0;
+            const discount = parseFloat($('#discount').val()) || 0;
 
-                var $submitButton = $(this).find('button[type="submit"]');
-                if ($submitButton.prop('disabled')) {
-                    return; // Prevent further submissions if button is already disabled
-                }
-
-                // Check if service is selected
-                var serviceId = $('#service_id').val();
-                if (!serviceId) {
-                    $('#alert-message')
-                        .removeClass('alert-success')
-                        .addClass('alert-danger')
-                        .find('#alert-icon')
-                        .removeClass('fas fa-check-circle')
-                        .addClass('fas fa-exclamation-circle')
-                        .end()
-                        .find('#alert-text')
-                        .html('Service is required.') // Custom error message
-                        .end()
-                        .fadeIn();
-
-                    return; // Exit the function if service is not selected
-                }
-
-                // Gather form data, including the start_date and discount
-                var discount = $('#discount').val(); // Get the discount value
-                if (!discount) {
-                    discount = 0; // Set discount to 0 if null or empty
-                }
-
-                var formData = $(this).serialize() + '&start_date=' + $('#start_date').val() +
-                    '&discount=' + discount;
-
-                // Disable the button to prevent multiple submissions
-                $submitButton.prop('disabled', true);
-                // Show spinner
-                $('#spinner').show(); // Assuming you have a spinner element with this ID
-
+            if (selectedCategory && lotArea > 0) {
                 $.ajax({
-                    url: $(this).attr('action'), // Use form's action attribute
+                    url: '/calculate-cost',
                     type: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        // Handle success scenario
-                        $('#alert-message')
-                            .removeClass('alert-danger')
-                            .addClass('alert-success')
-                            .find('#alert-icon')
-                            .removeClass('fas fa-exclamation-circle')
-                            .addClass('fas fa-check-circle')
-                            .end()
-                            .find('#alert-text')
-                            .html(response.message ||
-                                'Project saved successfully.'
-                            ) // Default message if none provided
-                            .end()
-                            .fadeIn();
-
-                        // Update total cost display (if needed)
-                        if (response.cost) {
-                            $('#costValue').text('₱' + parseFloat(response.cost).toFixed(2));
-                        }
-
-                        // Fade out alert after 3 seconds
-                        setTimeout(function() {
-                            $('#alert-message').fadeOut();
-                        }, 3000);
-
-                        // Redirect after 3 seconds
-                        setTimeout(function() {
-                            window.location.href =
-                                "{{ route('project.adminIndex') }}"; // Adjust route as needed
-                        }, 3000);
+                    data: {
+                        services: selectedServices,
+                        lot_area: lotArea,
+                        discount: discount,
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     },
-                    error: function(xhr) {
-                        // Handle error scenario
-                        var errors = xhr.responseJSON ? xhr.responseJSON.errors : null;
-
-                        $('#alert-message')
-                            .removeClass('alert-success')
-                            .addClass('alert-danger')
-                            .find('#alert-icon')
-                            .removeClass('fas fa-check-circle')
-                            .addClass('fas fa-exclamation-circle')
-                            .end()
-                            .find('#alert-text')
-                            .html('Please fix the errors below.') // Default error message
-                            .end()
-                            .fadeIn();
-
-                        // Show specific error messages (if available)
-                        if (errors) {
-                            for (var field in errors) {
-                                if (errors.hasOwnProperty(field)) {
-                                    var $input = $('[name=' + field + ']');
-                                    $input.addClass(
-                                        'is-invalid'); // Highlight input field with error
-                                    $input.siblings('.invalid-feedback').text(errors[field][0])
-                                        .show();
-                                }
-                            }
-                        }
-
-                        // Re-enable the submit button
-                        $submitButton.prop('disabled', false);
-                        // Hide spinner
-                        $('#spinner').hide();
-
-                        // Fade out alert after 3 seconds
-                        setTimeout(function() {
-                            $('#alert-message').fadeOut();
-                        }, 3000);
+                    success: function(response) {
+                        $('#costValue').text('₱' + parseFloat(response.cost).toFixed(2));
+                        const totalCost = cost - (cost * (discount / 100));
+                        $('#total_cost').val('₱' + totalCost.toFixed(2));
+                    },
+                    error: function() {
+                        resetCostDisplay();
                     }
                 });
+            } else {
+                resetCostDisplay();
+            }
+        });
+
+        function resetCostDisplay() {
+            $('#costValue').text('₱0.00');
+            $('#total_cost').val('₱0.00');
+        }
+
+        $('#project-form').on('submit', function(event) {
+            event.preventDefault();
+
+            const $submitButton = $(this).find('button[type="submit"]');
+            if ($submitButton.prop('disabled')) return;
+
+            if (selectedServices.length === 0) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'At least one service is required.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            let discount = $('#discount').val() || 0;
+            const firstServiceId = selectedServices[0].id;
+
+            const formData = $(this).serialize() +
+                '&start_date=' + $('#start_date').val() +
+                '&discount=' + discount +
+                '&service_id=' + firstServiceId +
+                '&service_ids[]=' + selectedServices.map(service => service.id).join('&service_ids[]=') +
+                '&services=' + JSON.stringify(selectedServices);
+
+            $submitButton.prop('disabled', true);
+            $('#spinner').show();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Show SweetAlert for project creation success
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message || 'Project saved successfully!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+
+                    if (response.cost) {
+                        $('#costValue').text('₱' + parseFloat(response.cost).toFixed(2));
+                    }
+                    setTimeout(() => {
+                        window.location.href = "{{ route('project.adminIndex') }}";
+                    }, 3000);
+                },
+                error: function(xhr) {
+                    const errors = xhr.responseJSON ? xhr.responseJSON.errors : null;
+                    if (errors) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please fix the errors below.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+
+                    $submitButton.prop('disabled', false);
+                    $('#spinner').hide();
+                }
             });
+        });
 
+        // Handle Add Design Button Click
+        $('#addDesignButton').on('click', function() {
+            const selectedCategory = $('#category').val();
+            if (!selectedCategory) return;
 
+            $.ajax({
+                url: '/designs/' + selectedCategory,
+                type: 'GET',
+                success: function(response) {
+                    const designsContainer = $('#designsContainer');
+                    designsContainer.empty();
 
-
-            // Handle Add Design Button Click
-            $('#addDesignButton').on('click', function() {
-                var selectedCategory = $('#category').val();
-                if (selectedCategory) {
-                    $.ajax({
-                        url: '/designs/' + selectedCategory,
-                        type: 'GET',
-                        success: function(response) {
-                            var designsContainer = $('#designsContainer');
-                            designsContainer.empty();
-                            if (Array.isArray(response)) {
-                                $.each(response, function(index, design) {
-                                    designsContainer.append(`
+                    if (Array.isArray(response) && response.length) {
+                        response.forEach(design => {
+                            designsContainer.append(`
                                 <div class="design-card" data-id="${design.id}" data-name="${design.name}" data-complexity="${design.complexity}">
                                     <img src="${design.design}" class="design-img" alt="${design.name}">
                                     <div class="design-card-content">
@@ -594,55 +569,68 @@
                                         <p>${design.description}</p>
                                         <p><strong>Complexity:</strong> ${design.complexity}</p>
                                     </div>
+                                    <button class="select-design-btn btn btn-primary">Select</button>
                                 </div>
                             `);
+                        });
+
+                        var designModal = new bootstrap.Modal(document.getElementById('designModal'));
+                        designModal.show();
+
+                        // Attach click event to select design buttons
+                        $('.select-design-btn').off('click').on('click', function() {
+                            const card = $(this).closest('.design-card');
+                            const id = card.data('id');
+                            const name = card.data('name');
+                            const complexity = card.data('complexity');
+
+                            if (!selectedServices.some(service => service.id === id)) {
+                                selectedServices.push({
+                                    id,
+                                    name,
+                                    complexity
                                 });
 
-                                // Attach click event to each design card
-                                $('.design-card').on('click', function() {
-                                    var id = $(this).data('id');
-                                    var name = $(this).data('name');
-                                    var complexity = $(this).data(
-                                        'complexity'
-                                    ); // Get the complexity of the service
-                                    $('#service_id').val(id);
-                                    $('#selectedServiceId').text(id);
-                                    $('#selectedServiceName').text(name);
-                                    $('#selectedComplexity').val(
-                                        complexity
-                                    ); // Store complexity in a hidden field
+                                $('#service_id').val(selectedServices.map(service => service.id).join(','));
+                                updateSelectedServicesDisplay();
 
-                                    // Hide the modal using Bootstrap's method
-                                    var designModal = bootstrap.Modal.getInstance(
-                                        document.getElementById('designModal'));
-                                    if (designModal) {
-                                        designModal.hide(); // Close the modal
-                                    }
-
-                                    // Ensure the backdrop is removed and CSS adjustments are reset
-                                    $('.modal-backdrop').remove();
-                                    $('body').removeClass(
-                                        'modal-open'); // Allow scrolling again
-                                    $('body').css('padding-right',
-                                        ''); // Reset any padding adjustments
-                                });
-
-                                // Show the modal
-                                var designModal = new bootstrap.Modal(document.getElementById(
-                                    'designModal'));
-                                designModal.show();
+                                var designModal = bootstrap.Modal.getInstance(document.getElementById('designModal'));
+                                if (designModal) {
+                                    designModal.hide();
+                                }
+                                // Cleanup
+                                $('.modal-backdrop').remove();
+                                $('body').removeClass('modal-open').css('padding-right', '');
                             } else {
-                                designsContainer.html('<p>No designs available.</p>');
+                                alert('Service already selected!');
                             }
-                        },
-                        error: function(xhr) {
-                            console.error('Error fetching designs:', xhr.responseText);
-                        }
-                    });
+                        });
+                    } else {
+                        designsContainer.html('<p>No designs available.</p>');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error fetching designs:', xhr.responseText);
                 }
             });
         });
-    </script>
+
+        // Function to update the display of selected services
+        function updateSelectedServicesDisplay() {
+            const $selectedServicesList = $('#selectedServicesList');
+            $selectedServicesList.empty();
+
+            selectedServices.forEach(service => {
+                $selectedServicesList.append(
+                    `<li>${service.name} (ID: ${service.id}, Complexity: ${service.complexity})</li>`
+                );
+            });
+        }
+    });
+</script>
+
+
+
 
 
 

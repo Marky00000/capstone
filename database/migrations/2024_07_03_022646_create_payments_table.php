@@ -20,8 +20,8 @@ class CreatePaymentsTable extends Migration
             $table->enum('payment_status', ['approve', 'decline','pending'])->default('pending'); // Payment status (fixed lowercase 'Approve' to 'approve')
             $table->enum('payment_method', ['cash', 'gcash', 'bank_transfer'])->default('cash'); // Default payment method
             $table->decimal('amount', 10, 2)->nullable(); // Amount with precision and scale
-            $table->string('payment_image',20)->nullable(); // Path for payment image
-            $table->text('remarks')->nullable(); // Optional remarks
+            $table->string('payment_image',80)->nullable(); // Path for payment image
+            $table->text('remarks')->nullable(); // Optional remarks    a
             $table->timestamps();
 
             // Foreign key constraint

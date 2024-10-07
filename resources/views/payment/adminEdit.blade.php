@@ -35,11 +35,11 @@
                     <div class="mb-3">
                         <label for="amount" class="form-label">Payment Amount <span style="color: red;">*</span></label>
                         <input type="number" name="amount" id="amount" class="form-control" required
-                            min="{{ $project->total_paid == 0 ? $project->total_cost * 0.25 : 0 }}"
+                            min="{{ $project->total_paid == 0 ? $project->total_cost * 0.50 : 0 }}"
                             max="{{ $project->total_cost - $project->total_paid }}" step="0.01"
-                            value="{{ old('amount', $project->total_paid == 0 ? $project->total_cost * 0.25 : 0) }}">
+                            value="{{ old('amount', $project->total_paid == 0 ? $project->total_cost * 0.50 : 0) }}">
                         <div class="form-text text-primary">
-                            The payment amount must be between ₱{{ number_format($project->total_cost * 0.25, 2) }} and ₱{{ number_format($project->total_cost - $project->total_paid, 2) }}.
+                            The payment amount must be between ₱{{ number_format($project->total_cost * 0.50, 2) }} and ₱{{ number_format($project->total_cost - $project->total_paid, 2) }}.
                         </div>
                     </div>
 

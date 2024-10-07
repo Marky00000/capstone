@@ -28,16 +28,17 @@
             <table class="table table-bordered" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Project ID</th>
-                        <th>Payment Method</th>
-                        <th>Payment Type</th>
-                        <th>Amount</th>
-                        <th>Image</th>
-                        <th>Payment Status</th>
-                        <th>Payment Date</th>
-                        <th>Action</th>
+                        <th><i class="fas fa-hashtag"></i> #</th>
+                        <th><i class="fas fa-project-diagram"></i> Project ID</th>
+                        <th><i class="fas fa-wallet"></i> Payment Method</th>
+                        <th><i class="fas fa-credit-card"></i> Payment Type</th>
+                        <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                        <th><i class="fas fa-image"></i> Image</th>
+                        <th><i class="fas fa-check-circle"></i> Payment Status</th>
+                        <th><i class="fas fa-calendar-alt"></i> Payment Date</th>
+                        <th><i class="fas fa-cog"></i> Action</th>
                     </tr>
+                    
                 </thead>
                 <tbody>
                     @foreach ($payments as $payment)

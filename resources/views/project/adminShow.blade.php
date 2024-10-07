@@ -60,7 +60,11 @@
                             <td>{{ $projects->discount }}%</td>
                         </tr>
                         <tr>
-                            <th>Total Cost</th>
+                            <th>Total</th>
+                            <td>₱{{ number_format($projects->cost, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <th>Grand Total</th>
                             <td>₱{{ number_format($projects->total_cost, 2) }}</td>
                         </tr>
                         <tr>
