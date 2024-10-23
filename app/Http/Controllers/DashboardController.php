@@ -19,9 +19,9 @@ class DashboardController extends Controller
         $totalBookings = Booking::count();
 
         // Fetch total projects with status 'active'
-        $totalProjects = Project::where('project_status', 'active')->count();
+        $totalProjects = Project::where('project_status', 'active' || 'project_status', 'pending')->count();
 
-        $totalRevenue = Payment::where('payment_status', 'approve')->sum('amount');
+        $totalRevenue = Payment::sum('amount');
 
         // Fetch revenue data for the chart
         $revenues = Payment::selectRaw('MONTH(created_at) as month, SUM(amount) as total')

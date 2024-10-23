@@ -6,6 +6,7 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Mail\BookingSuccessMail;
 use App\Mail\BookingConfirmed;
+use App\Mail\BookingDeclined;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth; // Make sure to include this at the top
@@ -15,14 +16,32 @@ use Illuminate\Support\Facades\Auth; // Make sure to include this at the top
 
 class BookingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch bookings for the currently authenticated user
-        $bookings = Booking::where('user_id', Auth::id())->paginate(10);
-
-
+        // Initialize the query for fetching bookings
+        $query = Booking::where('user_id', Auth::id());
+    
+        // Apply booking status filter if provided
+        if ($request->filled('booking_status')) {
+            $query->where('booking_status', $request->input('booking_status'));
+        }
+    
+        // Apply date filters if provided
+        if ($request->filled('start_date')) {
+            $query->where('created_at', '>=', $request->input('start_date'));
+        }
+    
+        if ($request->filled('end_date')) {
+            $query->where('created_at', '<=', $request->input('end_date'));
+        }
+    
+        // Paginate the filtered bookings
+        $bookings = $query->paginate(10);
+    
+        // Return the view with the filtered bookings
         return view('booking.index', compact('bookings'));
     }
+    
     
     public function adminBooking(Request $request)
     {
@@ -199,6 +218,13 @@ class BookingController extends Controller
   
 
 
+    public function adminShow($id)
+    {
+        $booking = Booking::findOrFail($id);
+        return view('booking.adminShow', compact('booking'));
+    }
+    
+
     
     public function store(Request $request)
     {
@@ -244,6 +270,8 @@ class BookingController extends Controller
     
         return response()->json(['message' => 'Booking created successfully.']);
     }
+    
+    
 
     public function cancelBooking($id) {
         $booking = Booking::findOrFail($id);
@@ -281,21 +309,26 @@ class BookingController extends Controller
     }
     
     
-    public function declineBooking($id, Request $request) {
-        $booking = Booking::find($id);
+    public function declineBooking($id)
+    {
+        $booking = Booking::findOrFail($id);
     
-        // Check if the booking exists
-        if (!$booking) {
-            return response()->json(['message' => 'Booking not found.'], 404);
+        // Check if the booking status is 'pending' before declining
+        if ($booking->booking_status === 'pending') {
+            $booking->booking_status = 'declined'; // Change status to declined
+            $booking->save();
+    
+            // Send decline email to the booking's email
+            Mail::to($booking->email)->send(new BookingDeclined($booking));
+    
+            session()->flash('success', 'Booking has been declined!'); // Set flash message
+            return response()->json(['message' => 'Booking has been declined.']);
+        } else {
+            // Handle the case where the booking cannot be declined
+            return response()->json(['message' => 'Booking cannot be declined as it is already confirmed, visited, or cancelled.'], 400);
         }
-    
-        // Update the booking status to 'declined'
-        $booking->booking_status = 'declined';
-        $booking->save();
-    
-        session()->flash('success', 'Booking has been declined!'); // Set flash message
-        return response()->json(['message' => 'Booking has been declined!']);
     }
+    
 
 public function view($id)
 {

@@ -26,7 +26,8 @@
             @endif
 
             @if ($quotations->isEmpty())
-                <p class="text-muted">You do not have any quotations at this time. Please contact us to request a quotation.</p>
+                <p class="text-muted">You do not have any quotations at this time. Please contact us to request a quotation.
+                </p>
             @else
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
@@ -42,8 +43,8 @@
                                 <th><i class="fas fa-calendar-alt icon-faded-gray"></i> Working Days</th>
                                 <th><i class="fas fa-cogs icon-faded-gray"></i> Actions</th>
                             </tr>
-                            
-                            
+
+
                         </thead>
                         <tbody>
                             @foreach ($quotations as $quotation)
@@ -57,10 +58,16 @@
                                     <td>₱{{ number_format($quotation->amount) }}</td>
                                     <td>{{ $quotation->working_days }} Days</td>
                                     <td>
-                                        <a href="{{ route('quotation.details', $quotation->id) }}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
+                                        <div
+                                            style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
+                                            <a href="{{ route('quotation.details', $quotation->id) }}" class="btn btn-sm"
+                                                style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                                data-toggle="tooltip" title="View Quotation">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

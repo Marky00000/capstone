@@ -1,10 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('title')
     {{ isset($service) ? 'Edit Swimming Pool Service' : 'Create Swimming Pool Service' }}
 @endsection
 
 @section('content')
+<h4>SwimmingPool Services</h4>
+
 <div class="container mt-5">
     <div class="card shadow-lg">
         <div class="card-header" style="background-image: url('{{ asset('swimmingpool.jpg') }}'); height: 180px; background-size: cover; background-position: center;">

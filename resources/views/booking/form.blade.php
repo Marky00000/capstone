@@ -425,16 +425,18 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label for="site_visit_date">Date <span class="required">*</span></label>
-                        <input id="site_visit_date" type="date" class="form-control @error('site_visit_date') is-invalid @enderror" 
-                               name="site_visit_date" required min="{{ date('Y-m-d', strtotime('+1 week')) }}">
+                        <label for="site_visit_date" class="form-label">Site Visit Date <span
+                                class="text-danger">*</span></label>
+                        <input type="date" name="site_visit_date" id="site_visit_date"
+                            class="form-control @error('site_visit_date') is-invalid @enderror"
+                            value="{{ old('site_visit_date', \Carbon\Carbon::now()->addWeek()->format('Y-m-d')) }}"
+                            required min="{{ \Carbon\Carbon::now()->addWeek()->format('Y-m-d') }}">
                         @error('site_visit_date')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    
+
+
 
                     <!-- Button Container -->
                     <div class="button-container mb-3">
@@ -628,10 +630,9 @@
                 }
             });
 
-            // Set the minimum date to two days from today
             const today = new Date();
             const minDate = new Date(today);
-            minDate.setDate(today.getDate() + 2);
+            minDate.setDate(today.getDate() + 7); // Set to one week (7 days)
 
             // Format the date as YYYY-MM-DD
             const dd = String(minDate.getDate()).padStart(2, '0');

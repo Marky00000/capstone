@@ -29,11 +29,7 @@ class Payment extends Model
         return ['cash', 'gcash', 'bank_transfer'];
     }
 
-    // Define the possible payment statuses
-    public static function getPaymentStatuses()
-    {
-        return ['approve', 'decline'];
-    }
+
 
     // Relationship with the Project model
     public function project()
@@ -41,15 +37,8 @@ class Payment extends Model
         return $this->belongsTo(Project::class);
     }
 
-    // Example of a custom method to check if payment is approved
-    public function isApproved()
+    public function getPaymentImagesAttribute()
     {
-        return $this->payment_status === 'approve';
-    }
-
-    // Example of a custom method to check if payment is declined
-    public function isDeclined()
-    {
-        return $this->payment_status === 'decline';
+        return $this->payments()->pluck('payment_image')->filter()->toArray(); // Ensure images are collected
     }
 }

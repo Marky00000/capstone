@@ -31,6 +31,8 @@ Route::get('/', function () {
     return view('welcome'); // Assuming 'welcome' is your landing page view
 })->name('welcome');
 
+
+
 // Authentication routes
 Route::get('register', [AuthController::class, 'register'])->name('register');
 Route::post('register', [AuthController::class, 'registerSave'])->name('register.save');
@@ -108,6 +110,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/booking/form', [BookingController::class, 'create'])->name('booking.form');
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
     Route::get('/admin/bookings', [BookingController::class, 'adminBooking'])->name('booking.adminBooking');
+    Route::get('/booking/{id}', [BookingController::class, 'adminShow'])->name('booking.adminShow');
     Route::post('/bookings/{id}/confirm', [BookingController::class, 'confirmBooking'])->name('bookings.confirm');
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancelBooking'])->name('bookings.cancel');
     Route::post('/bookings/{id}/decline', [BookingController::class, 'declineBooking'])->name('bookings.decline');
@@ -126,8 +129,10 @@ Route::patch('/admin/projects/{id}/activate', [ProjectController::class, 'activa
 Route::get('/admin/projects/reports', [ProjectController::class, 'generateReport'])->name('project.reports'); // Generate project report
 Route::get('/project/{id}', [ProjectController::class, 'view'])->name('project.view');
 
-// Route::get('/projects/{id}/edit', [ProjectController::class, 'edit'])->name('project.edit');
-// Route::post('/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
+
+
+Route::get('/projects/{id}/edit', [ProjectController::class, 'edit'])->name('project.edit');
+Route::patch('/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
 
 
 // User Routes
@@ -162,7 +167,7 @@ Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])
     Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
     Route::get('/admin/payments/{id}', [PaymentController::class, 'adminshow'])->name('admin.payments.show');
     Route::get('/create/{projectId}', [PaymentController::class, 'showPaymentForm'])->name('payment.create');
-    Route::post('/payments/store/initial', [PaymentController::class, 'storeInitial'])->name('payment.store.initial');
+    Route::post('/projects/{projectId}/payment', [PaymentController::class, 'store'])->name('payment.store');
     Route::post('/store/midterm', [PaymentController::class, 'storeMidterm'])->name('payment.store.midterm');
     Route::post('/store/final', [PaymentController::class, 'storeFinal'])->name('payment.store.final');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
@@ -173,6 +178,8 @@ Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])
     Route::post('/admin/payments/{id}/decline', [PaymentController::class, 'decline'])->name('admin.payments.decline');
     Route::get('/admin/payments/{id}/edit', [PaymentController::class, 'edit'])->name('admin.payments.edit');
     Route::post('/admin/payments/{id}/update', [PaymentController::class, 'update'])->name('admin.payments.update');
+    Route::get('/payment/{projectId}', [PaymentController::class, 'payment'])->name('payment.payment');
+
 
     // Route::get('/reports/projects', [ReportsController::class, 'projects'])->name('reports.projects');
     Route::get('/reports/rates', [ReportsController::class, 'rates'])->name('reports.rates');

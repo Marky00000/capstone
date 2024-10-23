@@ -1,10 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('title')
     {{ isset($service) ? 'Edit Renovation Service' : 'Create Renovation Service' }}
 @endsection
 
 @section('content')
+<h4>Renovation Services</h4>
+
     <div class="container mt-5">
         <div class="card shadow-lg">
             <div class="card-header"

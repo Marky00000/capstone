@@ -23,6 +23,56 @@
             </div>
         </div>
         <div class="card-body">
+
+            <!-- Filter and Sort Form -->
+            <form action="{{ route('booking.index') }}" method="GET" class="mb-4">
+                <div class="d-flex align-items-center"> <!-- Use flexbox for closer alignment -->
+
+                    <!-- Booking Status Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <select name="booking_status" class="form-select form-select-sm custom-dropdown">
+                                <option value="">All Statuses</option>
+                                <option value="pending" {{ request('booking_status') == 'pending' ? 'selected' : '' }}>
+                                    Pending</option>
+                                <option value="confirmed" {{ request('booking_status') == 'confirmed' ? 'selected' : '' }}>
+                                    Confirmed</option>
+                                <option value="cancelled" {{ request('booking_status') == 'cancelled' ? 'selected' : '' }}>
+                                    Cancelled</option>
+                                <option value="declined" {{ request('booking_status') == 'declined' ? 'selected' : '' }}>
+                                    Declined</option>
+                                <option value="visited" {{ request('booking_status') == 'visited' ? 'selected' : '' }}>
+                                    Visited</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Start Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="start_date" class="form-control form-control-sm"
+                                value="{{ request('start_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- End Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="end_date" class="form-control form-control-sm"
+                                value="{{ request('end_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-sm"> <!-- Added 'btn-sm' for smaller size -->
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
+
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
@@ -48,7 +98,7 @@
 
                         </thead>
                         <tbody>
-                            @foreach ($bookings as $booking)
+                            @foreach ($bookings->reverse() as $booking)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $booking->name }}</td>
@@ -93,30 +143,35 @@
 
                                     </td>
                                     <td>
+                                        <div
+                                            style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
+                                            <a href="{{ route('booking.view', $booking->id) }}" class="btn btn-sm"
+                                                style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                                data-toggle="tooltip" title="View Booking">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
 
-                                        <a href="{{ route('booking.view', $booking->id) }}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
+                                            @if ($booking->booking_status === 'pending')
+                                                <!-- Add Edit Button -->
+                                                <a href="{{ route('booking.edit', $booking->id) }}" class="btn btn-sm"
+                                                    style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                                    data-toggle="tooltip" title="Edit Booking">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
 
-                                        <!-- Add Edit Button -->
-                                        <a href="{{ route('booking.edit', $booking->id) }}" class="btn btn-warning btn-sm"
-                                            @if ($booking->booking_status !== 'pending') style="display: none;" @endif>
-                                            <i class="fas fa-pencil-alt"></i> Edit
-
-                                        </a>
-
-                                        <button type="button" class="btn btn-sm btn-secondary cancel-button"
-                                            data-toggle="modal" data-target="#cancelModal"
-                                            data-booking_id="{{ $booking->id }}"
-                                            @if (
-                                                $booking->booking_status === 'visited' ||
-                                                    $booking->booking_status === 'cancelled' ||
-                                                    $booking->booking_status === 'confirmed') style="display: none;" @endif>
-                                            <i class="fas fa-times"></i> Cancel
-                                        </button>
-
-
+                                                <button type="button" class="btn btn-sm"
+                                                    style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                                    data-toggle="modal" data-target="#cancelModal"
+                                                    data-booking_id="{{ $booking->id }}" data-toggle="tooltip"
+                                                    title="Cancel Booking">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            @endif
+                                        </div>
                                     </td>
+
+
+
                                 </tr>
                             @endforeach
                         </tbody>

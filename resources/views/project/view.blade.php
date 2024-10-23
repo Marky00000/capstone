@@ -1,15 +1,16 @@
 @extends('layouts.app')
+@php
+    use App\Models\Service;
+    $latestPayment = $projects->payments()->latest()->first();
 
-@section('title', 'Project Details')
-
+@endphp
 @section('content')
-
-    <div class="container mt-4" id="printableArea">
-        <div class="card shadow-sm border-light">
+    <div class="container mt-4">
+        <div class="card shadow-sm border-light" id="printableArea">
             <div class="card-header text-white bg-info text-center d-flex flex-column align-items-center">
                 <img src="{{ asset('arfil_logo.png') }}" alt="Company Logo" class="logo" style="width: 120px">
                 <h2 class="mb-1">Arfils Landscaping Services</h2>
-                <p>Zone 10, Carmen<br>Cagayan de Oro City</p>
+                <p><i class="fas fa-map-marker-alt"></i> Zone 10, Carmen Cagayan de Oro City</p>
                 <p>
                     <i class="fas fa-phone"></i> Contact: 09776912110<br>
                     <i class="fab fa-facebook"></i> Facebook: Arfils Landscaping and Swimming Pool Services<br>
@@ -20,69 +21,107 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-4">
                     <h4 class="mb-0">Project Details</h4>
-                    <h3 class="mb-0" style="font-size: 16px;">
-                        Created At: {{ \Carbon\Carbon::parse($project->created_at)->format('F j, Y') }}
-                    </h3>
+                    <h3 class="mb-0" style="font-size: 16px;">Created:
+                        {{ \Carbon\Carbon::parse($projects->booking->created_at)->format('F j, Y') }}</h3>
                 </div>
 
                 <table class="table">
                     <tbody>
                         <tr>
+                            <th>Project ID</th>
+                            <td>{{ $projects->id }}</td>
+                        </tr>
+                        <tr>
                             <th>Booking ID</th>
-                            <td>{{ $project->booking->id }}</td>
+                            <td>{{ $projects->booking->id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Client Name</th>
+                            <td>{{ $projects->booking->name }}</td>
                         </tr>
                         <tr>
                             <th>Service</th>
-                            <td>{{ $project->service->name }}</td>
-                        </tr>
-                        <tr>
-                            <th>Site Visit Date</th>
-                            <td>{{ \Carbon\Carbon::parse($project->booking->site_visit_date)->format('F j, Y') }}</td>
+                            <td>
+                                @php
+                                    $serviceIds = $projects->service_ids ? json_decode($projects->service_ids) : [];
+                                    $services = !empty($serviceIds)
+                                        ? \App\Models\Service::whereIn('id', $serviceIds)->get()
+                                        : collect();
+                                @endphp
+
+                                @if ($services->isNotEmpty())
+                                    @foreach ($services as $service)
+                                        {{ $service->name }}@if (!$loop->last)
+                                            ,
+                                        @endif
+                                    @endforeach
+                                @else
+                                    No services found
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <th>Address</th>
-                            <td>{{ $project->booking->address }}</td>
+                            <td>{{ $projects->booking->address }}</td>
                         </tr>
                         <tr>
                             <th>Province</th>
-                            <td>{{ $project->booking->province }}</td>
+                            <td>{{ $projects->booking->province }}</td>
                         </tr>
                         <tr>
                             <th>City</th>
-                            <td>{{ $project->booking->city }}</td>
+                            <td>{{ $projects->booking->city }}</td>
                         </tr>
                         <tr>
                             <th>Lot Area</th>
-                            <td>{{ $project->lot_area }} sqm</td>
+                            <td>{{ $projects->lot_area }} sqm</td>
+                        </tr>
+                        <tr>
+                            <th>Cost</th>
+                            <td>₱{{ number_format($projects->cost, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <th>Discount</th>
+                            <td>{{ $projects->discount }}%</td>
                         </tr>
                         <tr>
                             <th>Total Cost</th>
-                            <td>₱{{ number_format($project->total_cost, 2) }}</td>
+                            <td>₱{{ number_format($projects->total_cost, 2) }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Total Paid</th>
+                            <td class="d-flex justify-content-between align-items-center">
+                                <span>₱{{ number_format($projects->total_paid, 2) }}</span>
+                                <button type="button" class="btn btn-link" data-bs-toggle="modal"
+                                    data-bs-target="#paymentImagesModal" data-images='@json($projects->payments->pluck('payment_image'))'
+                                    data-amounts='@json($projects->payments->pluck('amount'))'>
+                                    <i class="fas fa-eye fa-lg"></i> <!-- Eye icon to indicate "View" -->
+                                </button>
+
+                            </td>
+
                         </tr>
                         <tr>
-                            <th>Project Status</th>
+                            <th>Status</th>
                             <td>
-                                @if ($project->project_status === 'active')
-                                    <span class="badge badge-success">
-                                        <i class="fas fa-check-circle"></i> Active
-                                    </span>
-                                @elseif($project->project_status === 'pending')
-                                    <span class="badge badge-warning">
-                                        <i class="fas fa-hourglass-half"></i> Pending
-                                    </span>
-                                @elseif($project->project_status === 'hold')
-                                    <span class="badge badge-danger">
-                                        <i class="fas fa-pause-circle"></i> On Hold
-                                    </span>
-                                @elseif($project->project_status === 'finish')
-                                    <span class="badge badge-primary">
-                                        <i class="fas fa-check"></i> Finished
-                                    </span>
-                                @else
-                                    <span class="badge badge-light">
-                                        {{ ucfirst($project->project_status) }}
-                                    </span>
-                                @endif
+                                <span
+                                    class="badge 
+                                    @if ($projects->project_status == 'pending') badge-warning 
+                                    @elseif($projects->project_status == 'active') badge-success 
+                                    @elseif($projects->project_status == 'hold') badge-danger    
+                                    @elseif($projects->project_status == 'finish') badge-primary @endif">
+                                    @if ($projects->project_status == 'pending')
+                                        <i class="fas fa-hourglass-half"></i>
+                                    @elseif($projects->project_status == 'active')
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    @elseif($projects->project_status == 'hold')
+                                        <i class="fas fa-pause-circle"></i>
+                                    @elseif($projects->project_status == 'finish')
+                                        <i class="fas fa-check"></i>
+                                    @endif
+                                    {{ ucfirst($projects->project_status) }}
+                                </span>
                             </td>
                         </tr>
                     </tbody>
@@ -90,74 +129,95 @@
 
                 <hr class="my-4">
 
-
                 <!-- Progress Bar Section -->
                 <div class="mt-4">
                     <h4>Project Progress</h4>
                     <div class="progress">
                         @php
-                            // Assuming you're fetching the latest progress entry
-$latestProgress = $project->progress->last(); // Get the last entry (latest progress)
-$progress = $latestProgress ? $latestProgress->phase_progress : 0; // Fallback to 0 if no progress
-$currentPhase = $latestProgress ? $latestProgress->phase : 'Not Started'; // Fallback to 'Not Started' if no phase
+                            $latestProgress = $projects->progress->last();
+                            $progress = $latestProgress ? $latestProgress->phase_progress : 0; // Fallback to 0 if no progress
+                            $currentPhase = $latestProgress ? $latestProgress->phase : 'phase_one'; // Default to 'phase_one' if no phase
 
-// Map phase identifiers to readable names
-$phaseNames = [
-    'phase_one' => 'Phase One',
-    'phase_two' => 'Phase Two',
-    'phase_three' => 'Phase Three',
-    // Add more phases as needed
-];
+                            $phases = [
+                                'phase_one' => 'Phase One',
+                                'phase_two' => 'Phase Two',
+                                'phase_three' => 'Phase Three',
+                            ];
 
-// Get the readable phase name, default to 'Not Started'
-$readablePhase = $phaseNames[$currentPhase] ?? 'Not Started';
+                            if ($progress == 100 && $currentPhase !== 'phase_three') {
+                                $nextPhase = array_search($currentPhase, array_keys($phases)) + 1;
+                                $currentPhase = array_keys($phases)[$nextPhase] ?? $currentPhase;
+                                $progress = 0; // Reset progress for new phase
+                            }
 
-$phaseColor = 'bg-success'; // Default color for success
-if ($progress < 50) {
-    $phaseColor = 'bg-warning'; // Color for warning
-} elseif ($progress == 100) {
-    $phaseColor = 'bg-primary'; // Color for complete
+                            $readablePhase = $phases[$currentPhase] ?? 'Not Started';
+                            $phaseColor = 'bg-success'; // Default color for success
+                            if ($progress < 50) {
+                                $phaseColor = 'bg-warning'; // Color for warning
+                            } elseif ($progress == 100) {
+                                $phaseColor = 'bg-primary'; // Color for complete
                             }
                         @endphp
+
                         <div class="progress-bar {{ $phaseColor }}" role="progressbar"
                             style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0"
                             aria-valuemax="100">
                             {{ $progress }}%
                         </div>
                     </div>
+
                     <div class="mt-2 text-center">
                         <i class="fas fa-check-circle"></i>
-                        @if ($progress == 100)
+                        @if ($progress == 100 && $currentPhase === 'phase_three')
                             Project Complete
+                        @elseif ($progress == 0 && ($currentPhase === 'phase_two' || $currentPhase === 'phase_three'))
+                            {{ $readablePhase }}: (Starting)
                         @elseif ($progress > 0)
-                            Phase: {{ $readablePhase }} (In Progress)
+                            {{ $readablePhase }}: (In Progress)
                         @else
                             Project Not Started
                         @endif
                     </div>
+
+                    @if ($projects->project_status !== 'pending')
+                        <div class="text-center mt-2">
+                            <a href="{{ route('progress.view', ['projectId' => $projects->id]) }}"
+                                class="btn btn-link">View More</a>
+                        </div>
+                    @endif
                 </div>
-
-
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('project.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back
                     </a>
+                </div>
 
-                    @if ($project->project_status === 'active')
-                        <a href="{{ route('progress.view', ['projectId' => $project->id]) }}"
-                            class="btn btn-primary btn-md">
-                            <i class="fas fa-sync-alt"></i> View Progress
-                        </a>
-                    @endif
+            </div>
+        </div>
 
+        <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="paymentImagesModalLabel">Payment Images</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="paymentImagesContainer">
+                        <!-- Payment images will be injected here as cards -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 
     <style>
-        /* Additional styles for a modern receipt look */
+        /* Additional styles for a modern project view */
         .container {
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -181,6 +241,15 @@ if ($progress < 50) {
             margin-bottom: 10px;
         }
 
+        .btn-link {
+            padding: 0;
+            /* Remove padding */
+            color: #17a2b8;
+            /* Bootstrap's info color */
+            /* Ensure the icon inherits the current text color */
+        }
+
+
         .table {
             border-collapse: collapse;
             width: 100%;
@@ -196,6 +265,7 @@ if ($progress < 50) {
         .table th {
             background-color: #e9ecef;
             font-weight: bold;
+            color: #495057;
         }
 
         .table td {
@@ -212,15 +282,6 @@ if ($progress < 50) {
             background-color: #5a6268;
         }
 
-        .btn-info {
-            background-color: #17a2b8;
-            border: none;
-        }
-
-        .btn-info:hover {
-            background-color: #138496;
-        }
-
         hr {
             border: 1px solid #e9ecef;
         }
@@ -233,57 +294,91 @@ if ($progress < 50) {
             font-size: 14px;
         }
 
-        /* Style for Project Terms */
-        .project-terms {
-            margin-top: 20px;
-            background-color: #f1f1f1;
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        .project-terms h4 {
-            margin-bottom: 10px;
-        }
-
         @media print {
-
-            /* Ensure colors are retained when printing */
             body {
                 -webkit-print-color-adjust: exact;
-                /* Chrome, Safari */
                 print-color-adjust: exact;
-                /* Non-Webkit */
+            }
+
+            .container {
+                padding: 0;
+            }
+
+            .card {
+                width: 100%;
+                box-shadow: none;
+                border: 1px solid #ddd;
+                background-color: #fff;
             }
 
             .btn {
                 display: none;
-                /* Hide buttons when printing */
             }
 
-            /* Optional: hide unnecessary elements or modify styles */
             .card-header {
                 background-color: #17a2b8;
-                /* Ensure header color is retained */
+                color: #fff;
             }
 
-            .project-terms {
-                background-color: #f1f1f1;
-                /* Ensure background color is retained */
+            .table th,
+            .table td {
+                color: #000;
             }
 
-            /* Align print buttons in the desired positions */
-            .d-flex {
-                justify-content: space-between !important;
+            hr {
+                border: 1px solid #17a2b8;
             }
         }
     </style>
 
-    <!-- Include Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <script>
-        function printDocument() {
-            window.print();
-        }
+        const paymentImagesModal = document.getElementById('paymentImagesModal');
+        paymentImagesModal.addEventListener('show.bs.modal', (event) => {
+            const button = event.relatedTarget; // Button that triggered the modal
+            const images = button.getAttribute('data-images'); // Extract the images from data attribute
+            const amounts = button.getAttribute('data-amounts'); // Extract the amounts from data attribute
+
+            const imagesContainer = document.getElementById('paymentImagesContainer');
+            imagesContainer.innerHTML = ''; // Clear previous images
+
+            if (images && amounts) {
+                const parsedImages = JSON.parse(images); // Parse JSON string to an array
+                const parsedAmounts = JSON.parse(amounts); // Parse JSON string to an array
+
+                if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+                    parsedImages.forEach((image, index) => {
+                        // Create a card for each image
+                        const cardElement = document.createElement('div');
+                        cardElement.classList.add('card', 'm-2'); // Add Bootstrap card classes
+                        cardElement.style.border = "2px solid"; // Set the border color and width
+
+                        const imgElement = document.createElement('img');
+                        imgElement.src = `{{ asset('storage') }}/${image}`; // Set image source
+                        imgElement.alt = 'Payment Image';
+                        imgElement.classList.add('card-img-top',
+                            'img-fluid'); // Add Bootstrap classes for responsive images
+
+                        // Append image to card
+                        cardElement.appendChild(imgElement);
+
+                        // Add payment amount below the image
+                        const amountElement = document.createElement('div');
+                        amountElement.classList.add('card-body');
+                        amountElement.innerHTML =
+                            `<h5 class="fw-bold">Amount Paid: ₱${parseFloat(parsedAmounts[index]).toLocaleString()}</h5>`;
+
+
+                        cardElement.appendChild(amountElement); // Add the amount to the card
+                        imagesContainer.appendChild(cardElement); // Append card to container
+                    });
+                } else {
+                    imagesContainer.innerHTML = '<p>No images available.</p>'; // Handle no images case
+                }
+            } else {
+                imagesContainer.innerHTML = '<p>No images available.</p>'; // Handle no images case
+            }
+        });
     </script>
+
+
 @endsection

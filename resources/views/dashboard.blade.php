@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('content')
     <div class="bg-overlay">
@@ -7,7 +7,7 @@
 
             <div class="row">
                 <!-- Card 1: Total Services -->
-                <div class="col-md-3 mb-2">
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card shadow-sm border-info">
                         <div class="card-body text-center">
                             <h5 class="card-title text-info">
@@ -20,20 +20,20 @@
                 </div>
 
                 <!-- Card 2: Total Bookings -->
-                <div class="col-md-3 mb-2">
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card shadow-sm border-info">
                         <div class="card-body text-center">
                             <h5 class="card-title text-info">
                                 <i class="fas fa-calendar-check"></i> Total Bookings
                             </h5>
                             <p class="card-text display-4">{{ $totalBookings }}</p>
-                            <a href="{{ route('booking.adminBooking') }}"class="btn btn-outline-info">View Details</a>
+                            <a href="{{ route('booking.adminBooking') }}" class="btn btn-outline-info">View Details</a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Card 3: Total Projects -->
-                <div class="col-md-3 mb-2">
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card shadow-sm border-info">
                         <div class="card-body text-center">
                             <h5 class="card-title text-info">
@@ -46,18 +46,19 @@
                 </div>
 
                 <!-- Card 4: Total Revenue -->
-                <div class="col-md-3 mb-2">
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card shadow-sm border-info">
                         <div class="card-body text-center">
                             <h5 class="card-title text-info">
                                 <i class="fas fa-money-bill-wave"></i> Total Revenue
                             </h5>
                             <p class="card-text display-4">₱{{ number_format($totalRevenue, 2) }}</p>
-                            <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-info">View Details</a>
+                            <a href="{{ route('reports.rates') }}" class="btn btn-outline-info">View Details</a>
                         </div>
                     </div>
                 </div>
             </div>
+
 
             <div class="row">
                 <!-- Revenue Chart -->

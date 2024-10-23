@@ -1,10 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('content')
     <title>Arfil's Landscaping Services</title>
     <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <div class="card shadow-sm rounded-lg border-1">
         <div class="card-header stylish-header text-black">
             <h1>Bookings</h1>
@@ -87,8 +87,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($bookings as $booking)
-                            <tr>
+                        @foreach ($bookings->reverse() as $booking)
+                        <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $booking->name }}</td>
                                 <td>{{ $booking->contact }}</td>
@@ -127,32 +127,30 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-start">
-                                        <!-- Existing View Button -->
-                                        <button class="btn btn-sm btn-info btn-sm me-2" data-toggle="modal"
-                                            data-target="#bookingModal"
-                                            data-site_visit_date="{{ $booking->site_visit_date }}"
-                                            data-user_id="{{ $booking->user_id }}" data-name="{{ $booking->name }}"
-                                            data-address="{{ $booking->address }}"
-                                            data-province="{{ $booking->province }}" data-city="{{ $booking->city }}"
-                                            data-contact="{{ $booking->contact }}" data-email="{{ $booking->email }}"
-                                            data-booking_status="{{ $booking->booking_status }}">
-                                            <i class="fas fa-eye"></i>View
-                                        </button>
+                                    <div
+                                        style="display: flex; justify-content: start; align-items: center; gap: 10px; padding: 8px 0;">
+                                        <a href="{{ route('booking.adminShow', $booking->id) }}" class="btn btn-sm"
+                                            style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                            data-toggle="tooltip" title="View Booking">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
 
                                         <!-- Confirm and Decline Buttons -->
                                         @if ($booking->booking_status === 'pending')
-                                            <button type="button" class="btn btn-sm btn-info confirm-booking-button"
+                                            <button type="button" class="btn btn-sm"
+                                                style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
                                                 data-toggle="modal" data-target="#confirmModal"
-                                                data-booking_id="{{ $booking->id }}">
-                                                <i class="fas fa-check-circle"></i>Confirm
+                                                data-booking_id="{{ $booking->id }}" data-toggle="tooltip"
+                                                title="Confirm Booking">
+                                                <i class="fas fa-check-circle"></i>
                                             </button>
 
-                                            <button type="button"
-                                                class="btn btn-sm btn-danger btn-sm me-2 decline-booking-button"
+                                            <button type="button" class="btn btn-sm"
+                                                style="background-color: transparent; border: none; color: #dc3545; outline: none;"
                                                 data-toggle="modal" data-target="#declineModal"
-                                                data-booking_id="{{ $booking->id }}">
-                                                <i class="fas fa-times-circle"></i>Decline
+                                                data-booking_id="{{ $booking->id }}" data-toggle="tooltip"
+                                                title="Decline Booking">
+                                                <i class="fas fa-times-circle"></i>
                                             </button>
                                         @endif
 
@@ -161,12 +159,16 @@
                                             $booking->booking_status === 'confirmed' ||
                                                 ($booking->booking_status === 'visited' && $booking->projects->count() < 3))
                                             <a href="{{ route('projects.create', ['booking_id' => $booking->id]) }}"
-                                                class="btn btn-sm btn-info btn-sm me-2">
-                                                <i class="fas fa-plus-circle"></i>Make Project
+                                                class="btn btn-sm"
+                                                style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                                data-toggle="tooltip" title="Create Project">
+                                                <i class="fas fa-plus-circle"></i>
                                             </a>
                                         @endif
                                     </div>
                                 </td>
+
+
                             </tr>
                         @endforeach
                     </tbody>
@@ -281,6 +283,8 @@
         }
     </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <script>
@@ -338,23 +342,49 @@
                 $('#confirmActionButton').data('booking_id', bookingId);
             });
 
-            // Confirm booking action
+            // Confirm booking action with spinner and SweetAlert
             $('#confirmActionButton').click(function() {
                 const bookingId = $(this).data('booking_id');
 
                 $.ajax({
                     url: '/bookings/' + bookingId +
-                        '/confirm', // Adjust the URL based on your route
+                        '/confirm', // Use the dynamic booking ID in the URL
                     type: 'POST',
                     data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
+                    },
+                    beforeSend: function() {
+                        // Show the spinner or loading indicator
+                        $('#confirmActionButton').html(
+                            '<span class="spinner-border spinner-border-sm"></span> Confirming...'
+                        );
                     },
                     success: function(response) {
+                        // Hide spinner and show SweetAlert success message
                         $('#confirmModal').modal('hide');
-                        location.reload(); // Reload the page to display session message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Confirmed!',
+                            text: response.message,
+                            timer: 2000, // Auto close after 2 seconds (2000 milliseconds)
+                            timerProgressBar: true,
+                            showConfirmButton: false // Hide the confirm button
+                        }).then(function() {
+                            location.reload(); // Reload the page after confirming
+                        });
                     },
                     error: function(xhr) {
-                        alert('Error confirming booking: ' + xhr.responseJSON.message);
+                        // Handle the error and show a SweetAlert error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: xhr.responseJSON.message ||
+                                'An error occurred while confirming the booking.',
+                        });
+                    },
+                    complete: function() {
+                        // Reset the button text
+                        $('#confirmActionButton').html('Confirm');
                     }
                 });
             });
@@ -368,50 +398,74 @@
                 $('#declineActionButton').data('booking_id', bookingId);
             });
 
-            // Decline booking action
+            // Decline booking action with spinner and SweetAlert
             $('#declineActionButton').click(function() {
                 const bookingId = $(this).data('booking_id');
 
                 $.ajax({
                     url: '/bookings/' + bookingId +
-                        '/decline', // Adjust the URL based on your route
+                        '/decline', // Use the dynamic booking ID in the URL
                     type: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
                     },
+                    beforeSend: function() {
+                        // Show spinner or loading indicator
+                        $('#declineActionButton').html(
+                            '<span class="spinner-border spinner-border-sm"></span> Declining...'
+                        );
+                    },
                     success: function(response) {
+                        // Hide spinner and show SweetAlert success message
                         $('#declineModal').modal('hide');
-                        location.reload(); // Reload the page to display session message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Declined!',
+                            text: response.message,
+                            timer: 2000, // Auto close after 2 seconds
+                            timerProgressBar: true,
+                            showConfirmButton: false // Hide the confirm button
+                        }).then(function() {
+                            location.reload(); // Reload the page after declining
+                        });
                     },
                     error: function(xhr) {
-                        alert('Error declining booking: ' + xhr.responseJSON.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: xhr.responseJSON.message ||
+                                'An error occurred while declining the booking.',
+                        });
+                    },
+                    complete: function() {
+                        // Reset the button text
+                        $('#declineActionButton').html('Decline');
                     }
                 });
             });
-        });
 
-        // Function to get badge class based on booking status
-        function getBadgeClass(status) {
-            switch (status) {
-                case 'pending':
-                    return 'badge-warning';
-                case 'confirmed':
-                    return 'badge-primary';
-                case 'visited':
-                    return 'badge-success';
-                case 'cancelled':
-                    return 'badge-danger';
-                case 'declined':
-                    return 'badge-danger'; // or any other class you want to use for declined
-                default:
-                    return 'badge-secondary';
+            // Function to get badge class based on booking status
+            function getBadgeClass(status) {
+                switch (status) {
+                    case 'pending':
+                        return 'badge-warning';
+                    case 'confirmed':
+                        return 'badge-primary';
+                    case 'visited':
+                        return 'badge-success';
+                    case 'cancelled':
+                    case 'declined':
+                        return 'badge-danger';
+                    default:
+                        return 'badge-secondary';
+                }
             }
-        }
 
-        // Function to capitalize the first letter of a string
-        function capitalizeFirstLetter(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        }
+            // Function to capitalize the first letter of a string
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+        });
     </script>
 
 

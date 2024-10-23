@@ -24,7 +24,7 @@ class OTPController extends Controller
         } else {
             // Generate a new OTP
             $otp = rand(100000, 999999);
-            $expiresAt = Carbon::now()->addSeconds(60); // Set expiration to 60 seconds
+            $expiresAt = Carbon::now()->addSeconds(1000); // Set expiration to 60 seconds
     
             // Update the user with the new OTP and expiration time
             $checkUser->update([
@@ -69,6 +69,8 @@ class OTPController extends Controller
             // Clear OTP and log the user in
             User::where('otp', $otp)->update([
                 'otp' => null,
+                'otp_expires_at' => null,
+
             ]);
     
             Auth::login($checkUser);

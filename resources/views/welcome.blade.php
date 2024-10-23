@@ -229,12 +229,13 @@
                     </h6>
                     @if (session('alerts') && is_array(session('alerts')) && count(session('alerts')) > 0)
                         @foreach (array_slice(session('alerts'), 0, 5) as $alert)
-                            @if (is_array($alert) && isset($alert['project_id'], $alert['service_id'], $alert['service_name'], $alert['message']))
+                            @if (is_array($alert) && isset($alert['project_id'], $alert['message']))
                                 @php
-                                    $url = route('project.view', ['id' => $alert['project_id']]);
+                                    $url = route('project.show', ['id' => $alert['project_id']]); // Ensure this route is correct
                                 @endphp
-                                <a class="dropdown-item text-center small text-gray-500" href="{{ $url }}">
-                                    Project ID: {{ $alert['project_id'] }} - Service: {{ $alert['service_name'] }}<br>
+                                <a class="dropdown-item text-center small text-gray-500"
+                                    href="{{ $url }}">
+                                    <strong>Project ID: {{ $alert['project_id'] }}</strong> -
                                     {{ $alert['message'] }}
                                 </a>
                             @else
@@ -249,7 +250,8 @@
                     @endif
                 </div>
             </li>
-
+            
+            
 
 
 
@@ -285,7 +287,7 @@
                             <i class="fas fa-dollar-sign fa-sm fa-fw mr-2 text-gray-400"></i>
                             My Payments
                         </a>
-                        
+
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -524,6 +526,26 @@
                         class="btn btn-outline-warning">View Services</a>
                 </div>
             </div>
+
+            <!-- Card 4: Package -->
+            <div class="card hover-effect" style="width: 300px; cursor: pointer;"
+                onclick="window.location.href='{{ route('services.byCategory', ['category' => 'package']) }}'">
+                <img src="background.jpg" class="card-img-top" alt="Package Services"
+                    style="width: 100%; height: 180px; object-fit: cover;">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-2x" style="color: #4CAF50;"></i>
+                    <!-- Updated icon to represent packages -->
+                    <h5 class="card-title" style="font-weight: 800; margin-top: 10px;">Package Services</h5>
+                    <!-- Updated title -->
+                    <p class="card-text">Explore our comprehensive service packages tailored to meet all your needs.
+                    </p> <!-- Updated text -->
+                    <a href="{{ route('services.byCategory', ['category' => 'package']) }}"
+                        class="btn btn-outline-success">View Packages</a> <!-- Updated button and color -->
+                </div>
+            </div>
+
+
+
         </div>
 
 

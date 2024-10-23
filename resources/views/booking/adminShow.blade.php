@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('content')
     <div class="container mt-4">
@@ -93,7 +93,7 @@
                 <hr class="my-4">
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('booking.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('booking.adminBooking') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back
                     </a>
                     @if ($booking->booking_status === 'confirmed')

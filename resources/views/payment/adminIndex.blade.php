@@ -1,8 +1,8 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('content')
-<title>Arfil's Landscaping Services</title>
-<link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
+    <title>Arfil's Landscaping Services</title>
+    <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
     <div class="container-fluid mt-4">
 
         @if (session('success'))
@@ -20,25 +20,6 @@
                 <!-- Filter and Sort Form -->
                 <form action="{{ route('admin.payments.index') }}" method="GET" class="mb-4">
                     <div class="d-flex align-items-center"> <!-- Use flexbox for closer alignment -->
-
-                        <!-- Payment Status Filter -->
-                        <div class="me-2"> <!-- Added margin to the right -->
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
-                                <select name="payment_status" class="form-select form-select-sm custom-dropdown">
-                                    <option value="">All Statuses</option>
-                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>
-                                        Pending
-                                    </option>
-                                    <option value="approve" {{ request('payment_status') == 'approve' ? 'selected' : '' }}>
-                                        Approved
-                                    </option>
-                                    <option value="decline" {{ request('payment_status') == 'decline' ? 'selected' : '' }}>
-                                        Declined
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
 
                         <!-- Start Date Filter -->
                         <div class="me-2"> <!-- Added margin to the right -->
@@ -68,15 +49,14 @@
                 <table class="table table-bordered table-striped" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
-                            <th><i class="fas fa-project-diagram"></i> Project ID</th>
-                            <th><i class="fas fa-money-check-alt"></i> Payment Method</th>
-                            <th><i class="fas fa-money-check-alt"></i> Payment Type</th>
-                            <th><i class="fas fa-coins"></i> Amount</th>
-                            <th><i class="fas fa-image"></i> Image</th>
-                            <th><i class="fas fa-info-circle"></i> Payment Status</th>
-                            <th><i class="fas fa-calendar-alt"></i> Payment Date</th>
-                            <th><i class="fas fa-tasks"></i> Action</th>
+                            <th> #</th>
+                            <th>Project ID</th>
+                            <th>Payment Method</th>
+                            <th>Payment Type</th>
+                            <th> Amount</th>
+                            <th>Image</th>
+                            <th> Payment Date</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,47 +79,24 @@
                                         No Image
                                     @endif
                                 </td>
-                                <td>
-                                    @if ($payment->payment_status === 'approve')
-                                        <span class="text-success">
-                                            <i class="fas fa-check-circle"></i> Approved
-                                        </span>
-                                    @elseif ($payment->payment_status === 'decline')
-                                        <span class="text-danger">
-                                            <i class="fas fa-times-circle"></i> Declined
-                                        </span>
-                                    @else
-                                        <span class="text-warning">
-                                            <i class="fas fa-clock"></i> Pending
-                                        </span>
-                                    @endif
-                                </td>
                                 <td>{{ $payment->created_at->format('F j, Y') }}</td>
-                
+
                                 <td>
-                                    <a href="{{ route('admin.payments.show', $payment->id) }}" class="btn btn-info btn-sm">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                
-                                    <!-- Approve and Decline Buttons -->
-                                    @if ($payment->payment_status === 'pending')
-                                        <button type="button" class="btn btn-success btn-sm approve-btn"
-                                            data-id="{{ $payment->id }}" data-bs-toggle="modal"
-                                            data-bs-target="#actionConfirmationModal" data-action="approve">
-                                            <i class="fas fa-check"></i> Approve
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-sm decline-btn"
-                                            data-id="{{ $payment->id }}" data-bs-toggle="modal"
-                                            data-bs-target="#actionConfirmationModal" data-action="decline">
-                                            <i class="fas fa-times"></i> Decline
-                                        </button>
-                                    @endif
+                                    <div
+                                        style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
+                                        <a href="{{ route('admin.payments.show', $payment->id) }}" class="btn btn-sm"
+                                            style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                            data-toggle="tooltip" title="View Payment">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
                                 </td>
+
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-                
+
             </div>
         </div>
     </div>

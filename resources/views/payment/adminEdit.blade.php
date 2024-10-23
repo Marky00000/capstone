@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('content')
     <div class="container mt-4" style="padding: 20px; border-radius: 10px;">

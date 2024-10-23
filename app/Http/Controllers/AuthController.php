@@ -107,26 +107,35 @@ class AuthController extends Controller
         $request->validate([
             'otp' => 'required|numeric',
         ]);
-
+    
         // Get the OTP and user ID from the session
         $sessionOtp = Session::get('otp');
         $userId = Session::get('user_id');
-
+    
         if ($sessionOtp == $request->otp) {
             // Find the user by ID and log them in
             $user = User::find($userId);
-
-            Auth::login($user);
-
-            // Clear the OTP and user ID from the session
-            Session::forget('otp');
-            Session::forget('user_id');
-
-            return redirect()->route('dashboard')->with('success', 'Login successful!');
+    
+            if ($user) {
+                // Log the user in
+                Auth::login($user);
+    
+                // Clear the OTP and user ID from the session
+                Session::forget('otp');
+                Session::forget('user_id');
+    
+                // Clear the otp_expires_at field in the database
+                $user->otp_expires_at = null;
+                $user->save();
+    
+                return redirect()->route('dashboard')->with('success', 'Login successful!');
+            }
+    
         } else {
             return back()->withErrors(['otp' => 'Invalid OTP']);
         }
     }
+    
     
     
     public function logout(Request $request)

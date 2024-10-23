@@ -36,11 +36,16 @@ class Project extends Model
     {
         return $this->belongsTo(Service::class);
     }
+    
     public function progress()
     {
         return $this->hasMany(Progress::class); // Adjust based on your actual relationship
     }
     
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 
 
     /**

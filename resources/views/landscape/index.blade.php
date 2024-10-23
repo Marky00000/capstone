@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('title', 'Landscape Services')
 
@@ -44,19 +44,23 @@
                             <td>{{ $service->complexity }}</td>
                             <td>{{ $service->description }}</td>
                             <td>
-                                <button class="btn btn-sm btn-info" data-toggle="modal" title="View Service" data-target="#serviceModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}" data-description="{{ $service->description }}" data-design="{{ asset('storage/' . $service->design) }}">
-                                    <i class="fas fa-eye"></i> view
-                                </button>
-                                <a href="{{ route('landscape-services.edit', $service->id) }}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Edit Service">
-                                    <i class="fas fa-edit"></i> edit
-                                </a>
-                                <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#archiveConfirmModal" data-toggle="tooltip" title="Archive Service" data-id="{{ $service->id }}" data-name="{{ $service->name }}">
-                                    <i class="fas fa-archive"  style="color: white;"></i> archive
-                                </button>
+                                <div style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
+                                    <button class="btn btn-sm" style="background-color: transparent; border: none; color: #17a2b8; outline: none;" data-toggle="modal" title="View Service" data-target="#serviceModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}" data-description="{{ $service->description }}" data-design="{{ asset('storage/' . $service->design) }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{{ route('landscape-services.edit', $service->id) }}" class="btn btn-sm" style="background-color: transparent; border: none; color: #007bff; outline: none;" data-toggle="tooltip" title="Edit Service">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-sm" style="background-color: transparent; border: none; color: #ffc107; outline: none;" data-toggle="modal" data-target="#archiveConfirmModal" data-toggle="tooltip" title="Archive Service" data-id="{{ $service->id }}" data-name="{{ $service->name }}">
+                                        <i class="fas fa-archive"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
+                
+                
             </table>
         </div>
         <!-- Pagination Controls -->

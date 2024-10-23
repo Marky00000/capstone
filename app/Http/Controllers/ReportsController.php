@@ -17,22 +17,23 @@ class ReportsController extends Controller
     }
 
     public function rates(Request $request)
-    {
-        $query = Payment::where('payment_status', 'approve');
-    
-        // Apply date filters if provided
-        if ($request->filled('start_date')) {
-            $query->where('created_at', '>=', $request->input('start_date'));
-        }
-    
-        if ($request->filled('end_date')) {
-            $query->where('created_at', '<=', $request->input('end_date'));
-        }
-    
-        $payments = $query->get();
-    
-        return view('reports.rates', compact('payments'));
+{
+    $query = Payment::query(); // Start a query on the Payment model
+
+    // Apply date filters if provided
+    if ($request->filled('start_date')) {
+        $query->where('created_at', '>=', $request->input('start_date'));
     }
+
+    if ($request->filled('end_date')) {
+        $query->where('created_at', '<=', $request->input('end_date'));
+    }
+
+    $payments = $query->get(); // Get all payments based on the filters
+
+    return view('reports.rates', compact('payments')); // Return the view with payments data
+}
+
     
     
 }

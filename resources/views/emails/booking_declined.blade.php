@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Project Created</title>
+    <title>Booking Confirmation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Updated Font Awesome CDN -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -162,87 +161,50 @@
                     <i class="fas fa-phone-alt icon"></i> Contact: 09776912110
                 </p>
                 <p>
-                    <i class="fas fa-envelope icon"></i> Email: <i><a
-                            href="mailto:arfilslandscaping@gmail.com">arfilslandscaping@gmail.com</a></i>
+                    <i class="fas fa-envelope icon"></i> Email: <a
+                        href="mailto:arfilslandscaping@gmail.com">arfilslandscaping@gmail.com</a>
                 </p>
                 <p>
-                    <i class="fab fa-facebook icon"></i> Facebook: <i><a
-                            href="https://www.facebook.com/search/top?q=arfil%27s%20landscaping%20%26%20swimmingpool%20services"
-                            target="_blank">Arfil's Landscaping</a></i>
+                    <i class="fab fa-facebook icon"></i> Facebook: <a
+                        href="https://www.facebook.com/search/top?q=arfil%27s%20landscaping%20%26%20swimmingpool%20services"
+                        target="_blank">Arfil's Landscaping</a>
                 </p>
             </div>
         </div>
 
-        <h1>Project Created Successfully!</h1>
+        <h1>Booking Declined!</h1>
 
-        <p>Dear {{ $project->booking->name }},
+        <p>Dear {{ $booking->name }},
             <span style="float: right; font-size: 12px; color: #777;">
-                {{ $project->created_at->format('F j, Y, g:i a') }}
+                {{ now()->format('F j, Y, g:i a') }}
             </span>
         </p>
 
-        <p>We are pleased to inform you that a new project has been successfully created under your booking.</p>
+        <p>We are sorry to decline your booking with us. Here are the details:</p>
 
-        <h3>Project Details:</h3>
+        <h3>Booking Details:</h3>
         <ul>
-            <li><span><strong>Booking ID:</strong></span><span>{{ $project->booking_id }}</span></li>
-            <li>
-                <span><strong>Service:</strong></span>
-                <span>
-                    @php
-                        // Check if service_ids is not null and then decode
-                        $serviceIds = $project->service_ids ? json_decode($project->service_ids) : [];
-
-                        // Fetch services based on the IDs only if serviceIds is an array
-                        $services = !empty($serviceIds)
-                            ? \App\Models\Service::whereIn('id', $serviceIds)->get()
-                            : collect();
-                    @endphp
-
-                    {{-- Check if services were found and display their names --}}
-                    @if ($services->isNotEmpty())
-                        @foreach ($services as $service)
-                            {{ $service->name }}@if (!$loop->last)
-                                ,
-                            @endif
-                        @endforeach
-                    @else
-                        No services found
-                    @endif
-                </span>
+            <li><span><strong>Booking ID:</strong></span><span>{{ $booking->id }}</span></li>
+            <li><span><strong>Name:</strong></span><span>{{ $booking->name }}</span></li>
+            <li><span><strong>Contact:</strong></span><span>{{ $booking->contact }}</span></li>
+            <li><span><strong>Email:</strong></span><span>{{ $booking->email }}</span></li>
+            <li><span><strong>Site Visit
+                        Date:</strong></span><span>{{ \Carbon\Carbon::parse($booking->site_visit_date)->format('F j, Y') }}</span>
             </li>
-            <li><span><strong>Lot Area:</strong></span><span>{{ $project->lot_area }} sqm</span></li>
-            <li><span><strong>Cost:</strong></span><span
-                    class="total-cost">₱{{ number_format($project->cost, 2) }}</span></li>
-             <li><span><strong>Discount:</strong></span><span class="discount">{{ $project->discount }}%</span></li>
-             <li><span><strong>Total Cost:</strong></span><span
-                class="total-cost">₱{{ number_format($project->total_cost, 2) }}</span></li>
-
-            <li><span><strong>Project Status:</strong></span><span
-                    class="status status-{{ strtolower($project->project_status) }}">{{ ucfirst($project->project_status) }}</span>
+            <li><span><strong>Address:</strong></span><span>{{ $booking->address }}</span></li>
+            <li><span><strong>City:</strong></span><span>{{ $booking->city }}</span></li>
+            <li><span><strong>Province:</strong></span><span>{{ $booking->province }}</span></li>
+            <li><span><strong>Booking Status:</strong></span><span class="status status-{{ strtolower($booking->booking_status) }}">{{ ucfirst($booking->booking_status) }}</span>
             </li>
-        </ul>
 
-        <h3>Payment Terms:</h3>
-        <ul>
-            <li><span><strong>Initial
-                        Payment:</strong></span><span>₱{{ number_format($project->total_cost * 0.5, 2) }} (50% of
-                    total)</span></li>
-            <li><span><strong>Midterm
-                        Payment:</strong></span><span>₱{{ number_format($project->total_cost * 0.25, 2) }} (25% of
-                    total)</span></li>
-            <li><span><strong>Final Payment:</strong></span><span>₱{{ number_format($project->total_cost * 0.25, 2) }}
-                    (25% of total)</span></li>
         </ul>
-
-        <p>Please pay the initial payment to start the project.</p>
 
         <p>If you have any questions, feel free to contact us at <a
                 href="mailto:support@arfil-landscaping.com">support@arfil-landscaping.com</a>.</p>
 
         <div class="footer">
             <p>Thank you for choosing Arfil's Landscaping Services!</p>
-            <p>Best regards, <br> Arfil's Landscaping Services Team</p>
+            <p>Best regards,<br> Arfil's Landscaping Services Team</p>
         </div>
     </div>
 </body>

@@ -114,3 +114,28 @@
         </div>
     </ul>
 @endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check if sidebar state is stored in localStorage
+        const sidebar = document.getElementById('accordionSidebar');
+        const sidebarState = localStorage.getItem('sidebarState');
+
+        // Apply the stored state (collapsed or expanded)
+        if (sidebarState === 'collapsed') {
+            sidebar.classList.add('toggled');
+        }
+
+        // Add event listener to sidebar toggle button
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            sidebar.classList.toggle('toggled');
+            
+            // Store the state in localStorage
+            if (sidebar.classList.contains('toggled')) {
+                localStorage.setItem('sidebarState', 'collapsed');
+            } else {
+                localStorage.removeItem('sidebarState');
+            }
+        });
+    });
+</script>

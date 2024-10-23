@@ -1,8 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('title', 'Landscape Services')
 
 @section('content')
+<h4>Package Services</h4>
+
     <div class="card">
         <div class="card-header stylish-header">
             <div class="card-tools">
@@ -43,23 +45,19 @@
                                     <td>{{ $package->complexity }}</td>
                                     <td>{{ $package->description }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-info" data-toggle="modal" title="View Service"
-                                            data-target="#serviceModal" data-id="{{ $package->id }}"
-                                            data-name="{{ $package->name }}"
-                                            data-description="{{ $package->description }}"
-                                            data-design="{{ asset('storage/' . $package->design) }}">
-                                            <i class="fas fa-eye"></i> view
-                                        </button>
-                                        <a href="{{ route('package-services.edit', $package->id) }}"
-                                            class="btn btn-sm btn-primary" data-toggle="tooltip" title="Edit Service">
-                                            <i class="fas fa-edit"></i> edit
-                                        </a>
-                                        <button class="btn btn-sm btn-warning" data-toggle="modal"
-                                            data-target="#archiveConfirmModal" data-toggle="tooltip" title="Archive Service"
-                                            data-id="{{ $package->id }}" data-name="{{ $package->name }}">
-                                            <i class="fas fa-archive" style="color: white;"></i> archive
-                                        </button>
+                                        <div style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
+                                            <button class="btn btn-sm" style="background-color: transparent; border: none; color: #17a2b8; outline: none;" data-toggle="modal" title="View Service" data-target="#serviceModal" data-id="{{ $package->id }}" data-name="{{ $package->name }}" data-description="{{ $package->description }}" data-design="{{ asset('storage/' . $package->design) }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a href="{{ route('package-services.edit', $package->id) }}" class="btn btn-sm" style="background-color: transparent; border: none; color: #007bff; outline: none;" data-toggle="tooltip" title="Edit Service">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-sm" style="background-color: transparent; border: none; color: #ffc107; outline: none;" data-toggle="modal" data-target="#archiveConfirmModal" data-toggle="tooltip" title="Archive Service" data-id="{{ $package->id }}" data-name="{{ $package->name }}">
+                                                <i class="fas fa-archive" style="color: #ffc107;"></i>
+                                            </button>
+                                        </div>
                                     </td>
+                                    
                                 </tr>
                             @endforeach
                         </tbody>

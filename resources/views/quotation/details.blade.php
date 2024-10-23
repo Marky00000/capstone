@@ -6,7 +6,7 @@
         <div class="card-header text-white bg-info text-center d-flex flex-column align-items-center">
             <img src="{{ asset('arfil_logo.png')}}" alt="Company Logo" class="logo" style="width: 120px">
             <h2 class="mb-1">Arfils Landscaping Services</h2>
-            <p>Zone 10, Carmen<br>Cagayan de Oro City</p>
+            <p><i class="fas fa-map-marker-alt"></i> Zone 10, Carmen Cagayan de Oro City</p>
             <p>
                 <i class="fas fa-phone"></i> Contact: 09776912110<br>
                 <i class="fab fa-facebook"></i> Facebook: Arfils Landscaping and Swimming Pool Services<br>

@@ -43,46 +43,49 @@
                         <li class="nav-item mr-4">
                             <a class="nav-link text-dark" href="#contact">Contact</a>
                         </li>
+                    @endauth
 
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <span
-                                    class="badge badge-danger badge-counter">{{ session('alerts') ? count(session('alerts')) : 0 }}</span>
-                            </a>
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header bg-info">
-                                    Alerts Center
-                                </h6>
-                                @if (session('alerts') && is_array(session('alerts')) && count(session('alerts')) > 0)
-                                    @foreach (array_slice(session('alerts'), 0, 5) as $alert)
-                                        @if (is_array($alert) && isset($alert['project_id'], $alert['service_id'], $alert['service_name'], $alert['message']))
-                                            @php
-                                                $url = route('project.view', ['id' => $alert['project_id']]);
-                                            @endphp
-                                            <a class="dropdown-item text-center small text-gray-500"
-                                                href="{{ $url }}">
-                                                Project ID: {{ $alert['project_id'] }} - Service:
-                                                {{ $alert['service_name'] }}<br>
-                                                {{ $alert['message'] }}
-                                            </a>
-                                        @else
-                                            <a class="dropdown-item text-center small text-gray-500" href="#">
-                                                {{ is_array($alert) ? implode(', ', $alert) : $alert }}
-                                                <!-- Convert array to string if needed -->
-                                            </a>
-                                        @endif
-                                    @endforeach
-                                @else
-                                    <a class="dropdown-item text-center small text-gray-500" href="#">No alerts</a>
-                                @endif
-                            </div>
-                        </li>
 
-                    @endif
-                @endauth
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell fa-fw"></i>
+                            <span
+                                class="badge badge-danger badge-counter">{{ session('alerts') ? count(session('alerts')) : 0 }}</span>
+                        </a>
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                            aria-labelledby="alertsDropdown">
+                            <h6 class="dropdown-header bg-info">
+                                Alerts Center
+                            </h6>
+                            @if (session('alerts') && is_array(session('alerts')) && count(session('alerts')) > 0)
+                                @foreach (array_slice(session('alerts'), 0, 5) as $alert)
+                                    @if (is_array($alert) && isset($alert['project_id'], $alert['message']))
+                                        @php
+                                            $url = route('project.show', ['id' => $alert['project_id']]); // Ensure this route is correct
+                                        @endphp
+                                        <a class="dropdown-item text-center small text-gray-500"
+                                            href="{{ $url }}">
+                                            <strong>Project ID: {{ $alert['project_id'] }}</strong> -
+                                            {{ $alert['message'] }}
+                                        </a>
+                                    @else
+                                        <a class="dropdown-item text-center small text-gray-500" href="#">
+                                            {{ is_array($alert) ? implode(', ', $alert) : $alert }}
+                                            <!-- Convert array to string if needed -->
+                                        </a>
+                                    @endif
+                                @endforeach
+                            @else
+                                <a class="dropdown-item text-center small text-gray-500" href="#">No alerts</a>
+                            @endif
+                        </div>
+                    </li>
+
+
+                @endif
+
+                <div class="topbar-divider d-none d-sm-block"></div>
 
                 <!-- Nav Item - User Dropdown -->
                 <li class="nav-item dropdown no-arrow">

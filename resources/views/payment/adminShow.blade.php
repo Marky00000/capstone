@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('content')
     <div class="container mt-4">
@@ -6,7 +6,7 @@
             <div class="card-header text-white bg-info text-center d-flex flex-column align-items-center">
                 <img src="{{ asset('arfil_logo.png') }}" alt="Company Logo" class="logo" style="width: 120px">
                 <h2 class="mb-1">Arfils Landscaping Services</h2>
-                <p>Zone 10, Carmen<br>Cagayan de Oro City</p>
+                <p><i class="fas fa-map-marker-alt"></i> Zone 10, Carmen Cagayan de Oro City</p>
                 <p>
                     <i class="fas fa-phone"></i> Contact: 09776912110<br>
                     <i class="fab fa-facebook"></i> Facebook: Arfils Landscaping and Swimming Pool Services<br>
@@ -29,20 +29,6 @@
                         <tr>
                             <th>Payment Type</th>
                             <td>{{ ucfirst($payment->payment_type) }}</td>
-                        </tr>
-                        <tr>
-                            <th>Payment Status</th>
-                            <td>
-                                @if ($payment->payment_status === 'approve')
-                                    <span class="text-success"><i class="fas fa-check-circle"></i> Approved</span>
-                                @elseif($payment->payment_status === 'pending')
-                                    <span class="text-warning"><i class="fas fa-clock"></i> Pending</span>
-                                @elseif($payment->payment_status === 'decline')
-                                    <span class="text-danger"><i class="fas fa-times-circle"></i> Declined</span>
-                                @else
-                                    {{ ucfirst($payment->payment_status) }}
-                                @endif
-                            </td>
                         </tr>
                         <tr>
                             <th>Payment Method</th>

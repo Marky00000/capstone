@@ -103,7 +103,7 @@
 <body>
     <div class="card">
         <div class="header">
-            <img src="{{ asset('https://scontent.fmnl4-4.fna.fbcdn.net/v/t39.30808-6/321054410_1467455973783193_7487495423071851918_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeEK81qKGs9S-XRXJ1NNaFbN_0JvTdUQzjP_Qm9N1RDOM8ZIVPwo2FMLoEouxwC0BHoT0gxOBY3oXRzdF0E-P96W&_nc_ohc=cUpGNXY4eFoQ7kNvgFGAm-P&_nc_ht=scontent.fmnl4-4.fna&oh=00_AYCgu7qfX76A2lLjTJZucp86S8f4T2Qjic4KjZfJWiDijA&oe=66F5896C') }}" alt="Arfil's Landscaping Logo">
+            <img src="{{ asset('https://images.search.yahoo.com/images/view;_ylt=AwrjJsx9iwRnFzQr3TKJzbkF;_ylu=c2VjA3NyBHNsawNpbWcEb2lkAzZhYmI5Njk5MDE5NDRlNTM2MjI4YjFjY2FhOGJjNjMwBGdwb3MDMQRpdANiaW5n?back=https%3A%2F%2Fimages.search.yahoo.com%2Fsearch%2Fimages%3Fp%3Darfils%2527s%2Blandscaping%2B%2526%2Bswimmingpool%2Bservices%26type%3DE210US91215G0%26fr%3Dmcafee%26fr2%3Dpiv-web%26tab%3Dorganic%26ri%3D1&w=512&h=512&imgurl=lookaside.fbsbx.com%2Flookaside%2Fcrawler%2Fmedia%2F%3Fmedia_id%3D100087594043346&rurl=https%3A%2F%2Fwww.facebook.com%2Fp%2FArfils-Garden-Landscaping-Swimmingpool-Services-100087594043346%2F&size=12KB&p=arfils%27s+landscaping+%26+swimmingpool+services&oid=6abb969901944e536228b1ccaa8bc630&fr2=piv-web&fr=mcafee&tt=Arfil%26%2339%3Bs+Garden%2C+Landscaping+%26+Swimmingpool+Services+%7C+Cagayan+de+Oro&b=0&ni=21&no=1&ts=&tab=organic&sigr=ueHqj17EG93H&sigb=TL3B2uvDECWN&sigi=K5SwLqOd1C4i&sigt=02.CcQN466BY&.crumb=9LN122BMzY0&fr=mcafee&fr2=piv-web&type=E210US91215G0') }}" alt="Arfil's Landscaping Logo">
             <h1>Arfil's Landscaping Services</h1>
             <div class="contact-info">
                 <p>

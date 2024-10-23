@@ -1,8 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.apps')
 
 @section('title', isset($service) ? 'Edit Landscape Service' : 'Create Landscape Service')
 
 @section('content')
+<h4>Package Services</h4>
+
 <div class="container mt-5">
     <div class="card shadow-lg">
         <div class="card-header" style="background-image: url('{{ asset('landscaping.jpg') }}'); height: 180px; background-size: cover; background-position: center;">

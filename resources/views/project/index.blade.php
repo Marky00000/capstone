@@ -24,6 +24,57 @@
             </div>
         </div>
         <div class="card-body">
+            <!-- Filter and Sort Form -->
+            <form action="{{ route('project.index') }}" method="GET" class="mb-4">
+                <div class="d-flex align-items-center"> <!-- Use flexbox for closer alignment -->
+
+                    <!-- Project Status Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <select name="project_status" class="form-select form-select-sm"
+                                style="max-width: 120px;">
+                                <option value="">All Statuses</option>
+                                <option value="pending"
+                                    {{ request('project_status') == 'pending' ? 'selected' : '' }}>
+                                    Pending</option>
+                                <option value="active"
+                                    {{ request('project_status') == 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="hold" {{ request('project_status') == 'hold' ? 'selected' : '' }}>
+                                    On Hold
+                                </option>
+                                <option value="finish"
+                                    {{ request('project_status') == 'finish' ? 'selected' : '' }}>
+                                    Finished</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Start Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="start_date" class="form-control form-control-sm"
+                                value="{{ request('start_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- End Date Filter -->
+                    <div class="me-2"> <!-- Added margin to the right -->
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="end_date" class="form-control form-control-sm"
+                                value="{{ request('end_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
@@ -35,8 +86,7 @@
                     <table class="table table-striped table-bordered">
                         <thead class="thead-light">
                             <tr>
-                                <th><i class="fas fa-hashtag"></i> #</th>
-                                <th><i class="fas fa-book"></i> Booking ID</th>
+                                <th> Booking ID</th>
                                 <th><i class="fas fa-briefcase"></i> Service Name</th>
                                 <th><i class="fas fa-calendar-check"></i> Site Visit Date</th>
                                 <th><i class="fas fa-map-marker-alt"></i> Address</th>
@@ -51,11 +101,33 @@
 
                         </thead>
                         <tbody>
-                            @foreach ($projects as $project)
+                            @foreach ($projects->reverse() as $project)
                                 <tr>
-                                    <td>{{ $project->id }}</td>
                                     <td>{{ $project->booking->id }}</td>
-                                    <td>{{ $project->service->name }}</td>
+                                    <td>
+                                        @php
+                                            // Check if service_ids is not null and then decode
+                                            $serviceIds = $project->service_ids
+                                                ? json_decode($project->service_ids)
+                                                : [];
+
+                                            // Fetch services based on the IDs only if serviceIds is an array
+                                            $services = !empty($serviceIds)
+                                                ? \App\Models\Service::whereIn('id', $serviceIds)->get()
+                                                : collect();
+                                        @endphp
+
+                                        {{-- Check if services were found and display their names --}}
+                                        @if ($services->isNotEmpty())
+                                            @foreach ($services as $service)
+                                                {{ $service->name }}@if (!$loop->last)
+                                                    ,
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            No services found
+                                        @endif
+                                    </td>
                                     <td>{{ \Carbon\Carbon::parse($project->booking->site_visit_date)->format('F j, Y') }}
                                     </td>
                                     <td>{{ $project->booking->address }}</td>
@@ -86,32 +158,16 @@
                                     </td>
 
                                     <td>
-                                        <a href="{{ route('project.view', $project->id) }}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-
-                                        @php
-                                            $totalCost = $project->total_cost;
-                                            $totalPaid = $project->total_paid;
-                                            $buttonLabel = '';
-
-                                            // Determine button label based on total_paid
-                                            if ($totalPaid < 0.5 * $totalCost) {
-                                                $buttonLabel = 'Initial Payment';
-                                            } elseif ($totalPaid < 0.75 * $totalCost) {
-                                                $buttonLabel = 'Midterm Payment';
-                                            } elseif ($totalPaid < $totalCost) {
-                                                $buttonLabel = 'Final Payment';
-                                            }
-                                        @endphp
-
-                                        @if ($totalPaid < $totalCost)
-                                            <a href="{{ route('pay', ['id' => $project->id]) }}"
-                                                class="btn btn-success btn-sm">
-                                                <i class="fas fa-dollar-sign"></i> {{ $buttonLabel }}
+                                        <div
+                                            style="display: flex; justify-content: center; align-items: center; gap: 10px; padding: 8px 0;">
+                                            <a href="{{ route('project.view', $project->id) }}" class="btn btn-sm"
+                                                style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
+                                                data-toggle="tooltip" title="View Project">
+                                                <i class="fas fa-eye"></i>
                                             </a>
-                                        @endif
+                                        </div>
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

@@ -10,8 +10,10 @@ class ServiceController extends Controller
 {
     public function showByCategory($category)
     {
-        // Fetch services by category
-        $services = Service::where('category', $category)->get();
+        // Fetch services by category and status 'available'
+        $services = Service::where('category', $category)
+            ->where('status', 'available')
+            ->get();
     
         // Log image paths for debugging
         foreach ($services as $service) {
@@ -21,5 +23,6 @@ class ServiceController extends Controller
         // Return the view and pass the services data to it
         return view('services.view', compact('services', 'category'));
     }
+    
     
 }

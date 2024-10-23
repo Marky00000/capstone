@@ -21,8 +21,8 @@
 
         /* If you still need overflow: hidden for other reasons, consider overriding it here */
         /* .card {
-                                                                                                                                                                                                overflow: visible;
-                                                                                                                                                                                            } */
+                                                                                                                                                                                                                                                                        overflow: visible;
+                                                                                                                                                                                                                                                                    } */
 
         .card-header {
             position: relative;
@@ -282,7 +282,7 @@
     <div class="container mt-5">
         <div class="card shadow-lg">
             <div class="card-header">
-                <h6 class="mb-0">Add Project for Booking # {{ $booking_id }}</h6>
+                <h6 class="mb-0">Edit Project for Booking # {{ $booking_id }}</h6>
             </div>
 
             <div class="card-body p-4">
@@ -310,8 +310,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
-                <form id="project-form" action="{{ route('projects.store') }}" method="POST">
+                <form id="project-form" action="{{ route('projects.update', $project->id) }}" method="POST">
                     @csrf
+                    @method('PATCH')
                     <input type="hidden" name="booking_id" value="{{ $booking_id }}">
                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
@@ -319,23 +320,17 @@
                     <div class="mb-4">
                         <label for="lot_area" class="form-label">Lot Area (sqm) <span class="text-danger">*</span></label>
                         <input placeholder="min 20 - max 300" name="lot_area" id="lot_area"
-                            class="form-control @error('lot_area') is-invalid @enderror" value="{{ old('lot_area') }}"
-                            min="20" max="300" step="0.01" required>
+                            class="form-control @error('lot_area') is-invalid @enderror"
+                            value="{{ old('lot_area', $project->lot_area) }}" min="20" max="300" step="0.01">
                         @error('lot_area')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-
-
-
-                    <!-- Hidden Input for Service IDs -->
-                    <input type="hidden" name="service_ids" id="service_ids">
-
                     <div class="mb-4">
                         <label for="cost" class="form-label">Cost (PHP) <span class="text-danger">*</span></label>
                         <input type="number" name="cost" id="cost" class="form-control" placeholder="Enter cost"
-                            required min="0" step="0.01">
+                            value="{{ old('cost', $project->cost) }}" min="0" step="0.01">
                     </div>
 
                     <!-- Discount -->
@@ -344,53 +339,67 @@
                         <select name="discount" class="form-select" id="discount">
                             <option value="">Select a discount</option>
                             @foreach ($discounts as $discount)
-                                <option value="{{ $discount }}">{{ $discount }}%</option>
+                                <option value="{{ $discount }}" {{ $project->discount == $discount ? 'selected' : '' }}>
+                                    {{ $discount }}%
+                                </option>
                             @endforeach
                         </select>
                     </div>
-
-
 
                     <!-- Start Date -->
                     <div class="mb-4">
                         <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
                         <input type="date" name="start_date" id="start_date"
                             class="form-control @error('start_date') is-invalid @enderror"
-                            value="{{ old('start_date', \Carbon\Carbon::now()->addWeek()->format('Y-m-d')) }}" required
-                            min="{{ \Carbon\Carbon::now()->addWeek()->format('Y-m-d') }}">
+                            value="{{ old('start_date', $project->start_date ? \Carbon\Carbon::parse($project->start_date)->format('Y-m-d') : '') }}">
                         @error('start_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-
                     <!-- Category Selection -->
                     <div class="form-group mb-4">
                         <label for="category" class="form-label">Category</label>
                         <span class="text-danger">*</span>
-                        <select name="category" class="form-select" id="category" required>
+                        <select name="category" class="form-select" id="category">
                             <option value="">Select a category</option>
-                            <option value="landscaping" {{ old('category') == 'landscaping' ? 'selected' : '' }}>
-                                Landscaping
+                            <option value="landscaping"
+                                {{ old('category', $project->category) == 'landscaping' ? 'selected' : '' }}>Landscaping
                             </option>
-                            <option value="swimmingpool" {{ old('category') == 'swimmingpool' ? 'selected' : '' }}>
-                                Swimming
-                                Pool</option>
-                            <option value="renovation" {{ old('category') == 'renovation' ? 'selected' : '' }}>Renovation
+                            <option value="swimmingpool"
+                                {{ old('category', $project->category) == 'swimmingpool' ? 'selected' : '' }}>Swimming Pool
                             </option>
-                            <option value="package" {{ old('category') == 'package' ? 'selected' : '' }}>Package</option>
-                            <option value="maintenance" {{ old('category') == 'maintenance' ? 'selected' : '' }}>
-                                Maintenance
+                            <option value="renovation"
+                                {{ old('category', $project->category) == 'renovation' ? 'selected' : '' }}>Renovation
+                            </option>
+                            <option value="package"
+                                {{ old('category', $project->category) == 'package' ? 'selected' : '' }}>Package</option>
+                            <option value="maintenance"
+                                {{ old('category', $project->category) == 'maintenance' ? 'selected' : '' }}>Maintenance
                             </option>
                         </select>
                     </div>
+
+                    <input type="hidden" name="services" id="servicesInput"
+                        value="{{ implode(',', $services->pluck('id')->toArray()) }}">
+
+
                     <!-- Selected Services Display -->
                     <div class="text-center mb-4">
                         <strong>Selected Services:</strong>
                         <ul id="selectedServicesList" class="list-unstyled">
-                            <!-- Selected services will be dynamically populated here -->
+                            @foreach ($services as $service)
+                                <li class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="mx-auto text-center">{{ $service->name }}</span>
+                                    <button type="button" class="btn btn-link text-danger"
+                                        onclick="removeService({{ $service->id }}, this)">
+                                        <i class="fas fa-times"></i> <!-- X icon -->
+                                    </button>
+                                </li>
+                            @endforeach
                         </ul>
                     </div>
+
 
 
                     <div class="text-center mb-4">
@@ -400,14 +409,12 @@
                         </button>
                     </div>
 
-
-
                     <!-- Save and Cancel Buttons -->
                     <div class="d-flex justify-content-between">
                         <button type="submit" class="btn btn-sm btn-info me-2 rounded-pill px-4 py-2"
                             id="saveProjectButton">
                             <i class="fas fa-save me-1"></i>
-                            <span class="button-text">Save Project</span>
+                            <span class="button-text">Update Project</span>
                             <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"
                                 style="display: none;"></span>
                         </button>
@@ -421,7 +428,6 @@
             </div>
         </div>
     </div>
-
 
 
 @endsection
@@ -499,19 +505,23 @@
 
                 // Change button text to 'Saving Project...' and show spinner
                 $submitButton.prop('disabled', true);
-                $submitButton.find('.button-text').text('Saving Project...');
+                $submitButton.find('.button-text').text('Updating Project...');
                 $submitButton.find('.spinner-border').show(); // Show the spinner
 
-                const formData = $(this).serialize() +
+                // Create the base formData
+                let formData = $(this).serialize() +
                     '&start_date=' + $('#start_date').val() +
-                    '&discount=' + discount +
-                    '&service_id=' + firstServiceId +
-                    '&service_ids[]=' + selectedServices.map(service => service.id).join(
-                    '&service_ids[]=') +
-                    '&services=' + JSON.stringify(selectedServices);
+                    '&discount=' + discount;
 
-                $('#spinner')
-            .show(); // Assuming this is a different spinner, if not, you can remove this line
+                // Only include service_ids if there are selected services
+                if (selectedServices.length > 0) {
+                    formData += '&service_id=' + firstServiceId +
+                        '&service_ids[]=' + selectedServices.map(service => service.id).join(
+                            '&service_ids[]=') +
+                        '&services=' + JSON.stringify(selectedServices);
+                }
+
+                $('#spinner').show(); // Show spinner for the submission
 
                 $.ajax({
                     url: $(this).attr('action'),
@@ -546,15 +556,12 @@
 
                         // Reset button text and hide spinner
                         $submitButton.prop('disabled', false);
-                        $submitButton.find('.button-text').text('Save Project');
+                        $submitButton.find('.button-text').text('Update Project');
                         $submitButton.find('.spinner-border').hide(); // Hide the spinner
-                        $('#spinner')
-                    .hide(); // Assuming this is a different spinner, if not, you can remove this line
+                        $('#spinner').hide(); // Hide the submission spinner
                     }
                 });
             });
-
-
 
             // Handle Add Design Button Click
             $('#addDesignButton').on('click', function() {
@@ -637,11 +644,11 @@
                 selectedServices.forEach(service => {
                     $selectedServicesList.append(
                         `<li class="d-flex justify-content-between align-items-center mb-2">
-                <span class="mx-auto text-center">${service.name}</span> <!-- Center the service name -->
-                <button type="button" class="btn btn-link text-danger" onclick="removeService(${service.id})">
-                    <i class="fas fa-times"></i> <!-- X icon -->
-                </button>
-            </li>`
+                        <span class="mx-auto text-center">${service.name}</span> <!-- Center the service name -->
+                        <button type="button" class="btn btn-link text-danger" onclick="removeService(${service.id})">
+                            <i class="fas fa-times"></i> <!-- X icon -->
+                        </button>
+                    </li>`
                     );
                 });
             }
@@ -658,13 +665,23 @@
                 $('#service_id').val(selectedServices.map(service => service.id).join(','));
             };
 
+            // Function to remove a specific service by ID
+            function removeService(serviceId, button) {
+                // Remove the service visually from the list
+                const listItem = button.closest('li'); // Get the closest <li> element
+                listItem.remove(); // Remove the <li> from the DOM
+
+                // Optionally, if you're tracking selected services elsewhere, you may want to handle that logic
+                // This assumes you have a global array of selected services
+                selectedServices = selectedServices.filter(service => service.id !== serviceId);
+
+                // Update the hidden input or other elements if necessary
+                const remainingServices = selectedServices.map(service => service.id).join(',');
+                document.getElementById('servicesInput').value = remainingServices;
+            }
 
         });
     </script>
-
-
-
-
 
 
 @endsection
