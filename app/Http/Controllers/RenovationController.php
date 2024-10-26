@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use Illuminate\Http\Request;
+use App\Models\TaskLog;
 
 class RenovationController extends Controller
 {
@@ -47,7 +48,7 @@ class RenovationController extends Controller
         $path = $request->file('design') ? $request->file('design')->store('designs', 'public') : null;
 
         // Create the Renovation service
-        Service::create([
+        $service = Service::create([
             'name' => $request->name,
             'design' => $path,
             'complexity' => $request->complexity,
@@ -55,6 +56,18 @@ class RenovationController extends Controller
             'category' => $request->category, // Use the category from the form
             'type' => $request->type // Use the type from the form
         ]);
+
+         // Get the currently authenticated user
+    $user = auth()->user(); 
+
+    // Create a task log entry
+    TaskLog::create([
+        'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+        'type' => 'Renovation Service', // Type of action being logged
+        'type_id' => $service->id, // ID of the created service
+        'action' => 'Created Renovation service', // Description of the action
+        'action_date' => now(), // Current timestamp
+    ]);
 
         return redirect()->route('renovation')->with('success', 'Service added successfully.');
     }
@@ -91,6 +104,17 @@ class RenovationController extends Controller
 
         $service->save();
 
+        $user = auth()->user(); 
+
+        // Create a task log entry
+        TaskLog::create([
+            'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+            'type' => 'Renovation Service', // Type of action being logged
+            'type_id' => $service->id, // ID of the created service
+            'action' => 'Updated Renovation service', // Description of the action
+            'action_date' => now(), // Current timestamp
+        ]);
+
         return redirect()->route('renovation')->with('success', 'Service updated successfully.');
     }
 
@@ -100,6 +124,17 @@ class RenovationController extends Controller
             $service = Service::findOrFail($id);
             $service->status = 'archive';
             $service->save();
+
+            $user = auth()->user(); 
+
+            // Create a task log entry
+            TaskLog::create([
+                'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+                'type' => 'Archive Service', // Type of action being logged
+                'type_id' => $service->id, // ID of the created service
+                'action' => 'Archived Renovation service', // Description of the action
+                'action_date' => now(), // Current timestamp
+            ]);
             return redirect()->route('renovation')->with('success', 'Service archived successfully.');
         } catch (\Exception $e) {
             \Log::error('Error archiving renovation service: ' . $e->getMessage());

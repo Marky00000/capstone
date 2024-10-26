@@ -9,6 +9,7 @@ use App\Models\Project;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\Booking;
+use App\Models\TaskLog; // Import the TaskLog model
 
 use Illuminate\Support\Facades\Log;
 
@@ -112,6 +113,17 @@ class ProjectController extends Controller
         $project->project_status = 'hold';
         $project->save();
 
+        $user = auth()->user(); // Get the currently authenticated user
+
+        // Log the task in the task_logs table
+        TaskLog::create([
+            'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+            'type_id' => $project->id, // Assuming type_id is related to the project ID
+            'type' => 'Project', // Type of action
+            'action' => 'Change project status to Hold', // Description of action
+            'action_date' => now(), // Current timestamp
+        ]);
+
         // Optional: Add a success message to the session
         return redirect()->back()->with('success', 'Project status updated to hold.');
     }
@@ -126,8 +138,16 @@ class ProjectController extends Controller
          $project->project_status = 'active';
          $project->save();
  
-         // Redirect back with a success message
-         return redirect()->back()->with('success', 'Project has been activated.');
+         $user = auth()->user(); // Get the currently authenticated user
+
+         // Log the task in the task_logs table
+         TaskLog::create([
+             'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+             'type_id' => $project->id, // Assuming type_id is related to the project ID
+             'type' => 'Project', // Type of action
+             'action' => 'Change project status to Active', // Description of action
+             'action_date' => now(), // Current timestamp
+         ]);         return redirect()->back()->with('success', 'Project has been activated.');
      }
 
 
@@ -306,6 +326,16 @@ class ProjectController extends Controller
     
             // Update the booking status to completed
             $booking->update(['booking_status' => 'visited']);
+            $user = auth()->user(); // Get the currently authenticated user
+
+            // Log the task in the task_logs table
+            TaskLog::create([
+                'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+                'type_id' => $project->id, // Assuming type_id is related to the project ID
+                'type' => 'Project', // Type of action
+                'action' => 'Created a new project', // Description of action
+                'action_date' => now(), // Current timestamp
+            ]);
     
             // Send the email notification to the booking email
             try {
@@ -313,15 +343,14 @@ class ProjectController extends Controller
             } catch (\Exception $emailException) {
                 Log::error('Error sending email: ' . $emailException->getMessage());
             }
-            $notificationMessage = 'You have a new project under your booking ID: ' . $request->booking_id . ' with service: ' . $service->name;
-            $request->session()->flash('notification', $notificationMessage);
-
+    
             return redirect()->route('projects.adminIndex')->with('success', 'Project added successfully.');
         } catch (\Exception $e) {
             Log::error('Error creating project: ' . $e->getMessage());
             return back()->with('error', 'There was an error creating the project. Please try again.');
         }
     }
+    
     
     
     
@@ -403,7 +432,7 @@ class ProjectController extends Controller
                 'start_date' => $request->start_date,
             ]);
     
-              // Update the project record
+            // Update the project record
             $project->update([
                 'service_id' => $service_id, // Use the first selected service ID for the main service
                 'service_ids' => !empty($request->service_ids) ? json_encode($request->service_ids) : $project->service_ids, // Update only if new services are selected
@@ -415,12 +444,16 @@ class ProjectController extends Controller
                 'start_date' => $request->start_date, // Ensure start date is updated
                 'project_status' => $project->project_status, // Keep the existing status if not changing
             ]);
-
-                $alerts = session('alerts', []);
-            $alerts[] = [
-                'message' => "The project with ID: " . $project->id . " has been updated.",
-            ];
-            session(['alerts' => $alerts]);
+    
+            // Add a record in the task logs
+            TaskLog::create([
+                'user_id' => auth()->id(), // Get the current user ID
+                'type_id' => $project->id, // Assuming you want to link this log to the project
+                'type' => 'Project', // You can define types as needed
+                'action' => 'Updated project',
+                'action_date' => now(), // Set action date to current timestamp
+            ]);
+    
     
             return redirect()->route('projects.adminIndex')->with('success', 'Project updated successfully.');
         } catch (\Exception $e) {
@@ -428,6 +461,7 @@ class ProjectController extends Controller
             return back()->with('error', 'There was an error updating the project. Please try again.');
         }
     }
+    
     
     
 }

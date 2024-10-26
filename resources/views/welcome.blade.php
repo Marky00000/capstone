@@ -233,8 +233,7 @@
                                 @php
                                     $url = route('project.show', ['id' => $alert['project_id']]); // Ensure this route is correct
                                 @endphp
-                                <a class="dropdown-item text-center small text-gray-500"
-                                    href="{{ $url }}">
+                                <a class="dropdown-item text-center small text-gray-500" href="{{ $url }}">
                                     <strong>Project ID: {{ $alert['project_id'] }}</strong> -
                                     {{ $alert['message'] }}
                                 </a>
@@ -250,8 +249,8 @@
                     @endif
                 </div>
             </li>
-            
-            
+
+
 
 
 
@@ -289,11 +288,20 @@
                         </a>
 
                         <div class="dropdown-divider"></div>
+                        
+                        <a class="dropdown-item" href="{{ route('tasklog.index') }}" data-toggle="tooltip"
+                            title="View Task Log">
+                            <i class="fas fa-tasks fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Task Log
+                        </a>
+
                         <a class="dropdown-item" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             Logout
                         </a>
+
+
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>

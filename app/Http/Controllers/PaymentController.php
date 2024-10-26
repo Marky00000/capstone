@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\TaskLog;
 use Illuminate\Support\Facades\Auth; // Import Auth to get the logged-in user
 use Illuminate\Http\Request;
 
@@ -83,45 +84,58 @@ class PaymentController extends Controller
 
 
     public function store(Request $request)
-{
-    $request->validate([
-        'project_id' => 'required|exists:projects,id',
-        'payment_type' => 'required|in:initial,midterm,final',
-        'payment_method' => 'required|in:cash,gcash,bank_transfer',
-        'amount' => 'required|numeric|min:0',
-        'payment_image' => 'nullable|image|max:2048', // Optional payment proof, max size 2MB
-    ]);
-
-    // Handle the payment proof upload if it exists
-    $paymentImagePath = null;
-    if ($request->hasFile('payment_image')) {
-        $paymentImagePath = $request->file('payment_image')->store('payments', 'public');
+    {
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'payment_type' => 'required|in:initial,midterm,final',
+            'payment_method' => 'required|in:cash,gcash,bank_transfer',
+            'amount' => 'required|numeric|min:0',
+            'payment_image' => 'nullable|image|max:2048', // Optional payment proof, max size 2MB
+        ]);
+    
+        // Handle the payment proof upload if it exists
+        $paymentImagePath = null;
+        if ($request->hasFile('payment_image')) {
+            $paymentImagePath = $request->file('payment_image')->store('payments', 'public');
+        }
+    
+        // Find the project
+        $project = Project::findOrFail($request->project_id);
+    
+        $totalPayments = Payment::where('project_id', $project->id)->sum('amount');
+    
+        // Check the expected total
+        $newTotalPaid = $totalPayments + $request->amount;
+    
+        $project->total_paid = $newTotalPaid; // Set to the new total calculated
+        $project->project_status = 'active';
+        $project->save(); // Save the updated total_paid to the database
+    
+        // Create a new payment record
+        $payment = Payment::create([
+            'project_id' => $project->id,
+            'payment_type' => $request->payment_type,
+            'payment_method' => $request->payment_method,
+            'amount' => $request->amount,
+            'payment_image' => $paymentImagePath,
+            'remarks' => $request->remarks,
+        ]);
+    
+        // Retrieve the currently authenticated user
+        $user = auth()->user(); // Get the currently authenticated user
+    
+        // Create a new task log entry for the payment
+        TaskLog::create([
+            'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+            'type' => 'Payment',
+            'type_id' => $payment->id, // Reference the payment ID
+            'action' => 'Payment submitted', // Describe the action taken   
+            'action_date' => now(), // Current date and time
+        ]);
+    
+        return redirect()->route('project.adminIndex')->with('success', 'Payment successfully submitted and is pending approval.');
     }
-
-    // Find the project
-    $project = Project::findOrFail($request->project_id);
-
-    $totalPayments = Payment::where('project_id', $project->id)->sum('amount');
-
-    // Check the expected total
-    $newTotalPaid = $totalPayments + $request->amount;
-
-    $project->total_paid = $newTotalPaid; // Set to the new total calculated
-    $project->project_status = 'active';
-    $project->save(); // Save the updated total_paid to the database
-
-    // Create a new payment record
-    Payment::create([
-        'project_id' => $project->id,
-        'payment_type' => $request->payment_type,
-        'payment_method' => $request->payment_method,
-        'amount' => $request->amount,
-        'payment_image' => $paymentImagePath,
-        'remarks' => $request->remarks,
-    ]);
-
-    return redirect()->route('project.adminIndex')->with('success', 'Payment successfully submitted and is pending approval.');
-}
+    
 
     
     

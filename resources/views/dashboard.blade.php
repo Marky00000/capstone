@@ -72,42 +72,10 @@
                 </div>
             </div>
 
-            <div class="row">
-                <!-- Recent Activities Table -->
-                <div class="col-md-12">
-                    <div class="card shadow-sm border-info">
-                        <div class="card-body">
-                            <h5 class="card-title text-info">Recent Activities</h5>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">User</th>
-                                        <th scope="col">Action</th>
-                                        <th scope="col">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>John Doe</td>
-                                        <td><i class="fas fa-plus-circle text-success"></i> Created a new service</td>
-                                        <td>2024-09-23</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Jane Smith</td>
-                                        <td><i class="fas fa-user-edit text-warning"></i> Updated user profile</td>
-                                        <td>2024-09-22</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Mark Johnson</td>
-                                        <td><i class="fas fa-trash-alt text-danger"></i> Deleted a service</td>
-                                        <td>2024-09-21</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+          
                 </div>
             </div>
+            
         </div>
     </div>
 

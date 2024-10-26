@@ -20,6 +20,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\TaskLogController;
+
 
 
 
@@ -183,6 +185,9 @@ Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])
 
     // Route::get('/reports/projects', [ReportsController::class, 'projects'])->name('reports.projects');
     Route::get('/reports/rates', [ReportsController::class, 'rates'])->name('reports.rates');
+    Route::get('/task-log', [TaskLogController::class, 'index'])->name('tasklog.index');
+    Route::get('/admin/task-log', [TaskLogController::class, 'adminIndex'])->name('admin.tasklog.index');
+
 
 
     });

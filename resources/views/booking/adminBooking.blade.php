@@ -88,7 +88,7 @@
                     </thead>
                     <tbody>
                         @foreach ($bookings->reverse() as $booking)
-                        <tr>
+                            <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $booking->name }}</td>
                                 <td>{{ $booking->contact }}</td>
@@ -362,6 +362,18 @@
                     success: function(response) {
                         // Hide spinner and show SweetAlert success message
                         $('#confirmModal').modal('hide');
+                        const taskLogs = JSON.parse(localStorage.getItem('taskLogs')) || [];
+
+                        // Add new log to the task logs
+                        taskLogs.push({
+                            type: response.type, // 'booking' in this case
+                            action: response.action, // 'confirm' in this case
+                            action_date: response.action_date // The timestamp
+                        });
+
+                        // Update localStorage with the new task logs
+                        localStorage.setItem('taskLogs', JSON.stringify(taskLogs));
+                        
                         Swal.fire({
                             icon: 'success',
                             title: 'Confirmed!',

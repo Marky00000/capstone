@@ -13,10 +13,11 @@
                     Filter By
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ route('archive.index', ['filter' => 'all']) }}">All Labors</a>
-                    <a class="dropdown-item" href="{{ route('archive.index', ['filter' => 'landscape']) }}">Landscape</a>
-                    <a class="dropdown-item" href="{{ route('archive.index', ['filter' => 'swimming-pool']) }}">Swimming Pool</a>
-                    <a class="dropdown-item" href="{{ route('archive.index', ['filter' => 'renovation']) }}">Renovation</a>
+                    <a class="dropdown-item {{ request('filter') === 'all' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'all']) }}">All Services</a>
+                    <a class="dropdown-item {{ request('filter') === 'landscape' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'landscape']) }}">Landscape</a>
+                    <a class="dropdown-item {{ request('filter') === 'swimming-pool' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'swimming-pool']) }}">Swimming Pool</a>
+                    <a class="dropdown-item {{ request('filter') === 'renovation' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'renovation']) }}">Renovation</a>
+                    <a class="dropdown-item {{ request('filter') === 'package' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'package']) }}">Package</a>
                 </div>
             </div>
         </div>
@@ -59,19 +60,14 @@
                                     <button class="btn btn-sm" style="background-color: transparent; border: none; color: #17a2b8; outline: none;" data-toggle="modal" title="View Service" data-target="#serviceModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}" data-description="{{ $service->description }}" data-design="{{ asset('storage/' . $service->design) }}">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    
-                                    <!-- Restore Service Button -->
                                     <button class="btn btn-sm" style="background-color: transparent; border: none; color: #ffc107; outline: none;" data-toggle="modal" data-target="#confirmRestoreModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}">
                                         <i class="fas fa-undo"></i>
                                     </button>
-                                    
-                                    <!-- Delete Service Button -->
                                     <button class="btn btn-sm" style="background-color: transparent; border: none; color: #dc3545; outline: none;" data-toggle="modal" data-target="#confirmDeleteModal" data-id="{{ $service->id }}" data-name="{{ $service->name }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
-                            
                         </tr>
                     @empty
                         <tr>
@@ -80,6 +76,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="pagination-wrapper">
+                {{  $services->links('pagination::bootstrap-4') }}
+            </div>
         </div>
     </div>
 </div>

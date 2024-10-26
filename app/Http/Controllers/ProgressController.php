@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Project; //use Illuminate\Http\Request;
 use App\Models\Progress; // Ensure you have a Progress model
 use Illuminate\Http\Request;
+use App\Models\TaskLog; // Import the TaskLog model
 
 class ProgressController extends Controller
 {
@@ -61,7 +62,7 @@ class ProgressController extends Controller
         $remarks = $request->remarks ?: 'No remarks'; // Use 'No remarks' if remarks is empty
     
         // Create new tracking entry
-        Progress::create([
+        $progress = Progress::create([
             'project_id' => $request->project_id,
             'phase' => $request->phase,
             'phase_progress' => $request->phase_progress,
@@ -69,8 +70,19 @@ class ProgressController extends Controller
             'remarks' => $remarks, // Save remarks (default or provided)
         ]);
     
+        // Log the progress in the task log
+        TaskLog::create([
+            'user_id' => auth()->id(), // Capture the ID of the authenticated user
+            'type' => 'Project Progress', // Adjust based on your task log types
+            'type_id' => $progress->id, // Assuming the task log refers to the progress ID
+            'action' => 'Project progress updated ' . $request->phase . ' - ' . $request->phase_progress . '%',
+            'action_date' => now(), // Use the current date and time
+            'details' => $remarks, // Optionally include remarks in details
+        ]);
+    
         return response()->json(['success' => true, 'message' => 'Project progress stored successfully!']);
     }
+    
     
     
 }

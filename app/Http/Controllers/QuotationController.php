@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Quotation;
 use App\Models\Service;
+use App\Models\TaskLog;
 use App\Models\Design;
 
 
@@ -449,7 +450,7 @@ return view('quotation.form', compact('cities'));
 
     try {
         // Create a new quotation record
-        Quotation::create([
+        $quotation = Quotation::create([
             'user_id' => $request->user_id,
             'service_id' => $request->service_id,
             'address' => $request->address,
@@ -459,6 +460,17 @@ return view('quotation.form', compact('cities'));
             'amount' => $amount,
             'working_days' => $workingDays,
         ]);
+
+         // Create a task log entry
+    $user = auth()->user(); // Get the currently authenticated user
+    TaskLog::create([
+        'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+        'type' => 'Quotation', // Type of action being logged
+        'type_id' => $quotation->id, // ID of the created quotation
+        'action' => 'Created a new Quotation', // Description of the action
+        'action_date' => now(), // Current timestamp
+    ]);
+
 
         return response()->json([
             'success' => true,

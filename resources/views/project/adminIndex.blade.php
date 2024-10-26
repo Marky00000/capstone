@@ -241,37 +241,78 @@
                                             <td>
                                                 <div
                                                     style="display: flex; justify-content: start; align-items: center; gap: 10px; padding: 8px 0;">
-                                                    <a href="{{ route('project.adminShow', $project->id) }}"
-                                                        class="btn btn-sm"
-                                                        style="background-color: transparent; border: none; color: #17a2b8; outline: none;"
-                                                        data-toggle="tooltip" title="View Project">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-
-                                                    <a href="{{ route('project.edit', $project->id) }}" class="btn btn-sm"
-                                                        style="background-color: transparent; border: none; color: #007bff; outline: none;">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-
-
-                                                    <!-- Show Hold button only if project_status is 'active' -->
-                                                    @if ($project->project_status === 'active')
-                                                        <button class="btn btn-sm"
-                                                            style="background-color: transparent; border: none; color: #ffc107; outline: none;"
-                                                            data-toggle="modal" data-target="#holdModal{{ $project->id }}"
-                                                            data-toggle="tooltip" title="Hold Project">
-                                                            <i class="fas fa-pause"></i>
+                                                    <!-- Dropdown for View, Edit, Hold, and Payment Options -->
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-sm dropdown-toggle"
+                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                            aria-expanded="false"
+                                                            style="background-color: transparent; border: none; color: #007bff;">
+                                                            <i class="fas fa-ellipsis-h"></i>
                                                         </button>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <!-- View Project Button -->
+                                                            <a href="{{ route('project.adminShow', $project->id) }}"
+                                                                class="dropdown-item" data-toggle="tooltip"
+                                                                title="View Project">
+                                                                <i class="fas fa-eye" style="color: #17a2b8;"></i>
+                                                                <!-- Teal color for View -->
+                                                                View Project
+                                                            </a>
 
-                                                        <!-- Confirmation Modal for Hold -->
+                                                            <!-- Edit Project Button -->
+                                                            <a href="{{ route('project.edit', $project->id) }}"
+                                                                class="dropdown-item" data-toggle="tooltip"
+                                                                title="Edit Project">
+                                                                <i class="fas fa-edit" style="color: #007bff;"></i>
+                                                                <!-- Blue color for Edit -->
+                                                                Edit Project
+                                                            </a>
+
+                                                            <!-- Payment Button - Show only if total_paid < total_cost -->
+                                                            @if ($project->total_paid < $project->total_cost)
+                                                                <a href="{{ route('payment.payment', ['projectId' => $project->id]) }}"
+                                                                    class="dropdown-item" data-toggle="tooltip"
+                                                                    title="Make Payment">
+                                                                    <i class="fas fa-credit-card"
+                                                                        style="color: #28a745;"></i>
+                                                                    <!-- Green color for Payment -->
+                                                                    Make Payment
+                                                                </a>
+                                                            @endif
+
+                                                            <!-- Hold Project Button - Show only if project_status is 'active' -->
+                                                            @if ($project->project_status === 'active')
+                                                                <button class="dropdown-item" data-toggle="modal"
+                                                                    data-target="#holdModal{{ $project->id }}"
+                                                                    data-toggle="tooltip" title="Hold Project">
+                                                                    <i class="fas fa-pause" style="color: #ffc107;"></i>
+                                                                    <!-- Yellow color for Hold -->
+                                                                    Hold Project
+                                                                </button>
+                                                            @endif
+
+                                                            <!-- Activate Project Button - Show only if project_status is 'hold' -->
+                                                            @if ($project->project_status === 'hold')
+                                                                <button class="dropdown-item" data-toggle="modal"
+                                                                    data-target="#activateModal{{ $project->id }}"
+                                                                    data-toggle="tooltip" title="Activate Project">
+                                                                    <i class="fas fa-check" style="color: #17a2b8;"></i>
+                                                                    <!-- Teal color for Activate -->
+                                                                    Activate Project
+                                                                </button>
+                                                            @endif
+                                                        </div>
+
+                                                        <!-- Confirmation Modals for Hold and Activate -->
+                                                        <!-- Hold Modal -->
                                                         <div class="modal fade" id="holdModal{{ $project->id }}"
-                                                            tabindex="-1" role="dialog" aria-labelledby="holdModalLabel"
-                                                            aria-hidden="true">
+                                                            tabindex="-1" role="dialog"
+                                                            aria-labelledby="holdModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h5 class="modal-title" id="holdModalLabel">Confirm
-                                                                            Hold</h5>
+                                                                        <h5 class="modal-title" id="holdModalLabel">
+                                                                            Confirm Hold</h5>
                                                                         <button type="button" class="close"
                                                                             data-dismiss="modal" aria-label="Close">
                                                                             <span aria-hidden="true">&times;</span>
@@ -285,8 +326,7 @@
                                                                             data-dismiss="modal">Cancel</button>
                                                                         <form
                                                                             action="{{ route('project.hold', $project->id) }}"
-                                                                            method="POST"
-                                                                            id="hold-form-{{ $project->id }}">
+                                                                            method="POST">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
@@ -297,19 +337,8 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    @endif
 
-                                                    <!-- Show Activate button only if project_status is 'hold' -->
-                                                    @if ($project->project_status === 'hold')
-                                                        <button class="btn btn-sm"
-                                                            style="background-color: transparent; border: none; color: #28a745; outline: none;"
-                                                            data-toggle="modal"
-                                                            data-target="#activateModal{{ $project->id }}"
-                                                            data-toggle="tooltip" title="Activate Project">
-                                                            <i class="fas fa-check"></i>
-                                                        </button>
-
-                                                        <!-- Confirmation Modal for Activate -->
+                                                        <!-- Activate Modal -->
                                                         <div class="modal fade" id="activateModal{{ $project->id }}"
                                                             tabindex="-1" role="dialog"
                                                             aria-labelledby="activateModalLabel" aria-hidden="true">
@@ -331,8 +360,7 @@
                                                                             data-dismiss="modal">Cancel</button>
                                                                         <form
                                                                             action="{{ route('project.activate', $project->id) }}"
-                                                                            method="POST"
-                                                                            id="activate-form-{{ $project->id }}">
+                                                                            method="POST">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
@@ -343,11 +371,9 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    @endif
+                                                    </div>
                                                 </div>
                                             </td>
-
-
 
                                             </td>
                                         </tr>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Service; // Make sure to import the correct Package model
+use App\Models\TaskLog;
 use Illuminate\Support\Facades\Storage;
 
 class PackageController extends Controller
@@ -57,13 +58,25 @@ class PackageController extends Controller
         $path = $request->file('design')->store('designs', 'public');
     
         // Create the Package
-        Service::create([
+        $service = Service::create([
             'name' => $request->name,
             'design' => $path,
             'complexity' => $request->complexity,
             'description' => $request->description,
             'category' => 'package', // Ensure the category is correctly set
         ]);
+
+               // Get the currently authenticated user
+    $user = auth()->user(); 
+
+    // Create a task log entry
+    TaskLog::create([
+        'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+        'type' => 'Package Service', // Type of action being logged
+        'type_id' => $service->id, // ID of the created service
+        'action' => 'Created Package service', // Description of the action
+        'action_date' => now(), // Current timestamp
+    ]);
     
         return redirect()->route('package')->with('success', 'Package added successfully.');
     }
@@ -100,6 +113,17 @@ class PackageController extends Controller
 
         $service->save();
 
+        $user = auth()->user(); 
+
+    // Create a task log entry
+    TaskLog::create([
+        'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+        'type' => 'Package Service', // Type of action being logged
+        'type_id' => $service->id, // ID of the created service
+        'action' => 'Updated Package service', // Description of the action
+        'action_date' => now(), // Current timestamp
+    ]);
+
         return redirect()->route('package')->with('success', 'Package updated successfully.');
     }
 
@@ -109,6 +133,18 @@ class PackageController extends Controller
             $service = Service::findOrFail($id);
             $service->status = 'archive';
             $service->save();
+
+            $user = auth()->user(); 
+
+            // Create a task log entry
+            TaskLog::create([
+                'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+                'type' => 'Archive Service', // Type of action being logged
+                'type_id' => $service->id, // ID of the created service
+                'action' => 'Archived Package service', // Description of the action
+                'action_date' => now(), // Current timestamp
+            ]);
+
             return redirect()->route('package')->with('success', 'Package archived successfully.');
         } catch (\Exception $e) {
             \Log::error('Error archiving package: ' . $e->getMessage());

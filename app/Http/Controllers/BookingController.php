@@ -8,6 +8,7 @@ use App\Mail\BookingSuccessMail;
 use App\Mail\BookingConfirmed;
 use App\Mail\BookingDeclined;
 use App\Models\User;
+use App\Models\TaskLog;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth; // Make sure to include this at the top
 
@@ -227,49 +228,59 @@ class BookingController extends Controller
 
     
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string',
-            'contact' => 'required|string',
-            'email' => 'required|string|email', // Email provided in the request
-            'site_visit_date' => 'required|date',
-            'user_id' => 'required|exists:users,id', // Ensure user exists
-            'address' => 'required|string',
-            'province' => 'required|string',
-            'city' => 'required|string',
-        ]);
-    
-        // Create a new booking and include user_id
-        $booking = Booking::create([
-            'name' => $request->name,
-            'contact' => $request->contact,
-            'email' => $request->email,
-            'site_visit_date' => $request->site_visit_date,
-            'user_id' => $request->user_id, // Set user_id here
-            'address' => $request->address,
-            'province' => $request->province,
-            'city' => $request->city,
-        ]);
-    
-        // Prepare all booking details for the email
-        $bookingDetails = [
-            'id' => $booking->id,
-            'name' => $booking->name,
-            'contact' => $booking->contact,
-            'email' => $booking->email,
-            'site_visit_date' => $booking->site_visit_date,
-            'address' => $booking->address,
-            'province' => $booking->province,
-            'city' => $booking->city,
-            'user_id' => $booking->user_id, // Include user_id in the details
-        ];  
-    
-        // Optionally, get user email from the user_id and send the email
-        $userEmail = User::find($booking->user_id)->email;
-        Mail::to($userEmail)->send(new BookingSuccessMail($bookingDetails));
-    
-        return response()->json(['message' => 'Booking created successfully.']);
-    }
+{
+    $request->validate([
+        'name' => 'required|string',
+        'contact' => 'required|string',
+        'email' => 'required|string|email',
+        'site_visit_date' => 'required|date',
+        'user_id' => 'required|exists:users,id',
+        'address' => 'required|string',
+        'province' => 'required|string',
+        'city' => 'required|string',
+    ]);
+
+    // Create a new booking and include user_id
+    $booking = Booking::create([
+        'name' => $request->name,
+        'contact' => $request->contact,
+        'email' => $request->email,
+        'site_visit_date' => $request->site_visit_date,
+        'user_id' => $request->user_id,
+        'address' => $request->address,
+        'province' => $request->province,
+        'city' => $request->city,
+    ]);
+
+    // Prepare all booking details for the email
+    $bookingDetails = [
+        'id' => $booking->id,
+        'name' => $booking->name,
+        'contact' => $booking->contact,
+        'email' => $booking->email,
+        'site_visit_date' => $booking->site_visit_date,
+        'address' => $booking->address,
+        'province' => $booking->province,
+        'city' => $booking->city,
+        'user_id' => $booking->user_id,
+    ];
+
+    // Get user email from the user_id and send the email
+    $userEmail = User::find($booking->user_id)->email;
+    Mail::to($userEmail)->send(new BookingSuccessMail($bookingDetails));
+
+    // Add a task log entry for the created booking
+    TaskLog::create([
+        'type' => 'Booking',
+        'type_id' => $booking->id,
+        'action' => 'Created a new booking',
+        'action_date' => now(), // Current date and time
+        'user_id' => $request->user_id, // Optional: track which user created the booking
+    ]);
+
+    return response()->json(['message' => 'Booking created successfully.']);
+}
+
     
     
 
@@ -288,38 +299,62 @@ class BookingController extends Controller
     }
     
 
-    public function confirmBooking($id) 
+    public function confirmBooking($id)
     {
         $booking = Booking::findOrFail($id);
     
-        // Check if the booking status is 'pending' before confirming
         if ($booking->booking_status === 'pending') {
-            $booking->booking_status = 'confirmed'; // Change status to confirmed
+            $booking->booking_status = 'confirmed'; 
             $booking->save();
     
             // Send confirmation email to the booking's email
             Mail::to($booking->email)->send(new BookingConfirmed($booking));
+    
+            session()->flash('success', 'Booking confirmed successfully!');
             
-            session()->flash('success', 'Booking confirmed successfully!'); // Set flash message
-            return response()->json(['message' => 'Booking confirmed successfully.']);
+            // Log the confirmation action
+            TaskLog::create([
+                'user_id' => auth()->id(), // Get the authenticated user ID
+                'type_id' => $booking->id, // Use the relevant task ID
+                'type' => 'booking',        // Set the type for clarity
+                'action' => 'confirm',      // Specify the action performed
+                'action_date' => now(),     // Log the date of action
+            ]);
+    
+            // Return a response
+            return response()->json([
+                'message' => 'Booking confirmed successfully.',
+                'type' => 'Booking',
+                'action' => 'Confirm',
+                'action_date' => now(),
+            ]);
         } else {
-            // Handle the case where the booking cannot be confirmed
             return response()->json(['message' => 'Booking cannot be confirmed as it is already confirmed or cancelled.'], 400);
         }
     }
     
     
+    
     public function declineBooking($id)
     {
         $booking = Booking::findOrFail($id);
-    
+        
         // Check if the booking status is 'pending' before declining
         if ($booking->booking_status === 'pending') {
             $booking->booking_status = 'declined'; // Change status to declined
             $booking->save();
-    
+            
             // Send decline email to the booking's email
             Mail::to($booking->email)->send(new BookingDeclined($booking));
+            
+            // Log the decline action
+            TaskLog::create([
+                'user_id' => auth()->id(), // Get the authenticated user ID
+                'type_id' => $booking->id, // Booking ID as task_id
+                'type' => 'Booking', // Set type as 'booking'
+                'action' => 'Decline', // Action taken
+                'action_date' => now(), // Current timestamp
+            ]);
     
             session()->flash('success', 'Booking has been declined!'); // Set flash message
             return response()->json(['message' => 'Booking has been declined.']);
@@ -328,6 +363,7 @@ class BookingController extends Controller
             return response()->json(['message' => 'Booking cannot be declined as it is already confirmed, visited, or cancelled.'], 400);
         }
     }
+    
     
 
 public function view($id)
