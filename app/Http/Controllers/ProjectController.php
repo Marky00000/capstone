@@ -9,7 +9,9 @@ use App\Models\Project;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\Booking;
-use App\Models\TaskLog; // Import the TaskLog model
+use App\Models\TaskLog; 
+use App\Models\Notification;
+
 
 use Illuminate\Support\Facades\Log;
 
@@ -105,16 +107,21 @@ class ProjectController extends Controller
 
   
 
-        public function hold(Request $request, $id)
+    public function hold(Request $request, $id)
     {
+        // Retrieve the project by ID
         $project = Project::findOrFail($id);
         
         // Change project status to 'hold'
         $project->project_status = 'hold';
         $project->save();
-
-        $user = auth()->user(); // Get the currently authenticated user
-
+    
+        // Assuming the project has a booking_id column
+        $booking = Booking::find($project->booking_id); // Adjust this if the column name is different
+        
+        // Get the currently authenticated user
+        $user = auth()->user(); 
+    
         // Log the task in the task_logs table
         TaskLog::create([
             'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
@@ -123,32 +130,69 @@ class ProjectController extends Controller
             'action' => 'Change project status to Hold', // Description of action
             'action_date' => now(), // Current timestamp
         ]);
+    
+        // Create a notification for the user who made the booking
+        if ($booking) {
+            Notification::create([
+                'user_id' => 1, // Hardcoded user ID as per your requirement
+                'sent_to' => $booking->user_id, // The user who should receive the notification
+                'title' => 'Project Update', // Corrected spelling
+                'message' => 'Admin has put your project on hold. Project ID: ' . $project->id,
+                'sent_at' => now(),
+                'type' => 'Project', // Set type to Booking
+                'type_id' => $project->id // Set type_id to the ID of the booking
+            ]);
+        }
+    
+        // Optional: Add a success message to the session
+        return redirect()->back()->with('success', 'Project status updated to hold.');
+    }
+    
 
+    
+
+    public function activate(Request $request, $id)
+    {
+        // Retrieve the project by ID
+        $project = Project::findOrFail($id);
+        
+        // Change project status to 'hold'
+        $project->project_status = 'active';
+        $project->save();
+    
+        // Assuming the project has a booking_id column
+        $booking = Booking::find($project->booking_id); // Adjust this if the column name is different
+        
+        // Get the currently authenticated user
+        $user = auth()->user(); 
+    
+        // Log the task in the task_logs table
+        TaskLog::create([
+            'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+            'type_id' => $project->id, // Assuming type_id is related to the project ID
+            'type' => 'Project', // Type of action
+            'action' => 'Change project status to Active', // Description of action
+            'action_date' => now(), // Current timestamp
+        ]);
+    
+        // Create a notification for the user who made the booking
+        if ($booking) {
+
+            Notification::create([
+                'user_id' => 1, // Hardcoded user ID as per your requirement
+                'sent_to' => $booking->user_id, // The user who should receive the notification
+                'title' => 'Project Update', // Corrected spelling
+                'message' => 'Admin change your project to active . Project ID: ' . $project->id,
+                'sent_at' => now(),
+                'type' => 'Project', // Set type to Booking
+                'type_id' => $project->id // Set type_id to the ID of the booking
+            ]);
+        }
+    
         // Optional: Add a success message to the session
         return redirect()->back()->with('success', 'Project status updated to hold.');
     }
 
-     // Method to activate a project
-     public function activate($id)
-     {
-         // Find the project by ID
-         $project = Project::findOrFail($id);
- 
-         // Update the project status to 'active'
-         $project->project_status = 'active';
-         $project->save();
- 
-         $user = auth()->user(); // Get the currently authenticated user
-
-         // Log the task in the task_logs table
-         TaskLog::create([
-             'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
-             'type_id' => $project->id, // Assuming type_id is related to the project ID
-             'type' => 'Project', // Type of action
-             'action' => 'Change project status to Active', // Description of action
-             'action_date' => now(), // Current timestamp
-         ]);         return redirect()->back()->with('success', 'Project has been activated.');
-     }
 
 
      public function generateReport()
@@ -343,6 +387,17 @@ class ProjectController extends Controller
             } catch (\Exception $emailException) {
                 Log::error('Error sending email: ' . $emailException->getMessage());
             }
+
+                // Create a notification for the user who made the booking
+            Notification::create([
+                'user_id' => 1, // User who made the booking
+                'sent_to' => $booking->user_id, // You can adjust this according to your logic
+                'title' => 'Project Created',
+                'message' => 'A new project has been created for your booking ID: ' . $booking->id,
+                'sent_at' => now(),
+                'type' => 'Project', // Set type to Booking
+                'type_id' => $project->id // Set type_id to the ID of the booking
+            ]);
     
             return redirect()->route('projects.adminIndex')->with('success', 'Project added successfully.');
         } catch (\Exception $e) {
@@ -407,6 +462,10 @@ class ProjectController extends Controller
     
         // Retrieve the project to update
         $project = Project::findOrFail($id);
+
+          // Fetch the booking to get the user who made the booking
+          $booking = Booking::find($request->booking_id);
+          $user = $booking->user; // Assuming a 'user' relationship exists on Booking
     
         // Get the first selected service ID for service_id
         $service_id = $request->service_ids[0];
@@ -453,7 +512,18 @@ class ProjectController extends Controller
                 'action' => 'Updated project',
                 'action_date' => now(), // Set action date to current timestamp
             ]);
-    
+            
+                     // Create a notification for the user who made the booking
+                     Notification::create([
+                        'user_id' => 1, // User who made the booking
+                        'sent_to' => $booking->user_id, // You can adjust this according to your logic
+                        'title' => 'Project Updated',
+                        'message' => 'project has been updated for your booking ID: ' . $booking->id,
+                        'sent_at' => now(),
+                        'type' => 'Project', // Set type to Booking
+                        'type_id' => $project->id // Set type_id to the ID of the booking
+                    ]);
+            
     
             return redirect()->route('projects.adminIndex')->with('success', 'Project updated successfully.');
         } catch (\Exception $e) {

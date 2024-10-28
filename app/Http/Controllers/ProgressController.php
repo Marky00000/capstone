@@ -5,6 +5,8 @@ use App\Models\Project; //use Illuminate\Http\Request;
 use App\Models\Progress; // Ensure you have a Progress model
 use Illuminate\Http\Request;
 use App\Models\TaskLog; // Import the TaskLog model
+use App\Models\Notification;
+
 
 class ProgressController extends Controller
 {
@@ -49,7 +51,7 @@ class ProgressController extends Controller
             'phase' => 'required|in:phase_one,phase_two,phase_three',
             'phase_progress' => 'required|in:0,10,20,30,40,50,60,70,80,90,100',
             'image' => 'nullable|image|max:2048', // Optional image
-            'remarks' => 'nullable|string', // Make remarks required
+            'remarks' => 'nullable|string', // Make remarks optional
         ]);
     
         // Handle file upload for the image if provided
@@ -73,15 +75,32 @@ class ProgressController extends Controller
         // Log the progress in the task log
         TaskLog::create([
             'user_id' => auth()->id(), // Capture the ID of the authenticated user
-            'type' => 'Project Progress', // Adjust based on your task log types
+            'type' => 'Progress', // Adjust based on your task log types
             'type_id' => $progress->id, // Assuming the task log refers to the progress ID
             'action' => 'Project progress updated ' . $request->phase . ' - ' . $request->phase_progress . '%',
             'action_date' => now(), // Use the current date and time
             'details' => $remarks, // Optionally include remarks in details
         ]);
     
+        // Find the project to create a notification
+        $project = Project::with('booking.user')->findOrFail($request->project_id); // Eager load booking and user
+    
+        // Create a notification for the user associated with the project
+        if ($project->booking && $project->booking->user) { // Check if booking and user exist
+            Notification::create([
+                'user_id' => auth()->id(), // User who made the progress update
+                'sent_to' => $project->booking->user->id, // Access user_id through the booking's user relationship
+                'title' => 'Project Progress Updated',
+                'message' => 'The progress for project ID: ' . $project->id . ' has been updated to ' . $request->phase_progress . '% for phase ' . $request->phase,
+                'sent_at' => now(),
+                'type' => 'Progress', // Set type to Booking
+                'type_id' => $progress->id // Set type_id to the ID of the booking
+            ]);
+        }
+    
         return response()->json(['success' => true, 'message' => 'Project progress stored successfully!']);
     }
+    
     
     
     

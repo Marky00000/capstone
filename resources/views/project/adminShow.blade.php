@@ -88,14 +88,7 @@
                             <th>Total Cost</th>
                             <td class="d-flex justify-content-between align-items-center">
                                 <span>₱{{ number_format($projects->total_cost, 2) }}</span>
-                                @if ($projects->total_cost > $projects->total_paid)
-                                    <a href="{{ route('payment.payment', ['projectId' => $projects->id]) }}"
-                                        class="btn btn-link">
-                                        <i class="fas fa-credit-card fa-lg"></i> <!-- Payment icon -->
-                                    </a>
-                                @else
-                                    <i class="fas fa-check-circle text-success fa-lg"></i> <!-- Check icon -->
-                                @endif
+
                             </td>
 
 
@@ -115,6 +108,37 @@
                             </td>
 
                         </tr>
+
+                        <tr>
+                            <th>Payables</th>
+                            <td class="d-flex justify-content-between align-items-center">
+                                @php
+                                    $payables = $projects->total_cost - $projects->total_paid;
+                                @endphp
+                                <span
+                                    class="d-flex align-items-center {{ $payables <= 0 ? 'text-success' : 'text-danger' }}">
+                                    @if ($payables <= 0)
+                                        <i class="fas fa-check-circle text-success fa-lg me-2"></i>
+                                        <!-- Check icon for completed -->
+                                        Paid completed
+                                    @else
+                                        <i class="fas fa-exclamation-circle text-danger fa-lg me-2"></i>
+                                        <!-- Exclamation icon for pending -->
+                                        ₱{{ number_format($payables, 2) }}
+                                    @endif
+                                </span>
+                                @if ($payables > 0 && $projects->total_cost > $projects->total_paid)
+                                    <a href="{{ route('payment.payment', ['projectId' => $projects->id]) }}"
+                                        class="btn btn-link">
+                                        <i class="fas fa-credit-card fa-lg"></i> <!-- Payment icon -->
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
+
+
+
+
                         <tr>
                             <th>Status</th>
                             <td>
@@ -209,12 +233,15 @@
             </div>
         </div>
 
-        <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="paymentImagesModalLabel">Payment Images</h5>
+                        <div>
+                            <p class="mb-0" id="totalPaidAmount" style="font-size: 1.25rem; font-weight: bold;">
+                                Total Paid: <span class="text-success">₱{{ number_format($projects->total_paid, 2) }}</span>
+                            </p>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="paymentImagesContainer">
@@ -226,6 +253,8 @@
                 </div>
             </div>
         </div>
+        
+        
 
     </div>
 

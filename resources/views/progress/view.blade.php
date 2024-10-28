@@ -1,47 +1,63 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-5">
-        <h4 class="mb-4">Progress for Project: <span class="text-primary">{{ $project->id }}</span></h4>
-        <h5 class="text-muted">Services:
+  <!-- Display Project Information -->
+  <div class="mb-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">Progress for Project: <span class="text-light">{{ $project->id }}</span></h4>
+        </div>
+        <div class="card-body">
+            <h5 class="text-muted">Services:
+                @php
+                    // Decode service IDs from JSON format
+                    $serviceIds = $project->service_ids ? json_decode($project->service_ids) : [];
+                    // Retrieve services based on decoded IDs
+                    $services = !empty($serviceIds)
+                        ? \App\Models\Service::whereIn('id', $serviceIds)->get()
+                        : collect();
+                @endphp
+
+                @if ($services->isNotEmpty())
+                    @foreach ($services as $service)
+                        <span class="badge bg-secondary text-white">{{ $service->name }}</span>
+                        @if (!$loop->last)
+                            <span class="text-muted">, </span>
+                        @endif <!-- Add a comma between services except for the last one -->
+                    @endforeach
+                @else
+                    <span class="text-danger">No services found</span>
+                @endif
+            </h5>
+
             @php
-                // Decode service IDs from JSON format
-                $serviceIds = $project->service_ids ? json_decode($project->service_ids) : [];
-                // Retrieve services based on decoded IDs
-                $services = !empty($serviceIds) ? \App\Models\Service::whereIn('id', $serviceIds)->get() : collect();
+                $lastProgress = $progress->last(); // Get the last progress entry
             @endphp
 
-            @if ($services->isNotEmpty())
-                @foreach ($services as $service)
-                    <span class="badge badge-info">{{ $service->name }}</span>
-                    @if (!$loop->last)
-                        ,
+            <div class="mt-3">
+                @if ($progress->isNotEmpty())
+                    <!-- Check if there is any progress -->
+                    @if ($lastProgress->phase == 'phase_three' && $lastProgress->phase_progress == 100)
+                        <strong class="text-success">Current Phase:</strong>
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span class="text-success ms-2">Project Finished</span>
+                    @else
+                        <strong><i class="fas fa-hourglass-half text-warning"></i> Current Phase:</strong>
+                        <span class="text-success ms-2">{{ $lastProgress->phase }}</span><br>
+                        <strong><i class="fas fa-tasks text-info"></i> Current Progress:</strong>
+                        <span class="text-success ms-2">{{ $lastProgress->phase_progress }}%</span>
                     @endif
-                @endforeach
-            @else
-                <span class="text-muted">No services found</span>
-            @endif
-        </h5>
-
-        <!-- Display Project Information -->
-        <div class="mb-4">
-            @if ($progress->isNotEmpty())
-                <div class="p-3 bg-light rounded shadow-sm">
-                    <strong>Current Phase:</strong> <span class="text-success">{{ $progress->last()->phase }}</span><br>
-                    <strong>Current Progress:</strong> <span
-                        class="text-success">{{ $progress->last()->phase_progress }}%</span>
-                </div>
-            @else
-                <div class="alert alert-info" role="alert">
-                    No progress recorded for this project yet.
-                </div>
-            @endif
+                @else
+                    <div class="text-center text-danger">
+                        <i class="fas fa-exclamation-circle fa-2x"></i><br>
+                        <strong>No progress recorded for this project yet.</strong>
+                    </div>
+                @endif
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- Table for Project Progress -->
-        <h2 class="mb-4">Progress History</h2>
-
-        <div id="successMessage" class="alert alert-success" style="display: none;"></div>
 
         <table class="table table-hover table-bordered shadow-sm">
             <thead class="thead-light">
@@ -74,7 +90,7 @@
             </tbody>
         </table>
 
-        <a class="btn btn-primary btn-md mt-4" href="{{ route('project.index') }}">
+        <a class="btn btn-secondary btn-md mt-4" href="{{ route('project.index') }}">
             <i class="fas fa-arrow-left"></i> Back
         </a>
 

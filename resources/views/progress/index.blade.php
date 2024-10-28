@@ -6,39 +6,65 @@
 
         <!-- Display Project Information -->
         <div class="mb-4">
-            @if ($progress->isNotEmpty())
-                <h4 class="mb-4">Progress for Project: <span class="text-primary">{{ $project->id }}</span></h4>
-                <h5 class="text-muted">Services:
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Progress for Project: <span class="text-light">{{ $project->id }}</span></h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="text-muted">Services:
+                        @php
+                            // Decode service IDs from JSON format
+                            $serviceIds = $project->service_ids ? json_decode($project->service_ids) : [];
+                            // Retrieve services based on decoded IDs
+                            $services = !empty($serviceIds)
+                                ? \App\Models\Service::whereIn('id', $serviceIds)->get()
+                                : collect();
+                        @endphp
+
+                        @if ($services->isNotEmpty())
+                            @foreach ($services as $service)
+                                <span class="badge bg-secondary text-white">{{ $service->name }}</span>
+                                @if (!$loop->last)
+                                    <span class="text-muted">, </span>
+                                @endif <!-- Add a comma between services except for the last one -->
+                            @endforeach
+                        @else
+                            <span class="text-danger">No services found</span>
+                        @endif
+                    </h5>
+
                     @php
-                        // Decode service IDs from JSON format
-                        $serviceIds = $project->service_ids ? json_decode($project->service_ids) : [];
-                        // Retrieve services based on decoded IDs
-                        $services = !empty($serviceIds)
-                            ? \App\Models\Service::whereIn('id', $serviceIds)->get()
-                            : collect();
+                        $lastProgress = $progress->last(); // Get the last progress entry
                     @endphp
 
-                    @if ($services->isNotEmpty())
-                        @foreach ($services as $service)
-                            {{ $service->name }}@if (!$loop->last)
-                                ,
-                            @endif <!-- Add a comma between services except for the last one -->
-                        @endforeach
-                    @else
-                        No services found
-                    @endif
-                </h5>
-                 <strong>Current Phase:</strong> <span class="text-success">{{ $progress->last()->phase }}</span><br>
-                
-                <strong>Current Progress:</strong> <span
-                    class="text-success">{{ $progress->last()->phase_progress }}%</span><br>
-            @else
-                <strong>No progress recorded for this project yet.</strong><br>
-            @endif
+                    <div class="mt-3">
+                        @if ($progress->isNotEmpty())
+                            <!-- Check if there is any progress -->
+                            @if ($lastProgress->phase == 'phase_three' && $lastProgress->phase_progress == 100)
+                                <strong class="text-success">Current Phase:</strong>
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span class="text-success ms-2">Project Finished</span>
+                            @else
+                                <strong><i class="fas fa-hourglass-half text-warning"></i> Current Phase:</strong>
+                                <span class="text-success ms-2">{{ $lastProgress->phase }}</span><br>
+                                <strong><i class="fas fa-tasks text-info"></i> Current Progress:</strong>
+                                <span class="text-success ms-2">{{ $lastProgress->phase_progress }}%</span>
+                            @endif
+                        @else
+                            <div class="text-center text-danger">
+                                <i class="fas fa-exclamation-circle fa-2x"></i><br>
+                                <strong>No progress recorded for this project yet.</strong>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Table for Project Progress -->
-        <h2>Progress Tracking</h2>
+
+
+
+
 
         <!-- Success message -->
         <div id="successMessage" class="alert alert-success" style="display: none;"></div>
@@ -73,13 +99,27 @@
             </tbody>
         </table>
 
-        <a class="btn btn-secondary btn-md" href="{{ route('project.adminIndex') }}">
+        <a class="btn btn-secondary btn-md" href="{{ route('project.adminIndex') }}" data-bs-toggle="tooltip"
+            data-bs-placement="top" title="Go back to the project overview">
             <i class="fas fa-arrow-left"></i> Back
         </a>
+        @php
+            // Get the latest progress entry, if available
+            $latestProgress = $progress->last(); // Use last() to get the most recent progress entry
+        @endphp
 
-        <button class="btn btn-warning btn-md" onclick="openUpdateModal('{{ $project->id }}')">
-            <i class="fas fa-plus-circle"></i> Update Progress
-        </button>
+        @if (!$latestProgress || !($latestProgress->phase === 'phase_three' && $latestProgress->phase_progress === '100'))
+            <button class="btn btn-warning btn-md position-relative" onclick="openUpdateModal('{{ $project->id }}')"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Update the project's progress">
+                <i class="fas fa-plus-circle"></i> Update Progress
+                <span class="spinner-border spinner-border-sm position-absolute" id="loadingSpinner" style="display: none;"
+                    role="status" aria-hidden="true"></span>
+            </button>
+        @endif
+
+
+
+
 
         <!-- Modal for Updating Progress -->
         <div class="modal fade" id="updateProjectProgressModal" tabindex="-1" role="dialog"
@@ -131,7 +171,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveProjectProgressButton" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="saveProjectProgressButton" class="btn btn-primary">Save
+                            changes</button>
                     </div>
                 </div>
             </div>
@@ -158,160 +199,160 @@
 
     </div>
 
-    @section('scripts')
-        <script>
-            function openUpdateModal(projectId) {
-                const lastProgress = @json($progress->last());
-                let phase = "phase_one";
-                let currentProgress = 0;
+@section('scripts')
+    <script>
+        function openUpdateModal(projectId) {
+            const lastProgress = @json($progress->last());
+            let phase = "phase_one";
+            let currentProgress = 0;
 
-                if (lastProgress) {
-                    currentProgress = lastProgress.phase_progress;
-                    if (currentProgress == 100) {
-                        if (lastProgress.phase === "phase_one") {
-                            phase = "phase_two";
-                        } else if (lastProgress.phase === "phase_two") {
-                            phase = "phase_three"; // Automatically move to phase_three if phase_two is complete
-                        }
-                    } else {
-                        phase = lastProgress.phase; // Keep the current phase if progress is not 100
+            if (lastProgress) {
+                currentProgress = lastProgress.phase_progress;
+                if (currentProgress == 100) {
+                    if (lastProgress.phase === "phase_one") {
+                        phase = "phase_two";
+                    } else if (lastProgress.phase === "phase_two") {
+                        phase = "phase_three"; // Automatically move to phase_three if phase_two is complete
                     }
-                }
-
-                document.getElementById('project_id').value = projectId;
-                document.getElementById('project_phase').value = phase; // Set phase based on last progress
-                document.getElementById('currentPhaseDisplay').innerText = phase.replace(/_/g, ' ').replace(/\b\w/g, c => c
-                    .toUpperCase()); // Display the current phase in a readable format
-                document.getElementById('errorMessages').style.display = 'none'; // Reset error messages
-                document.getElementById('successMessage').style.display = 'none'; // Reset success message
-                $('#updateProjectProgressModal').modal('show');
-
-                // Reset all progress options to enabled initially
-                const progressSelect = document.getElementById('project_phase_progress');
-                for (let option of progressSelect.options) {
-                    option.disabled = false;
-                    option.classList.remove('disabled-option');
-                }
-
-                // Disable options based on the current phase and progress
-                if (lastProgress && lastProgress.phase === phase) {
-                    for (let option of progressSelect.options) {
-                        if (parseInt(option.value) <= currentProgress) {
-                            option.disabled = true;
-                            option.classList.add('disabled-option'); // Add custom class for disabled options
-                        }
-                    }
+                } else {
+                    phase = lastProgress.phase; // Keep the current phase if progress is not 100
                 }
             }
 
+            document.getElementById('project_id').value = projectId;
+            document.getElementById('project_phase').value = phase; // Set phase based on last progress
+            document.getElementById('currentPhaseDisplay').innerText = phase.replace(/_/g, ' ').replace(/\b\w/g, c => c
+                .toUpperCase()); // Display the current phase in a readable format
+            document.getElementById('errorMessages').style.display = 'none'; // Reset error messages
+            document.getElementById('successMessage').style.display = 'none'; // Reset success message
+            $('#updateProjectProgressModal').modal('show');
 
+            // Reset all progress options to enabled initially
+            const progressSelect = document.getElementById('project_phase_progress');
+            for (let option of progressSelect.options) {
+                option.disabled = false;
+                option.classList.remove('disabled-option');
+            }
 
-            // Event listener for the save button
-            document.getElementById('saveProjectProgressButton').addEventListener('click', function() {
-                const imageInput = document.getElementById('project_image');
-                const phaseInput = document.getElementById('project_phase');
-                const progressInput = document.getElementById('project_phase_progress');
-                const remarksInput = document.getElementById('project_remarks');
-                const errorMessagesDiv = document.getElementById('errorMessages');
-                const successMessageDiv = document.getElementById('successMessage');
-                let errorMessages = [];
-
-                // Check if all inputs are filled
-                if (!progressInput.value) {
-                    errorMessages.push('Phase progress is required.');
+            // Disable options based on the current phase and progress
+            if (lastProgress && lastProgress.phase === phase) {
+                for (let option of progressSelect.options) {
+                    if (parseInt(option.value) <= currentProgress) {
+                        option.disabled = true;
+                        option.classList.add('disabled-option'); // Add custom class for disabled options
+                    }
                 }
-                if (!imageInput.files.length) {
-                    errorMessages.push('Image is required.');
-                }
+            }
+        }
 
-                // Show error messages if any
-                if (errorMessages.length) {
-                    errorMessagesDiv.innerHTML = errorMessages.join('<br>'); // Join messages into a single string
-                    errorMessagesDiv.style.display = 'block'; // Show the error messages
-                    successMessageDiv.style.display = 'none'; // Hide success message
-                    return; // Stop execution
-                } else {
-                    errorMessagesDiv.style.display = 'none'; // Hide error messages if all fields are filled
-                }
 
-                const formData = new FormData(document.getElementById('updateProjectProgressForm'));
 
-                // Send AJAX request to store project progress
-                fetch('{{ route('progress.store') }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Handle success
-                        if (data.success) {
-                            location.reload();
-                            successMessageDiv.innerHTML = data.success; // Show success message
-                            successMessageDiv.style.display = 'block'; // Show the success message
-                        } else {
-                            errorMessagesDiv.innerHTML = data.error ||
-                                'An error occurred. Please try again.'; // Show error
-                            errorMessagesDiv.style.display = 'block'; // Show error messages
-                            successMessageDiv.style.display = 'none'; // Hide success message
-                        }
-                    })
-                    .catch(error => {
-                        errorMessagesDiv.innerHTML = 'An error occurred. Please try again.'; // Show error
+        // Event listener for the save button
+        document.getElementById('saveProjectProgressButton').addEventListener('click', function() {
+            const imageInput = document.getElementById('project_image');
+            const phaseInput = document.getElementById('project_phase');
+            const progressInput = document.getElementById('project_phase_progress');
+            const remarksInput = document.getElementById('project_remarks');
+            const errorMessagesDiv = document.getElementById('errorMessages');
+            const successMessageDiv = document.getElementById('successMessage');
+            let errorMessages = [];
+
+            // Check if all inputs are filled
+            if (!progressInput.value) {
+                errorMessages.push('Phase progress is required.');
+            }
+            if (!imageInput.files.length) {
+                errorMessages.push('Image is required.');
+            }
+
+            // Show error messages if any
+            if (errorMessages.length) {
+                errorMessagesDiv.innerHTML = errorMessages.join('<br>'); // Join messages into a single string
+                errorMessagesDiv.style.display = 'block'; // Show the error messages
+                successMessageDiv.style.display = 'none'; // Hide success message
+                return; // Stop execution
+            } else {
+                errorMessagesDiv.style.display = 'none'; // Hide error messages if all fields are filled
+            }
+
+            const formData = new FormData(document.getElementById('updateProjectProgressForm'));
+
+            // Send AJAX request to store project progress
+            fetch('{{ route('progress.store') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle success
+                    if (data.success) {
+                        location.reload();
+                        successMessageDiv.innerHTML = data.success; // Show success message
+                        successMessageDiv.style.display = 'block'; // Show the success message
+                    } else {
+                        errorMessagesDiv.innerHTML = data.error ||
+                            'An error occurred. Please try again.'; // Show error
                         errorMessagesDiv.style.display = 'block'; // Show error messages
                         successMessageDiv.style.display = 'none'; // Hide success message
-                        console.error('Error:', error);
-                    });
-            });
-
-            // Image click event to open modal
-            document.querySelectorAll('.img-preview').forEach(image => {
-                image.addEventListener('click', function() {
-                    const imgSrc = this.dataset.image; // Get image source
-                    const expandedImage = document.getElementById('expandedImage');
-                    expandedImage.src = imgSrc; // Set source to the modal image
-                    $('#imageModal').modal('show'); // Show modal
+                    }
+                })
+                .catch(error => {
+                    errorMessagesDiv.innerHTML = 'An error occurred. Please try again.'; // Show error
+                    errorMessagesDiv.style.display = 'block'; // Show error messages
+                    successMessageDiv.style.display = 'none'; // Hide success message
+                    console.error('Error:', error);
                 });
+        });
+
+        // Image click event to open modal
+        document.querySelectorAll('.img-preview').forEach(image => {
+            image.addEventListener('click', function() {
+                const imgSrc = this.dataset.image; // Get image source
+                const expandedImage = document.getElementById('expandedImage');
+                expandedImage.src = imgSrc; // Set source to the modal image
+                $('#imageModal').modal('show'); // Show modal
             });
-        </script>
-    @endsection
+        });
+    </script>
+@endsection
 
-    <style>
-        .btn {
-            transition: background-color 0.3s, transform 0.3s;
-        }
+<style>
+    .btn {
+        transition: background-color 0.3s, transform 0.3s;
+    }
 
-        .btn:hover {
-            transform: scale(1.05);
-        }
+    .btn:hover {
+        transform: scale(1.05);
+    }
 
-        .hover-animation {
-            transition: background-color 0.3s;
-        }
+    .hover-animation {
+        transition: background-color 0.3s;
+    }
 
-        .disabled-option {
-            background-color: #f0f0f0;
-            color: #aaa;
-            pointer-events: none;
-        }
+    .disabled-option {
+        background-color: #f0f0f0;
+        color: #aaa;
+        pointer-events: none;
+    }
 
-        .img-thumbnail {
-            border: none;
-            transition: transform 0.3s;
-        }
+    .img-thumbnail {
+        border: none;
+        transition: transform 0.3s;
+    }
 
-        .img-thumbnail:hover {
-            transform: scale(1.1);
-        }
+    .img-thumbnail:hover {
+        transform: scale(1.1);
+    }
 
-        .table-hover tbody tr:hover {
-            background-color: #f8f9fa;
-        }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
 
-        .modal-header {
-            border-bottom: none;
-        }
-    </style>
+    .modal-header {
+        border-bottom: none;
+    }
+</style>
 @endsection

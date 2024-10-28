@@ -1,50 +1,51 @@
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     <div class="container-fluid">
         <!-- Logo positioned to the far left -->
-        @auth
-            @if (Auth::user()->usertype != 'super_admin' && Auth::user()->usertype != 'admin')
-                <a class="navbar-brand mr-auto" href="{{ route('welcome') }}" style="display: flex; align-items: center;">
-                    <img src="{{ asset('arfil_logo1.png') }}" alt="Arfil's Logo" style="max-width: 55px; margin-right: 10px;">
-                    <span>Arfil's Landscaping and Swimmingpool Services</span>
-                </a>
-            @endif
-        @endauth
+        <a class="navbar-brand mr-auto" href="{{ route('welcome') }}" style="display: flex; align-items: center;">
+            <img src="{{ asset('arfil_logo1.png') }}" alt="Arfil's Logo" style="max-width: 55px; margin-right: 10px;">
+            <span>Arfil's Landscaping and Swimmingpool Services</span>
+        </a>
 
         <!-- Navbar items that should stay in place -->
         <div class="collapse navbar-collapse justify-content-end">
             <ul class="navbar-nav">
-                @auth
-                    @if (Auth::user()->usertype != 'super_admin' && Auth::user()->usertype != 'admin')
-                        <!-- About -->
-                        <li class="nav-item mr-4">
-                            <a class="nav-link text-dark" href="#about">About</a>
-                        </li>
 
-                        <li class="nav-item dropdown mr-4">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="servicesDropdown"
-                                role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Services
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="servicesDropdown">
-                                <a class="dropdown-item"
-                                    href="{{ route('services.byCategory', ['category' => 'landscaping']) }}">Landscaping</a>
-                                <a class="dropdown-item"
-                                    href="{{ route('services.byCategory', ['category' => 'swimmingpool']) }}">Swimming
-                                    Pool</a>
-                                <a class="dropdown-item"
-                                    href="{{ route('services.byCategory', ['category' => 'renovation']) }}">Renovation</a>
-                                <a class="dropdown-item"
-                                    href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
-                            </div>
-                        </li>
-
-
-                        <!-- Contact -->
-                        <li class="nav-item mr-4">
-                            <a class="nav-link text-dark" href="#contact">Contact</a>
-                        </li>
-                    @endauth
-                @endif
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell fa-fw"></i>
+                        <span class="badge badge-danger badge-counter">
+                            {{ \App\Models\Notification::where('sent_to', auth()->id())->where('is_read', false)->count() }}
+                        </span>
+                    </a>
+                    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                        aria-labelledby="alertsDropdown">
+                        <h6 class="dropdown-header bg-info">
+                            Alerts Center
+                        </h6>
+                        @php
+                            // Fetch the latest 5 notifications for the logged-in user
+                            $notifications = \App\Models\Notification::where('sent_to', auth()->id())
+                                ->orderBy('created_at', 'desc')
+                                ->take(5)
+                                ->get();
+                        @endphp
+    
+                        @if ($notifications->isNotEmpty())
+                            @foreach ($notifications as $notification)
+                                <a class="dropdown-item text-center small {{ $notification->is_read ? 'text-gray-500' : 'font-weight-bold text-gray-800' }}"
+                                    href="#">
+                                    <strong
+                                        class="{{ $notification->is_read ? '' : 'font-weight-bold' }}">{{ $notification->title }}</strong>
+                                    - {{ $notification->message }}
+                                </a>
+                            @endforeach
+                        @else
+                            <a class="dropdown-item text-center small text-gray-500" href="#">No alerts</a>
+                        @endif
+                    </div>
+                </li>
+    
 
                 <div class="topbar-divider d-none d-sm-block"></div>
 

@@ -9,6 +9,7 @@ use App\Mail\BookingConfirmed;
 use App\Mail\BookingDeclined;
 use App\Models\User;
 use App\Models\TaskLog;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth; // Make sure to include this at the top
 
@@ -278,91 +279,160 @@ class BookingController extends Controller
         'user_id' => $request->user_id, // Optional: track which user created the booking
     ]);
 
+    $user = User::find($request->user_id);
+    Notification::create([
+        'user_id' => $request->user_id, // User who created the booking
+        'sent_to' => 1, // ID of the recipient for this notification
+        'title' => 'New Booking Created',
+        'message' => $user->name . ' made a new booking with ID: ' . $booking->id,
+        'sent_at' => now(),
+        'type' => 'Booking', // Set type to Booking
+        'type_id' => $booking->id // Set type_id to the ID of the booking
+    ]);
+
     return response()->json(['message' => 'Booking created successfully.']);
 }
 
     
     
+public function cancelBooking($id) {
+    $booking = Booking::findOrFail($id);
+    
+    // Check if the booking status is 'pending'
+    if ($booking->booking_status === 'pending') {
+        $booking->booking_status = 'cancelled'; // Change status to 'cancelled'
+        $booking->save();
 
-    public function cancelBooking($id) {
-        $booking = Booking::findOrFail($id);
+        // Log the cancellation action
+        TaskLog::create([
+            'user_id' => auth()->id(), // Get the authenticated user ID
+            'type_id' => $booking->id, // Use the booking ID
+            'type' => 'Booking', // Set the type for clarity
+            'action' => 'Cancel Booking', // Specify the action performed
+            'action_date' => now(), // Log the date of action
+        ]);
+
+        // Retrieve the user who created the booking
+        $user = User::find($booking->user_id);
         
-        // Check if the booking status is 'pending'
-        if ($booking->booking_status === 'pending') {
-            $booking->booking_status = 'cancelled'; // Change status to 'cancelled'
-            $booking->save();
-            
-            return response()->json(['message' => 'Booking canceled successfully.']);
-        } else {
-            return response()->json(['message' => 'Booking cannot be canceled as it is already completed or cancelled.'], 400);
-        }
+        // Create a notification for the booking cancellation
+        Notification::create([
+            'user_id' => $booking->user_id, // User who created the booking
+            'sent_to' => 1, // ID of the recipient for this notification
+            'title' => 'Booking Update',
+            'message' => $user->name . ' canceled their booking with ID: ' . $booking->id,
+            'sent_at' => now(),
+            'type' => 'Booking', // Set type to Booking
+            'type_id' => $booking->id // Set type_id to the ID of the booking
+        ]);
+
+        return response()->json(['message' => 'Booking has been Cancelled.']);
+    } else {
+        return response()->json(['message' => 'Booking cannot be canceled as it is already completed or cancelled.'], 400);
     }
+}
+
     
 
-    public function confirmBooking($id)
-    {
-        $booking = Booking::findOrFail($id);
-    
-        if ($booking->booking_status === 'pending') {
-            $booking->booking_status = 'confirmed'; 
-            $booking->save();
-    
-            // Send confirmation email to the booking's email
-            Mail::to($booking->email)->send(new BookingConfirmed($booking));
-    
-            session()->flash('success', 'Booking confirmed successfully!');
-            
-            // Log the confirmation action
-            TaskLog::create([
-                'user_id' => auth()->id(), // Get the authenticated user ID
-                'type_id' => $booking->id, // Use the relevant task ID
-                'type' => 'booking',        // Set the type for clarity
-                'action' => 'confirm',      // Specify the action performed
-                'action_date' => now(),     // Log the date of action
-            ]);
-    
-            // Return a response
-            return response()->json([
-                'message' => 'Booking confirmed successfully.',
-                'type' => 'Booking',
-                'action' => 'Confirm',
-                'action_date' => now(),
-            ]);
-        } else {
-            return response()->json(['message' => 'Booking cannot be confirmed as it is already confirmed or cancelled.'], 400);
-        }
-    }
-    
-    
-    
-    public function declineBooking($id)
-    {
-        $booking = Booking::findOrFail($id);
+public function confirmBooking($id)
+{
+    $booking = Booking::findOrFail($id);
+
+    if ($booking->booking_status === 'pending') {
+        $booking->booking_status = 'confirmed'; 
+        $booking->save();
+
+        // Send confirmation email to the booking's email
+        Mail::to($booking->email)->send(new BookingConfirmed($booking));
+
+        session()->flash('success', 'Booking confirmed successfully!');
         
-        // Check if the booking status is 'pending' before declining
-        if ($booking->booking_status === 'pending') {
-            $booking->booking_status = 'declined'; // Change status to declined
-            $booking->save();
-            
-            // Send decline email to the booking's email
-            Mail::to($booking->email)->send(new BookingDeclined($booking));
-            
-            // Log the decline action
-            TaskLog::create([
-                'user_id' => auth()->id(), // Get the authenticated user ID
-                'type_id' => $booking->id, // Booking ID as task_id
-                'type' => 'Booking', // Set type as 'booking'
-                'action' => 'Decline', // Action taken
-                'action_date' => now(), // Current timestamp
+        // Log the confirmation action
+        TaskLog::create([
+            'user_id' => auth()->id(), // Get the authenticated user ID
+            'type_id' => $booking->id, // Use the relevant task ID
+            'type' => 'Booking',        // Set the type for clarity
+            'action' => 'Confirm Booking', // Specify the action performed
+            'action_date' => now(),     // Log the date of action
+        ]);
+
+        // Fetch the user who made the booking
+        $user = User::find($booking->user_id); // Assuming booking has a user_id field
+
+        // Check if user exists before creating a notification
+        if ($user) {
+            Notification::create([
+                'user_id' => 1, // User who created the booking
+                'sent_to' => $booking->user_id, // Set sent_to to the user who made the booking
+                'title' => 'Booking Update',
+                'message' =>'Admin confirmed your booking with ID: ' . $booking->id,
+                'sent_at' => now(),
+                'type' => 'Booking', // Set type to Booking
+                'type_id' => $booking->id // Set type_id to the ID of the booking
             ]);
-    
-            session()->flash('success', 'Booking has been declined!'); // Set flash message
-            return response()->json(['message' => 'Booking has been declined.']);
-        } else {
-            // Handle the case where the booking cannot be declined
-            return response()->json(['message' => 'Booking cannot be declined as it is already confirmed, visited, or cancelled.'], 400);
         }
+
+        // Return a response
+        return response()->json([
+            'message' => 'Booking confirmed successfully.',
+            'type' => 'Booking',
+            'action' => 'Confirm',
+            'action_date' => now(),
+        ]);
+    } else {
+        return response()->json(['message' => 'Booking cannot be confirmed as it is already confirmed or cancelled.'], 400);
     }
+}
+
+    
+    
+    
+public function declineBooking($id)
+{
+    $booking = Booking::findOrFail($id);
+    
+    // Check if the booking status is 'pending' before declining
+    if ($booking->booking_status === 'pending') {
+        $booking->booking_status = 'declined'; // Change status to declined
+        $booking->save();
+        
+        // Send decline email to the booking's email
+        Mail::to($booking->email)->send(new BookingDeclined($booking));
+        
+        // Log the decline action
+        TaskLog::create([
+            'user_id' => auth()->id(), // Get the authenticated user ID
+            'type_id' => $booking->id, // Booking ID as task_id
+            'type' => 'Booking', // Set type as 'booking'
+            'action' => 'Decline Booking', // Action taken
+            'action_date' => now(), // Current timestamp
+        ]);
+        
+
+        // Fetch the user who made the booking
+        $user = User::find($booking->user_id); // Assuming booking has a user_id field
+
+        // Check if user exists before creating a notification
+        if ($user) {
+            Notification::create([
+                'user_id' => 1, // User who created the booking
+                'sent_to' => $booking->user_id, // Set sent_to to the user who made the booking
+                'title' => 'Booking Update',
+                'message' => 'Admin declined your booking with ID: ' . $booking->id,
+                'sent_at' => now(),
+                'type' => 'Booking', // Set type to Booking
+                'type_id' => $booking->id // Set type_id to the ID of the booking
+            ]);
+        }
+
+        session()->flash('success', 'Booking has been declined!'); // Set flash message
+        return response()->json(['message' => 'Booking has been declined.']);
+    } else {
+        // Handle the case where the booking cannot be declined
+        return response()->json(['message' => 'Booking cannot be declined as it is already confirmed, visited, or cancelled.'], 400);
+    }
+}
+
     
     
 
@@ -534,7 +604,7 @@ public function update(Request $request, $id)
 
     $booking = Booking::findOrFail($id);
     
-    // Use only to get the expected fields
+    // Update booking details using only the expected fields
     $booking->update($request->only([
         'name', 
         'email', 
@@ -544,6 +614,34 @@ public function update(Request $request, $id)
         'province', 
         'site_visit_date'
     ]));
+
+    // Log the update action
+    TaskLog::create([
+        'user_id' => auth()->id(), // Get the authenticated user ID
+        'type_id' => $booking->id, // Booking ID as task_id
+        'type' => 'Booking', // Set type as 'booking'
+        'action' => 'Updated Booking', // Action taken
+        'action_date' => now(), // Current timestamp
+    ]);
+
+    // Fetch the user who created the booking
+    $user = User::find($booking->user_id); // Assuming the booking has a user_id field
+    
+    // Check if user exists before creating a notification
+    if ($user) {
+        Notification::create([
+            'user_id' => $booking->user_id, // User who created the booking
+            'sent_to' => 1, // ID of the recipient for this notification
+            'title' => 'Booking Update',
+            'message' => $user->name . ' updated their booking with ID: ' . $booking->id,
+            'sent_at' => now(),
+            'type' => 'Booking', // Set type to Booking
+            'type_id' => $booking->id // Set type_id to the ID of the booking
+        ]);
+    } else {
+        // Handle the case where the user does not exist
+        // Optionally, you could log this or throw an error
+    }
 
     return redirect()->route('booking.index')->with('success', 'Booking updated successfully.');
 }

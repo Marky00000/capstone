@@ -6,7 +6,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Booking;
 use App\Models\TaskLog;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth; // Import Auth to get the logged-in user
 use Illuminate\Http\Request;
 
@@ -99,17 +101,18 @@ class PaymentController extends Controller
             $paymentImagePath = $request->file('payment_image')->store('payments', 'public');
         }
     
-        // Find the project
-        $project = Project::findOrFail($request->project_id);
+        // Find the project and associated booking
+        $project = Project::with('booking.user')->findOrFail($request->project_id); // Eager load booking and user
     
+        // Calculate total payments for the project
         $totalPayments = Payment::where('project_id', $project->id)->sum('amount');
     
-        // Check the expected total
+        // Calculate the expected total
         $newTotalPaid = $totalPayments + $request->amount;
     
-        $project->total_paid = $newTotalPaid; // Set to the new total calculated
-        $project->project_status = 'active';
-        $project->save(); // Save the updated total_paid to the database
+        $project->total_paid = $newTotalPaid; // Update the total paid
+        $project->project_status = 'active'; // Set project status to active
+        $project->save(); // Save the updated project
     
         // Create a new payment record
         $payment = Payment::create([
@@ -126,15 +129,30 @@ class PaymentController extends Controller
     
         // Create a new task log entry for the payment
         TaskLog::create([
-            'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+            'user_id' => $user ? $user->id : null, // User ID or null if not authenticated
             'type' => 'Payment',
-            'type_id' => $payment->id, // Reference the payment ID
-            'action' => 'Payment submitted', // Describe the action taken   
+            'type_id' => $payment->id, // Reference to the payment ID
+            'action' => 'Payment submitted', // Action description
             'action_date' => now(), // Current date and time
         ]);
     
+        // Create a notification for the user who made the payment
+        if ($project->booking && $project->booking->user) { // Check if booking and user exist
+            Notification::create([
+                'user_id' => $user->id, // User who made the payment
+                'sent_to' => $project->booking->user->id, // Access user_id through the booking's user relationship
+                'title' => 'Payment Submitted',
+                'message' => 'A payment of PHP ' . number_format($request->amount, 2) . ' has been submitted for project ID: ' . $project->id,
+                'sent_at' => now(),
+                'type' => 'Payment', // Set type to Booking
+                'type_id' => $payment->id // Set type_id to the ID of the booking
+            ]);
+        }
+    
         return redirect()->route('project.adminIndex')->with('success', 'Payment successfully submitted and is pending approval.');
     }
+    
+    
     
 
     
