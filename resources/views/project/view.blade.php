@@ -28,10 +28,6 @@
                 <table class="table">
                     <tbody>
                         <tr>
-                            <th>Project ID</th>
-                            <td>{{ $projects->id }}</td>
-                        </tr>
-                        <tr>
                             <th>Booking ID</th>
                             <td>{{ $projects->booking->id }}</td>
                         </tr>
@@ -96,7 +92,7 @@
                                 <button type="button" class="btn btn-link" data-bs-toggle="modal"
                                     data-bs-target="#paymentImagesModal" data-images='@json($projects->payments->pluck('payment_image'))'
                                     data-amounts='@json($projects->payments->pluck('amount'))'>
-                                    <i class="fas fa-eye fa-lg"></i> <!-- Eye icon to indicate "View" -->
+                                    <i class="fas fa-eye fa-lg" data-bs-toggle="tooltip" title="Show all payments"></i> <!-- Eye icon to indicate "View" -->
                                 </button>
 
                             </td>
@@ -199,10 +195,13 @@
                     </div>
 
                     @if ($projects->project_status !== 'pending')
-                        <div class="text-center mt-2">
-                            <a href="{{ route('progress.view', ['projectId' => $projects->id]) }}"
-                                class="btn btn-link">View More</a>
-                        </div>
+                    <div class="text-center mt-2">
+                        <a href="{{ route('progress.index', ['projectId' => $projects->id]) }}" class="btn btn-link">
+                            <i class="fas fa-arrow-right me-1"></i> <!-- Add your desired icon here -->
+                            View More
+                        </a>
+                    </div>
+                    
                     @endif
                 </div>
 

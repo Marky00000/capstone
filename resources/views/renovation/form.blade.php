@@ -121,10 +121,11 @@
 
                     <div class="d-flex justify-content-between">
                         <button type="submit" class="btn btn-outline-info rounded-pill px-4 py-2">
+                            <i class="fas fa-save me-1"></i>
                             {{ isset($service) ? 'Update' : 'Create' }}
                         </button>
                         <a href="{{ route('renovation') }}"
-                            class="btn btn-outline-secondary rounded-pill px-4 py-2">Cancel</a>
+                            class="btn btn-outline-secondary rounded-pill px-4 py-2"> <i class="fas fa-times me-1"></i>Cancel</a>
                     </div>
                 </form>
             </div>

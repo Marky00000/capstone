@@ -87,7 +87,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($bookings->reverse() as $booking)
+                        @foreach ($bookings as $booking)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $booking->name }}</td>
@@ -173,6 +173,9 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div class="pagination-wrapper">
+                {{ $bookings->links('pagination::bootstrap-4') }}
             </div>
         @endif
     </div>
@@ -373,7 +376,7 @@
 
                         // Update localStorage with the new task logs
                         localStorage.setItem('taskLogs', JSON.stringify(taskLogs));
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Confirmed!',

@@ -54,22 +54,22 @@
                             </span>
                         </a>
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                            aria-labelledby="alertsDropdown">
+                            aria-labelledby="alertsDropdown" style="max-height: 400px; overflow-y: auto;">
                             <h6 class="dropdown-header bg-info">
                                 Alerts Center
                             </h6>
                             @php
-                                // Fetch the latest 5 notifications for the logged-in user
+                                // Fetch the latest notifications for the logged-in user
                                 $notifications = \App\Models\Notification::where('sent_to', auth()->id())
                                     ->orderBy('created_at', 'desc')
-                                    ->take(5)
+                                    ->take(100) // Increase if you want to show more notifications
                                     ->get();
                             @endphp
-        
+
                             @if ($notifications->isNotEmpty())
                                 @foreach ($notifications as $notification)
                                     <a class="dropdown-item text-center small {{ $notification->is_read ? 'text-gray-500' : 'font-weight-bold text-gray-800' }}"
-                                        href="#">
+                                        href="{{ route('notifications.markAsRead', $notification->id) }}?redirect={{ urlencode($notification->type === 'Booking' ? route('booking.view', $notification->type_id) : ($notification->type === 'Project' ? route('project.view', $notification->type_id) : ($notification->type === 'Payment' ? route('payments.show', $notification->type_id) : ($notification->type === 'Progress' ? route('progress.view', ['projectId' => $notification->type_id]) : '#')))) }}">
                                         <strong
                                             class="{{ $notification->is_read ? '' : 'font-weight-bold' }}">{{ $notification->title }}</strong>
                                         - {{ $notification->message }}
@@ -80,7 +80,8 @@
                             @endif
                         </div>
                     </li>
-        
+
+
 
 
                 @endif
@@ -136,7 +137,7 @@
                                     <i class="fas fa-tasks fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Task Log
                                 </a>
-                                
+
                                 <a class="dropdown-item" href="#"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>

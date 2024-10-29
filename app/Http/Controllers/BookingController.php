@@ -45,7 +45,7 @@ class BookingController extends Controller
     }
     
     
-    public function adminBooking(Request $request)
+        public function adminBooking(Request $request)
     {
         $query = Booking::query();
 
@@ -53,24 +53,24 @@ class BookingController extends Controller
         if ($request->filled('booking_status')) {
             $query->where('booking_status', $request->input('booking_status'));
         }
-    
+
         // Apply date filters if provided
         if ($request->filled('start_date')) {
             $query->where('created_at', '>=', $request->input('start_date'));
         }
-    
+
         if ($request->filled('end_date')) {
             $query->where('created_at', '<=', $request->input('end_date'));
         }
-    
-        // Fetch filtered bookings
-        $bookings = $query->get();
-    
-    
+
+        // Fetch filtered bookings, ordered by created_at from latest to oldest
+        $bookings = $query->orderBy('created_at', 'desc')->paginate(10); // Change 10 to the number of items you want per page
+
         // Pass the filters and sort order to the view
         return view('booking.adminBooking', compact('bookings'));
     }
-    
+
+        
     
     
     
@@ -322,8 +322,7 @@ public function cancelBooking($id) {
             'title' => 'Booking Update',
             'message' => $user->name . ' canceled their booking with ID: ' . $booking->id,
             'sent_at' => now(),
-            'type' => 'Booking', // Set type to Booking
-            'type_id' => $booking->id // Set type_id to the ID of the booking
+           
         ]);
 
         return response()->json(['message' => 'Booking has been Cancelled.']);

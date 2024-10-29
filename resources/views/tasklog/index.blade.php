@@ -1,4 +1,5 @@
 @extends('layouts.app')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 @section('title', 'Task Log')
 @section('content')
@@ -11,6 +12,47 @@
         </div>
 
         <div class="card-body">
+            <!-- Filter and Sort Form -->
+            <form action="{{ route('tasklog.index') }}" method="GET" class="mb-4">
+                <div class="d-flex align-items-center">
+
+                    <!-- Type Filter -->
+                    <div class="me-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                            <select name="type" class="form-select form-select-sm" style="max-width: 120px;">
+                                <option value="">All Types</option>
+                                <option value="Booking" {{ request('type') == 'Booking' ? 'selected' : '' }}>Booking</option>
+                                <option value="Quotation" {{ request('type') == 'Quotation' ? 'selected' : '' }}>Quotation</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Start Date Filter -->
+                    <div class="me-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="start_date" class="form-control form-control-sm"
+                                value="{{ request('start_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- End Date Filter -->
+                    <div class="me-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="end_date" class="form-control form-control-sm"
+                                value="{{ request('end_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
+
             @if ($taskLogs->isEmpty())
                 <p class="text-muted">You do not have any task logs at this time.</p>
             @else
@@ -18,8 +60,6 @@
                     <table class="table table-bordered table-hover">
                         <thead class="thead-light">
                             <tr>
-                                <th><i class="fas fa-numeric icon-faded-gray"></i> Task ID</th>
-                                <th><i class="fas fa-id-badge icon-faded-gray"></i> Type ID</th>
                                 <th><i class="fas fa-tools icon-faded-gray"></i> Type</th>
                                 <th><i class="fas fa-flag-checkered icon-faded-gray"></i> Action</th>
                                 <th><i class="fas fa-calendar-alt icon-faded-gray"></i> Action Date</th>
@@ -29,10 +69,26 @@
                         <tbody>
                             @foreach ($taskLogs as $log)
                                 <tr>
-                                    <td>{{ $log->id }}</td>
-                                    <td>{{ $log->type_id }}</td>
                                     <td>{{ $log->type }}</td>
-                                    <td>{{ $log->action }}</td>
+                                    <td>
+                                        @php
+                                            $actionText = strtolower($log->action);
+                                        @endphp
+
+                                        @if (Illuminate\Support\Str::contains($actionText, 'created'))
+                                            <i class="fas fa-plus-circle text-success"></i> {{ $log->action }}
+                                        @elseif (Illuminate\Support\Str::contains($actionText, 'updated'))
+                                            <i class="fas fa-edit text-warning"></i> {{ $log->action }}
+                                        @elseif (Illuminate\Support\Str::contains($actionText, 'deleted'))
+                                            <i class="fas fa-trash-alt text-danger"></i> {{ $log->action }}
+                                        @elseif (Illuminate\Support\Str::contains($actionText, 'payment'))
+                                            <i class="fas fa-credit-card text-primary"></i> {{ $log->action }}
+                                        @elseif (Illuminate\Support\Str::contains($actionText, 'cancel'))
+                                            <i class="fas fa-ban text-danger"></i> {{ $log->action }}
+                                        @else
+                                            <i class="fas fa-info-circle text-secondary"></i> {{ $log->action }}
+                                        @endif
+                                    </td>
                                     <td>{{ \Carbon\Carbon::parse($log->action_date)->format('F j, Y') }}</td>
                                     <td>
                                         <div style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
@@ -41,7 +97,7 @@
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             @elseif (trim($log->type) === 'Booking')
-                                                <a href="{{ route('booking.adminShow', $log->type_id) }}" class="btn btn-sm" style="background-color: transparent; border: none; color: #17a2b8;" data-toggle="tooltip" title="View Booking">
+                                                <a href="{{ route('booking.view', $log->type_id) }}" class="btn btn-sm" style="background-color: transparent; border: none; color: #17a2b8;" data-toggle="tooltip" title="View Booking">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             @else

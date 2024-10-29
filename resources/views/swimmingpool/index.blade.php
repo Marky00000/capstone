@@ -8,8 +8,11 @@
 <div class="card">
     <div class="card-header stylish-header">
         <div class="card-tools">
-            <a href="{{ route('swimmingpool-services.create') }}" class="btn btn-primary">Add New</a>
-        </div>
+            <a href="{{ route('swimmingpool-services.create') }}" class="btn btn-info">
+                <i class="fas fa-plus me-1"></i> <!-- Icon for 'Add' -->
+                Add New
+            </a>
+                    </div>
     </div>
     <div class="card-body">
         @if(session('success'))

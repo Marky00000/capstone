@@ -102,7 +102,8 @@
                                 <button type="button" class="btn btn-link" data-bs-toggle="modal"
                                     data-bs-target="#paymentImagesModal" data-images='@json($projects->payments->pluck('payment_image'))'
                                     data-amounts='@json($projects->payments->pluck('amount'))'>
-                                    <i class="fas fa-eye fa-lg"></i> <!-- Eye icon to indicate "View" -->
+                                    <i class="fas fa-eye fa-lg" data-bs-toggle="tooltip" title="Show all payments"></i>
+                                    <!-- Eye icon to indicate "View" -->
                                 </button>
 
                             </td>
@@ -130,7 +131,8 @@
                                 @if ($payables > 0 && $projects->total_cost > $projects->total_paid)
                                     <a href="{{ route('payment.payment', ['projectId' => $projects->id]) }}"
                                         class="btn btn-link">
-                                        <i class="fas fa-credit-card fa-lg"></i> <!-- Payment icon -->
+                                        <i class="fas fa-credit-card fa-lg" data-bs-toggle="tooltip"
+                                            title="Make a Payment"></i> <!-- Payment icon -->
                                     </a>
                                 @endif
                             </td>
@@ -217,8 +219,10 @@
                     </div>
                     @if ($projects->project_status !== 'pending')
                         <div class="text-center mt-2">
-                            <a href="{{ route('progress.index', ['projectId' => $projects->id]) }}"
-                                class="btn btn-link">View More</a>
+                            <a href="{{ route('progress.index', ['projectId' => $projects->id]) }}" class="btn btn-link">
+                                <i class="fas fa-arrow-right me-1"></i> <!-- Add your desired icon here -->
+                                View More
+                            </a>
                         </div>
                     @endif
 
@@ -233,13 +237,15 @@
             </div>
         </div>
 
-        <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel" aria-hidden="true">
+        <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div>
                             <p class="mb-0" id="totalPaidAmount" style="font-size: 1.25rem; font-weight: bold;">
-                                Total Paid: <span class="text-success">₱{{ number_format($projects->total_paid, 2) }}</span>
+                                Total Paid: <span
+                                    class="text-success">₱{{ number_format($projects->total_paid, 2) }}</span>
                             </p>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -253,8 +259,8 @@
                 </div>
             </div>
         </div>
-        
-        
+
+
 
     </div>
 

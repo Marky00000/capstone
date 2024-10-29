@@ -21,6 +21,7 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\TaskLogController;
+use App\Http\Controllers\getUserNotifications;
 
 
 
@@ -28,25 +29,26 @@ use App\Http\Controllers\TaskLogController;
 
 
 
-// Landing page
-Route::get('/', function () {
-    return view('welcome'); // Assuming 'welcome' is your landing page view
-})->name('welcome');
+
+    // Landing page
+    Route::get('/', function () {
+        return view('welcome'); // Assuming 'welcome' is your landing page view
+    })->name('welcome');
 
 
 
-// Authentication routes
-Route::get('register', [AuthController::class, 'register'])->name('register');
-Route::post('register', [AuthController::class, 'registerSave'])->name('register.save');
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+    // Authentication routes
+    Route::get('register', [AuthController::class, 'register'])->name('register');
+    Route::post('register', [AuthController::class, 'registerSave'])->name('register.save');
+    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 
-Route::get('login', [AuthController::class, 'login'])->name('login');
-Route::post('login', [AuthController::class, 'loginAction'])->name('login.action');
+    Route::get('login', [AuthController::class, 'login'])->name('login');
+    Route::post('login', [AuthController::class, 'loginAction'])->name('login.action');
 
-Route::post('login-otp', [AuthController::class, 'loginOtp'])->name('login.otp');
-// Routes for authenticated users
-Route::middleware('auth')->group(function () {
-    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+    Route::post('login-otp', [AuthController::class, 'loginOtp'])->name('login.otp');
+    // Routes for authenticated users
+    Route::middleware('auth')->group(function () {
+        Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 
     // Dashboard route
@@ -121,32 +123,32 @@ Route::middleware('auth')->group(function () {
     Route::put('/bookings/{id}', [BookingController::class, 'update'])->name('booking.update');
     
 
-// Admin Routes
-Route::get('/admin/projects', [ProjectController::class, 'adminIndex'])->name('project.adminIndex'); // Admin project listing
-Route::get('/admin/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create'); // Admin create project
-Route::post('/admin/projects/store', [ProjectController::class, 'store'])->name('projects.store'); // Store new project
-Route::get('/admin/projects/{id}', [ProjectController::class, 'adminShow'])->name('project.adminShow'); // Admin view single project
-Route::patch('/admin/projects/{project}/hold', [ProjectController::class, 'hold'])->name('project.hold'); // Hold a project
-Route::patch('/admin/projects/{id}/activate', [ProjectController::class, 'activate'])->name('project.activate'); // Activate a project
-Route::get('/admin/projects/reports', [ProjectController::class, 'generateReport'])->name('project.reports'); // Generate project report
-Route::get('/project/{id}', [ProjectController::class, 'view'])->name('project.view');
+    // Admin Routes
+    Route::get('/admin/projects', [ProjectController::class, 'adminIndex'])->name('project.adminIndex'); // Admin project listing
+    Route::get('/admin/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create'); // Admin create project
+    Route::post('/admin/projects/store', [ProjectController::class, 'store'])->name('projects.store'); // Store new project
+    Route::get('/admin/projects/{id}', [ProjectController::class, 'adminShow'])->name('project.adminShow'); // Admin view single project
+    Route::patch('/admin/projects/{project}/hold', [ProjectController::class, 'hold'])->name('project.hold'); // Hold a project
+    Route::patch('/admin/projects/{id}/activate', [ProjectController::class, 'activate'])->name('project.activate'); // Activate a project
+    Route::get('/admin/projects/reports', [ProjectController::class, 'generateReport'])->name('project.reports'); // Generate project report
+    Route::get('/project/{id}', [ProjectController::class, 'view'])->name('project.view');
 
 
 
-Route::get('/projects/{id}/edit', [ProjectController::class, 'edit'])->name('project.edit');
-Route::patch('/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::get('/projects/{id}/edit', [ProjectController::class, 'edit'])->name('project.edit');
+    Route::patch('/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
 
 
-// User Routes
-Route::get('/projects/{booking_id?}', [ProjectController::class, 'index'])->name('project.index'); // User project listing
-Route::get('/projects/{id}', [ProjectController::class, 'show'])->name('project.show'); // User view single project
-Route::get('/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create'); // Create project for user (if applicable)
-Route::post('/projects/store', [ProjectController::class, 'store'])->name('projects.store'); // Store new project for user (if applicable)
+    // User Routes
+    Route::get('/projects/{booking_id?}', [ProjectController::class, 'index'])->name('project.index'); // User project listing
+    Route::get('/projects/{id}', [ProjectController::class, 'show'])->name('project.show'); // User view single project
+    Route::get('/projects/create/{booking_id?}', [ProjectController::class, 'create'])->name('projects.create'); // Create project for user (if applicable)
+    Route::post('/projects/store', [ProjectController::class, 'store'])->name('projects.store'); // Store new project for user (if applicable)
 
-// Additional Routes
-Route::get('/designs/{category}', [ProjectController::class, 'getDesigns']); // Get designs by category
-Route::post('/calculate-cost', [ProjectController::class, 'calculateCost'])->name('calculate.cost'); // Calculate project cost
-Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory'); // Show services by category
+    // Additional Routes
+    Route::get('/designs/{category}', [ProjectController::class, 'getDesigns']); // Get designs by category
+    Route::post('/calculate-cost', [ProjectController::class, 'calculateCost'])->name('calculate.cost'); // Calculate project cost
+    Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])->name('services.byCategory'); // Show services by category
 
 
 
@@ -187,6 +189,13 @@ Route::get('/services/{category}', [ServiceController::class, 'showByCategory'])
     Route::get('/reports/rates', [ReportsController::class, 'rates'])->name('reports.rates');
     Route::get('/task-log', [TaskLogController::class, 'index'])->name('tasklog.index');
     Route::get('/admin/task-log', [TaskLogController::class, 'adminIndex'])->name('admin.tasklog.index');
+
+
+    Route::get('/notifications/{id}', [GetUserNotifications::class, 'show'])->name('notifications.show');
+    Route::get('/notifications/mark-as-read/{id}', [GetUserNotifications::class, 'markAsRead'])->name('notifications.markAsRead');
+    
+
+
 
 
 
