@@ -196,7 +196,7 @@
 
                     @if ($projects->project_status !== 'pending')
                     <div class="text-center mt-2">
-                        <a href="{{ route('progress.index', ['projectId' => $projects->id]) }}" class="btn btn-link">
+                        <a href="{{ route('progress.view', ['projectId' => $projects->id]) }}" class="btn btn-link">
                             <i class="fas fa-arrow-right me-1"></i> <!-- Add your desired icon here -->
                             View More
                         </a>

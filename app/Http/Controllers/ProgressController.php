@@ -72,6 +72,12 @@ class ProgressController extends Controller
             'remarks' => $remarks, // Save remarks (default or provided)
         ]);
     
+        // Update project status if phase is phase_three and progress is 100
+        if ($request->phase === 'phase_three' && $request->phase_progress == 100) {
+            $project = Project::findOrFail($request->project_id);
+            $project->update(['project_status' => 'finished']); // Update project status
+        }
+    
         // Log the progress in the task log
         TaskLog::create([
             'user_id' => auth()->id(), // Capture the ID of the authenticated user
@@ -91,15 +97,16 @@ class ProgressController extends Controller
                 'user_id' => auth()->id(), // User who made the progress update
                 'sent_to' => $project->booking->user->id, // Access user_id through the booking's user relationship
                 'title' => 'Project Progress Updated',
-                'message' => 'The progress for project ID: ' . $project->id . ' has been updated to ' . $request->phase_progress . '% for phase ' . $request->phase,
+                'message' => 'The progress for project ID: ' . $project->id . ' has been updated to ' . $request->phase . ' ' . $request->phase_progress . '%',
                 'sent_at' => now(),
-                'type' => 'Progress', // Set type to Booking
-                'type_id' => $progress->id // Set type_id to the ID of the booking
+                'type' => 'Progress', // Set type to Progress
+                'type_id' => $project->id // Set type_id to the ID of the project
             ]);
         }
     
         return response()->json(['success' => true, 'message' => 'Project progress stored successfully!']);
     }
+    
     
     
     

@@ -46,7 +46,6 @@
                 <table class="table table-bordered" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>Project ID</th>
                             <th>Payment Method</th>
                             <th>Payment Type</th>
@@ -59,7 +58,6 @@
                     <tbody>
                         @foreach ($payments as $payment)
                             <tr>
-                                <td>{{ $payment->id }}</td>
                                 <td>{{ $payment->project_id }}</td>
                                 <td>{{ ucfirst($payment->payment_method) }}</td>
                                 <td>{{ ucfirst($payment->payment_type) }}</td>

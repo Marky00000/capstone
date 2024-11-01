@@ -175,7 +175,7 @@
 
                     <!-- Submit and Cancel Buttons -->
                     <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-sm btn-info px-4 py-2">
+                        <button type="submit" id="submitButton" class="btn btn-sm btn-info px-4 py-2">
                             <i class="fas fa-credit-card me-1"></i> Submit Payment
                         </button>
                         <a href="{{ route('project.adminIndex') }}" class="btn btn-sm btn-secondary px-4 py-2">
@@ -194,10 +194,10 @@
         $(document).ready(function() {
             $('#paymentForm').on('submit', function(e) {
                 e.preventDefault(); // Prevent the default form submission
-
-                // Show spinner (if you have a spinner)
-                // $('#spinner').show();
-
+    
+                // Change button text to "Submitting Payment..."
+                $('#submitButton').html('<i class="fas fa-spinner fa-spin me-1"></i> Submitting Payment...');
+    
                 $.ajax({
                     url: $(this).attr('action'), // Get the action URL from the form
                     method: 'POST',
@@ -214,15 +214,17 @@
                             timer: 2000, // Show alert for 2 seconds
                             timerProgressBar: true // Optional: Show timer progress bar
                         });
-
+    
                         // Redirect after 2 seconds
                         setTimeout(function() {
-                            window.location.href =
-                                "{{ route('project.adminIndex') }}"; // Redirect to the desired route
+                            window.location.href = "{{ route('project.adminIndex') }}"; // Redirect to the desired route
                         }, 2000); // 2000 milliseconds = 2 seconds
-
+    
                         // Optionally, you can clear the form
                         $('#paymentForm')[0].reset(); // Reset the form
+    
+                        // Reset button text back to "Submit Payment"
+                        $('#submitButton').html('<i class="fas fa-credit-card me-1"></i> Submit Payment');
                     },
                     error: function(xhr, status, error) {
                         // Handle error if necessary
@@ -234,10 +236,11 @@
                             timer: 2000, // Show alert for 2 seconds
                             timerProgressBar: true // Optional: Show timer progress bar
                         });
+    
+                        // Reset button text back to "Submit Payment" if there was an error
+                        $('#submitButton').html('<i class="fas fa-credit-card me-1"></i> Submit Payment');
                     }
                 });
-
-
             });
         });
     </script>

@@ -101,7 +101,7 @@
 
                         </thead>
                         <tbody>
-                            @foreach ($projects->reverse() as $project)
+                            @foreach ($projects as $project)
                                 <tr>
                                     <td>{{ $project->booking->id }}</td>
                                     <td>

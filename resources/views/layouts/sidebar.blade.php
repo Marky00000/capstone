@@ -1,9 +1,6 @@
 @if (auth()->user()->usertype !== 'user')
     <ul class="navbar-nav bg-gradient-info sidebar sidebar-dark accordion" id="accordionSidebar">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
-            <div class="sidebar-brand-icon rotate-n-15"></div>
-            <img src="{{ asset('arfil_logo.png') }}" class="img-fluid" alt="Logo" style="max-width: 140px;">
-        </a>
+      
 
         <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center justify-content-center"  href="{{ route('dashboard') }}">

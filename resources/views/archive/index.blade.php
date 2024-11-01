@@ -14,8 +14,8 @@
                 </button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item {{ request('filter') === 'all' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'all']) }}">All Services</a>
-                    <a class="dropdown-item {{ request('filter') === 'landscape' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'landscape']) }}">Landscape</a>
-                    <a class="dropdown-item {{ request('filter') === 'swimming-pool' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'swimming-pool']) }}">Swimming Pool</a>
+                    <a class="dropdown-item {{ request('filter') === 'landscaping' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'landscaping']) }}">Landscaping</a>
+                    <a class="dropdown-item {{ request('filter') === 'swimmingpool' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'swimmingpool']) }}">Swimming Pool</a>
                     <a class="dropdown-item {{ request('filter') === 'renovation' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'renovation']) }}">Renovation</a>
                     <a class="dropdown-item {{ request('filter') === 'package' ? 'active' : '' }}" href="{{ route('archive.index', ['filter' => 'package']) }}">Package</a>
                 </div>

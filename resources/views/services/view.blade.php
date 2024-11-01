@@ -456,21 +456,39 @@
                 <a class="nav-link text-dark font-weight-bold" href="#contact">Contact</a>
             </li>
 
-            <!-- Nav Item - Alerts -->
             <li class="nav-item dropdown no-arrow mx-1">
                 <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-bell fa-fw"></i>
-                    <!-- Counter - Alerts -->
-                    <span class="badge badge-danger badge-counter">0</span>
+                    <span class="badge badge-danger badge-counter">
+                        {{ \App\Models\Notification::where('sent_to', auth()->id())->where('is_read', false)->count() }}
+                    </span>
                 </a>
-                <!-- Dropdown - Alerts -->
                 <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                    aria-labelledby="alertsDropdown">
+                    aria-labelledby="alertsDropdown" style="max-height: 400px; overflow-y: auto;">
                     <h6 class="dropdown-header bg-info">
                         Alerts Center
                     </h6>
-                    <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                    @php
+                        // Fetch the latest notifications for the logged-in user
+                        $notifications = \App\Models\Notification::where('sent_to', auth()->id())
+                            ->orderBy('created_at', 'desc')
+                            ->take(20) // Increase if you want to show more notifications
+                            ->get();
+                    @endphp
+
+                    @if ($notifications->isNotEmpty())
+                        @foreach ($notifications as $notification)
+                            <a class="dropdown-item text-center small {{ $notification->is_read ? 'text-gray-500' : 'font-weight-bold text-gray-800' }}"
+                                href="{{ route('notifications.markAsRead', $notification->id) }}?redirect={{ urlencode($notification->type === 'Booking' ? route('booking.view', $notification->type_id) : ($notification->type === 'Project' ? route('project.view', $notification->type_id) : ($notification->type === 'Payment' ? route('payments.show', $notification->type_id) : ($notification->type === 'Progress' ? route('progress.view', ['projectId' => $notification->type_id]) : '#')))) }}">
+                                <strong
+                                    class="{{ $notification->is_read ? '' : 'font-weight-bold' }}">{{ $notification->title }}</strong>
+                                - {{ $notification->message }}
+                            </a>
+                        @endforeach
+                    @else
+                        <a class="dropdown-item text-center small text-gray-500" href="#">No alerts</a>
+                    @endif
                 </div>
             </li>
 

@@ -200,6 +200,8 @@
     </div>
 
 @section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         function openUpdateModal(projectId) {
             const lastProgress = @json($progress->last());
@@ -212,43 +214,39 @@
                     if (lastProgress.phase === "phase_one") {
                         phase = "phase_two";
                     } else if (lastProgress.phase === "phase_two") {
-                        phase = "phase_three"; // Automatically move to phase_three if phase_two is complete
+                        phase = "phase_three";
                     }
                 } else {
-                    phase = lastProgress.phase; // Keep the current phase if progress is not 100
+                    phase = lastProgress.phase;
                 }
             }
 
             document.getElementById('project_id').value = projectId;
-            document.getElementById('project_phase').value = phase; // Set phase based on last progress
+            document.getElementById('project_phase').value = phase;
             document.getElementById('currentPhaseDisplay').innerText = phase.replace(/_/g, ' ').replace(/\b\w/g, c => c
-                .toUpperCase()); // Display the current phase in a readable format
-            document.getElementById('errorMessages').style.display = 'none'; // Reset error messages
-            document.getElementById('successMessage').style.display = 'none'; // Reset success message
+                .toUpperCase());
+            document.getElementById('errorMessages').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
             $('#updateProjectProgressModal').modal('show');
 
-            // Reset all progress options to enabled initially
             const progressSelect = document.getElementById('project_phase_progress');
             for (let option of progressSelect.options) {
                 option.disabled = false;
                 option.classList.remove('disabled-option');
             }
 
-            // Disable options based on the current phase and progress
             if (lastProgress && lastProgress.phase === phase) {
                 for (let option of progressSelect.options) {
                     if (parseInt(option.value) <= currentProgress) {
                         option.disabled = true;
-                        option.classList.add('disabled-option'); // Add custom class for disabled options
+                        option.classList.add('disabled-option');
                     }
                 }
             }
         }
 
-
-
-        // Event listener for the save button
         document.getElementById('saveProjectProgressButton').addEventListener('click', function() {
+            const saveButton = this;
             const imageInput = document.getElementById('project_image');
             const phaseInput = document.getElementById('project_phase');
             const progressInput = document.getElementById('project_phase_progress');
@@ -257,7 +255,6 @@
             const successMessageDiv = document.getElementById('successMessage');
             let errorMessages = [];
 
-            // Check if all inputs are filled
             if (!progressInput.value) {
                 errorMessages.push('Phase progress is required.');
             }
@@ -265,19 +262,20 @@
                 errorMessages.push('Image is required.');
             }
 
-            // Show error messages if any
             if (errorMessages.length) {
-                errorMessagesDiv.innerHTML = errorMessages.join('<br>'); // Join messages into a single string
-                errorMessagesDiv.style.display = 'block'; // Show the error messages
-                successMessageDiv.style.display = 'none'; // Hide success message
-                return; // Stop execution
+                errorMessagesDiv.innerHTML = errorMessages.join('<br>');
+                errorMessagesDiv.style.display = 'block';
+                successMessageDiv.style.display = 'none';
+                return;
             } else {
-                errorMessagesDiv.style.display = 'none'; // Hide error messages if all fields are filled
+                errorMessagesDiv.style.display = 'none';
             }
+
+            // Change button text to "Saving Changes..."
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Saving Changes...';
 
             const formData = new FormData(document.getElementById('updateProjectProgressForm'));
 
-            // Send AJAX request to store project progress
             fetch('{{ route('progress.store') }}', {
                     method: 'POST',
                     body: formData,
@@ -287,33 +285,49 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Handle success
                     if (data.success) {
-                        location.reload();
-                        successMessageDiv.innerHTML = data.success; // Show success message
-                        successMessageDiv.style.display = 'block'; // Show the success message
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Progress saved successfully!',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            location.reload();
+                        });
                     } else {
-                        errorMessagesDiv.innerHTML = data.error ||
-                            'An error occurred. Please try again.'; // Show error
-                        errorMessagesDiv.style.display = 'block'; // Show error messages
-                        successMessageDiv.style.display = 'none'; // Hide success message
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.error || 'An error occurred. Please try again.',
+                            icon: 'error',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
                     }
+                    saveButton.innerHTML = 'Save changes';
                 })
                 .catch(error => {
-                    errorMessagesDiv.innerHTML = 'An error occurred. Please try again.'; // Show error
-                    errorMessagesDiv.style.display = 'block'; // Show error messages
-                    successMessageDiv.style.display = 'none'; // Hide success message
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                    saveButton.innerHTML = 'Save changes';
                     console.error('Error:', error);
                 });
         });
 
-        // Image click event to open modal
         document.querySelectorAll('.img-preview').forEach(image => {
             image.addEventListener('click', function() {
-                const imgSrc = this.dataset.image; // Get image source
+                const imgSrc = this.dataset.image;
                 const expandedImage = document.getElementById('expandedImage');
-                expandedImage.src = imgSrc; // Set source to the modal image
-                $('#imageModal').modal('show'); // Show modal
+                expandedImage.src = imgSrc;
+                $('#imageModal').modal('show');
             });
         });
     </script>

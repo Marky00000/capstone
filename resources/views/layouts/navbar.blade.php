@@ -26,7 +26,7 @@
                             // Fetch the latest notifications for the logged-in user
                             $notifications = \App\Models\Notification::where('sent_to', auth()->id())
                                 ->orderBy('created_at', 'desc')
-                                ->take(100) // Increase if you want to show more notifications
+                                ->take(20) // Increase if you want to show more notifications
                                 ->get();
                         @endphp
     
