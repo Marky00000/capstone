@@ -132,7 +132,7 @@ class PaymentController extends Controller
             'user_id' => $user ? $user->id : null, // User ID or null if not authenticated
             'type' => 'Payment',
             'type_id' => $payment->id, // Reference to the payment ID
-            'action' => 'Payment submitted', // Action description
+            'action' => 'Payment of ' . number_format($request->amount, 2) . ', submitted for project ID: ' . $request->project_id,
             'action_date' => now(), // Current date and time
         ]);
     

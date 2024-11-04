@@ -22,27 +22,31 @@ class BookingController extends Controller
     {
         // Initialize the query for fetching bookings
         $query = Booking::where('user_id', Auth::id());
-    
+        
         // Apply booking status filter if provided
         if ($request->filled('booking_status')) {
             $query->where('booking_status', $request->input('booking_status'));
         }
-    
+        
         // Apply date filters if provided
         if ($request->filled('start_date')) {
             $query->where('created_at', '>=', $request->input('start_date'));
         }
-    
+        
         if ($request->filled('end_date')) {
             $query->where('created_at', '<=', $request->input('end_date'));
         }
+        
+        // Order by latest created date
+        $query->orderBy('created_at', 'desc');
     
         // Paginate the filtered bookings
         $bookings = $query->paginate(10);
-    
+        
         // Return the view with the filtered bookings
         return view('booking.index', compact('bookings'));
     }
+    
     
     
         public function adminBooking(Request $request)
@@ -308,7 +312,7 @@ public function cancelBooking($id) {
             'user_id' => auth()->id(), // Get the authenticated user ID
             'type_id' => $booking->id, // Use the booking ID
             'type' => 'Booking', // Set the type for clarity
-            'action' => 'Cancel Booking', // Specify the action performed
+            'action' => 'Cancel Booking. Booking ID: '. $booking->id, // Specify the action performed
             'action_date' => now(), // Log the date of action
         ]);
 
@@ -322,6 +326,8 @@ public function cancelBooking($id) {
             'title' => 'Booking Update',
             'message' => $user->name . ' canceled their booking with ID: ' . $booking->id,
             'sent_at' => now(),
+            'type' => 'Booking', // Set type to Booking
+            'type_id' => $booking->id // Set type_id to the ID of the booking
            
         ]);
 
@@ -351,7 +357,7 @@ public function confirmBooking($id)
             'user_id' => auth()->id(), // Get the authenticated user ID
             'type_id' => $booking->id, // Use the relevant task ID
             'type' => 'Booking',        // Set the type for clarity
-            'action' => 'Confirm Booking', // Specify the action performed
+            'action' => 'Confirm Booking with ID: ' . $booking->id, // Specify the action performed
             'action_date' => now(),     // Log the date of action
         ]);
 
@@ -403,7 +409,7 @@ public function declineBooking($id)
             'user_id' => auth()->id(), // Get the authenticated user ID
             'type_id' => $booking->id, // Booking ID as task_id
             'type' => 'Booking', // Set type as 'booking'
-            'action' => 'Decline Booking', // Action taken
+            'action' => 'Decline Booking with ID: ' . $booking->id, // Action taken
             'action_date' => now(), // Current timestamp
         ]);
         
@@ -619,7 +625,7 @@ public function update(Request $request, $id)
         'user_id' => auth()->id(), // Get the authenticated user ID
         'type_id' => $booking->id, // Booking ID as task_id
         'type' => 'Booking', // Set type as 'booking'
-        'action' => 'Updated Booking', // Action taken
+        'action' => 'Update Booking for Booking ID: '. $booking->id, // Specify the action performed
         'action_date' => now(), // Current timestamp
     ]);
 

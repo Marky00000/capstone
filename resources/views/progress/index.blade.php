@@ -7,8 +7,8 @@
         <!-- Display Project Information -->
         <div class="mb-4">
             <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">Progress for Project: <span class="text-light">{{ $project->id }}</span></h4>
+                <div class="card-header bg-shadow text-black">
+                    <h4 class="mb-0">Progress for Project: <span class="text-black">{{ $project->id }}</span></h4>
                 </div>
                 <div class="card-body">
                     <h5 class="text-muted">Services:
@@ -97,7 +97,12 @@
                     </tr>
                 @endforeach
             </tbody>
+
         </table>
+
+        <div class="pagination-wrapper">
+            {{ $progress->links('pagination::bootstrap-4') }}
+        </div>
 
         <a class="btn btn-secondary btn-md" href="{{ route('project.adminIndex') }}" data-bs-toggle="tooltip"
             data-bs-placement="top" title="Go back to the project overview">
@@ -116,6 +121,7 @@
                     role="status" aria-hidden="true"></span>
             </button>
         @endif
+
 
 
 

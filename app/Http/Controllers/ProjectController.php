@@ -127,7 +127,7 @@ class ProjectController extends Controller
             'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
             'type_id' => $project->id, // Assuming type_id is related to the project ID
             'type' => 'Project', // Type of action
-            'action' => 'Change project status to Hold', // Description of action
+            'action' => 'Update project status to Hold. Project ID: ' . $project->id, // Description of action
             'action_date' => now(), // Current timestamp
         ]);
     
@@ -171,7 +171,7 @@ class ProjectController extends Controller
             'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
             'type_id' => $project->id, // Assuming type_id is related to the project ID
             'type' => 'Project', // Type of action
-            'action' => 'Change project status to Active', // Description of action
+            'action' => 'Update project status to Active. Project ID: ' . $project->id, // Description of action
             'action_date' => now(), // Current timestamp
         ]);
     
@@ -377,7 +377,7 @@ class ProjectController extends Controller
                 'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
                 'type_id' => $project->id, // Assuming type_id is related to the project ID
                 'type' => 'Project', // Type of action
-                'action' => 'Created a new project', // Description of action
+                'action' => 'Created a new project for booking ID: ' . $request->booking_id,
                 'action_date' => now(), // Current timestamp
             ]);
     

@@ -98,7 +98,7 @@
 
                         </thead>
                         <tbody>
-                            @foreach ($bookings->reverse() as $booking)
+                            @foreach ($bookings as $booking)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $booking->name }}</td>
@@ -176,6 +176,10 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <div class="pagination-wrapper">
+                    {{ $bookings->links('pagination::bootstrap-4') }}
                 </div>
             @endif
         </div>
@@ -349,6 +353,7 @@
 @endsection
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @section('scripts')
     <script>
@@ -392,7 +397,6 @@
                     .removeClass()
                     .addClass('badge ' + bookingBadgeClass);
                 modal.find('#confirmBookingButton').data('booking_id', bookingDetails.bookingId);
-
             });
 
             // Show the cancel confirmation modal
@@ -406,6 +410,9 @@
             $('#confirmCancelButton').on('click', function() {
                 const bookingId = $('#cancelModal').data('booking_id');
 
+                // Change button text to "Cancelling..."
+                $(this).text('Cancelling...').prop('disabled', true);
+
                 // Make an AJAX request to cancel the booking
                 $.ajax({
                     url: `/bookings/${bookingId}/cancel`, // Adjust this route according to your application
@@ -416,14 +423,23 @@
                     },
                     success: function(response) {
                         $('#cancelModal').modal('hide');
-                        location.reload(); // Reload the page to reflect changes
+                        // Show SweetAlert success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Booking Cancelled',
+                            text: 'Your booking has been successfully cancelled.',
+                            showConfirmButton: false, // No OK button
+                            timer: 2000 // Close alert after 2 seconds
+                        }).then(() => {
+                            location.reload(); // Reload the page to reflect changes
+                        });
 
-                        // Hide the cancel button for the specific booking
+                        // Hide the cancel button for the specific booking if needed
                         const bookingStatus = response
-                            .booking_status; // Assuming the response contains booking status
+                        .booking_status; // Assuming the response contains booking status
                         if (bookingStatus === 'visited') {
                             $(`button[data-booking_id="${bookingId}"]`)
-                                .hide(); // Hide if visited
+                        .hide(); // Hide if visited
                         }
                     },
                     error: function(xhr) {
@@ -457,4 +473,6 @@
             }
         });
     </script>
+
+
 @endsection

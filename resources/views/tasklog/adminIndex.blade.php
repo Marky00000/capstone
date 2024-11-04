@@ -114,8 +114,13 @@
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         @elseif (trim($log->type) === 'Progress')
-                                            <a href="{{ route('progress.index', $log->type_id) }}"
-                                                class="btn btn-sm text-info" data-toggle="tooltip" title="View Progress">
+                                            @php
+                                                $redirectRoute = route('progress.index', [
+                                                    'projectId' => $log->type_id,
+                                                ]);
+                                            @endphp
+                                            <a href="{{ $redirectRoute }}" class="btn btn-sm text-info"
+                                                data-toggle="tooltip" title="View Progress">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         @elseif (str_contains(trim($log->type), 'Landscaping'))

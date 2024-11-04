@@ -22,7 +22,7 @@ class ProgressController extends Controller
         $project = Project::with('service')->findOrFail($projectId);
         
         // Fetch the progress related to the project
-        $progress = Progress::where('project_id', $project->id)->get();
+        $progress = Progress::where('project_id', $project->id)->paginate(10);
 
         // Return the view with the project and its progress
         return view('progress.index', compact('project', 'progress'));
@@ -35,7 +35,7 @@ class ProgressController extends Controller
         $project = Project::with('service')->findOrFail($projectId);
         
         // Fetch the progress related to the project
-        $progress = Progress::where('project_id', $project->id)->get();
+        $progress = Progress::where('project_id', $project->id)->paginate(10);
     
         // Return the view with the project and its progress
         return view('progress.view', compact('project', 'progress'));
@@ -82,8 +82,8 @@ class ProgressController extends Controller
         TaskLog::create([
             'user_id' => auth()->id(), // Capture the ID of the authenticated user
             'type' => 'Progress', // Adjust based on your task log types
-            'type_id' => $progress->id, // Assuming the task log refers to the progress ID
-            'action' => 'Project progress updated ' . $request->phase . ' - ' . $request->phase_progress . '%',
+            'type_id' => $request->project_id, // Set type_id to the project_id instead of progress ID
+            'action' => 'Project progress updated for project ID: ' . $request->project_id . ' - ' . $request->phase . ' - ' . $request->phase_progress . '%',
             'action_date' => now(), // Use the current date and time
             'details' => $remarks, // Optionally include remarks in details
         ]);
