@@ -32,20 +32,19 @@
                     <div class="me-2"> <!-- Added margin to the right -->
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                            <select name="project_status" class="form-select form-select-sm"
-                                style="max-width: 120px;">
+                            <select name="project_status" class="form-select form-select-sm" style="max-width: 120px;">
                                 <option value="">All Statuses</option>
-                                <option value="pending"
-                                    {{ request('project_status') == 'pending' ? 'selected' : '' }}>
+                                <option value="pending" {{ request('project_status') == 'pending' ? 'selected' : '' }}>
                                     Pending</option>
-                                <option value="active"
-                                    {{ request('project_status') == 'active' ? 'selected' : '' }}>Active
+                                <option value="active" {{ request('project_status') == 'active' ? 'selected' : '' }}>Active
                                 </option>
                                 <option value="hold" {{ request('project_status') == 'hold' ? 'selected' : '' }}>
                                     On Hold
                                 </option>
-                                <option value="finish"
-                                    {{ request('project_status') == 'finish' ? 'selected' : '' }}>
+                                <option value="cancel" {{ request('project_status') == 'cancel' ? 'selected' : '' }}>
+                                    Cancelled
+                                </option>
+                                <option value="finish" {{ request('project_status') == 'finish' ? 'selected' : '' }}>
                                     Finished</option>
                             </select>
                         </div>
@@ -175,8 +174,9 @@
                 </div>
             @endif
             <div class="pagination-wrapper">
-                {{ $projects->links('pagination::bootstrap-4') }}
+                {{ $projects->appends(request()->query())->links('pagination::bootstrap-4') }}
             </div>
+
         </div>
     </div>
 

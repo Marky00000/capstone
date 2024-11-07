@@ -10,37 +10,46 @@ use App\Models\Notification;
 
 class ProgressController extends Controller
 {
-  /**
-     * Display the progress of a specific project.
-     *
-     * @param int $projectId
-     * @return \Illuminate\View\View
-     */
     public function index($projectId)
     {
         // Fetch the project by ID
         $project = Project::with('service')->findOrFail($projectId);
         
-        // Fetch the progress related to the project
-        $progress = Progress::where('project_id', $project->id)->paginate(10);
+        // Fetch the progress related to the project, ordered from latest to oldest
+        $progress = Progress::where('project_id', $project->id)
+                            ->orderBy('created_at', 'desc') // Order by the creation date in descending order
+                            ->paginate(5);
 
-        // Return the view with the project and its progress
-        return view('progress.index', compact('project', 'progress'));
+        // Fetch the latest progress entry separately
+        $latestProgress = Progress::where('project_id', $project->id)
+                                   ->orderBy('created_at', 'desc')
+                                   ->first(); // This gets the latest progress entry
+
+        // Return the view with the project, its progress, and latest progress
+        return view('progress.index', compact('project', 'progress', 'latestProgress'));
     }
+
 
 
     public function view($projectId)
     {
-        // Fetch the project by ID
-        $project = Project::with('service')->findOrFail($projectId);
+         // Fetch the project by ID
+         $project = Project::with('service')->findOrFail($projectId);
         
-        // Fetch the progress related to the project
-        $progress = Progress::where('project_id', $project->id)->paginate(10);
-    
-        // Return the view with the project and its progress
-        return view('progress.view', compact('project', 'progress'));
+         // Fetch the progress related to the project, ordered from latest to oldest
+         $progress = Progress::where('project_id', $project->id)
+                             ->orderBy('created_at', 'desc') // Order by the creation date in descending order
+                             ->paginate(5);
+ 
+         // Fetch the latest progress entry separately
+         $latestProgress = Progress::where('project_id', $project->id)
+                                    ->orderBy('created_at', 'desc')
+                                    ->first(); // This gets the latest progress entry
+ 
+         // Return the view with the project, its progress, and latest progress
+        return view('progress.view', compact('project', 'progress', 'latestProgress'));
     }
-    
+
     
 
 

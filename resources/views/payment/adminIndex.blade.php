@@ -3,18 +3,19 @@
 @section('content')
     <title>Arfil's Landscaping Services</title>
     <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
-    <div class="container-fluid mt-4">
 
-        @if (session('success'))
-            <div class="alert alert-success" role="alert">
-                {{ session('success') }}
-            </div>
-        @endif
-
+    <div class="card shadow-sm rounded-lg border-1">
         <div class="card shadow-sm rounded-lg border-1">
             <div class="card-header stylish-header text-black">
                 <h1>Payments</h1>
             </div>
+            @if (session('success'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+
 
             <div class="card-body">
                 <!-- Filter and Sort Form -->
@@ -91,10 +92,9 @@
                                 </td>
 
                             </tr>
-                            
                         @endforeach
                     </tbody>
-                  
+
                 </table>
                 <div class="pagination-wrapper">
                     {{ $payments->links('pagination::bootstrap-4') }}

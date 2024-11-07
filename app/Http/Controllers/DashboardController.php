@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $totalBookings = Booking::count();
 
         // Fetch total projects with status 'pending', 'active', 'hold', or 'finished'
-        $totalProjects = Project::whereIn('project_status', ['pending', 'active', 'hold', 'finish'])->count();
+        $totalProjects = Project::whereIn('project_status', ['pending', 'active', 'hold', 'cancel', 'finish'])->count();
 
         // Calculate total revenue
         $totalRevenue = Payment::sum('amount');
@@ -62,11 +62,12 @@ class DashboardController extends Controller
 
         // Prepare data for project status bar chart
         $projectStatusData = [
-            'labels' => ['Pending', 'Active', 'Hold', 'Finished'],
+            'labels' => ['Pending', 'Active', 'Hold','Cancelled', 'Finished'],
             'data' => [
                 $projectStatusCounts->get('pending', 0),
                 $projectStatusCounts->get('active', 0),
                 $projectStatusCounts->get('hold', 0),
+                $projectStatusCounts->get('cancel', 0),
                 $projectStatusCounts->get('finish', 0),
             ]
         ];

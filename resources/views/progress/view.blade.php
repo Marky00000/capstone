@@ -4,9 +4,13 @@
     <!-- Display Project Information -->
     <div class="mb-4">
         <div class="card shadow-sm">
-            <div class="card-header bg-info text-white">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">Progress for Project: <span class="text-light">{{ $project->id }}</span></h4>
+                <a href="{{ route('project.index') }}" class="btn btn-light text-info btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
             </div>
+
             <div class="card-body">
                 <h5 class="text-muted">Services:
                     @php
@@ -35,17 +39,34 @@
                 @endphp
 
                 <div class="mt-3">
-                    @if ($progress->isNotEmpty())
-                        <!-- Check if there is any progress -->
-                        @if ($lastProgress->phase == 'phase_three' && $lastProgress->phase_progress == 100)
+                    @if ($latestProgress)
+                        <!-- Use the latest progress entry here -->
+                        @if ($latestProgress->phase == 'phase_three' && $latestProgress->phase_progress == 100)
                             <strong class="text-success">Current Phase:</strong>
                             <i class="fas fa-check-circle text-success"></i>
                             <span class="text-success ms-2">Project Finished</span>
                         @else
                             <strong><i class="fas fa-hourglass-half text-warning"></i> Current Phase:</strong>
-                            <span class="text-success ms-2">{{ $lastProgress->phase }}</span><br>
+                            <span class="text-success ms-2">
+                                @switch($latestProgress->phase)
+                                    @case('phase_one')
+                                        Phase one
+                                    @break
+
+                                    @case('phase_two')
+                                        Phase two
+                                    @break
+
+                                    @case('phase_three')
+                                        Phase three
+                                    @break
+
+                                    @default
+                                        Unknown phase
+                                @endswitch
+                            </span><br>
                             <strong><i class="fas fa-tasks text-info"></i> Current Progress:</strong>
-                            <span class="text-success ms-2">{{ $lastProgress->phase_progress }}%</span>
+                            <span class="text-success ms-2">{{ $latestProgress->phase_progress }}%</span>
                         @endif
                     @else
                         <div class="text-center text-danger">
@@ -54,6 +75,7 @@
                         </div>
                     @endif
                 </div>
+
             </div>
         </div>
     </div>
@@ -93,9 +115,7 @@
         {{ $progress->links('pagination::bootstrap-4') }}
     </div>
 
-    <a class="btn btn-secondary btn-md mt-4" href="{{ route('project.index') }}">
-        <i class="fas fa-arrow-left"></i> Back
-    </a>
+
 
     <!-- Modal for Updating Progress -->
     <div class="modal fade" id="updateProjectProgressModal" tabindex="-1" role="dialog"
@@ -174,112 +194,112 @@
     </div>
 
 
-@section('scripts')
-    <script>
-        function openUpdateModal(projectId) {
-            const lastProgress = @json($progress->last());
-            let phase = "phase_one";
-            let currentProgress = 0;
+    @section('scripts')
+        <script>
+            function openUpdateModal(projectId) {
+                const lastProgress = @json($progress->last());
+                let phase = "phase_one";
+                let currentProgress = 0;
 
-            if (lastProgress) {
-                currentProgress = lastProgress.phase_progress;
-                phase = currentProgress == 100 ? (lastProgress.phase === "phase_one" ? "phase_two" : "phase_three") :
-                    lastProgress.phase;
+                if (lastProgress) {
+                    currentProgress = lastProgress.phase_progress;
+                    phase = currentProgress == 100 ? (lastProgress.phase === "phase_one" ? "phase_two" : "phase_three") :
+                        lastProgress.phase;
+                }
+
+                document.getElementById('project_id').value = projectId;
+                document.getElementById('project_phase').value = phase;
+                document.getElementById('currentPhaseDisplay').innerText = phase.replace(/_/g, ' ').replace(/\b\w/g, c => c
+                    .toUpperCase());
+                $('#updateProjectProgressModal').modal('show');
+
+                const progressSelect = document.getElementById('project_phase_progress');
+                Array.from(progressSelect.options).forEach(option => {
+                    option.disabled = parseInt(option.value) <= currentProgress;
+                    option.classList.toggle('disabled-option', parseInt(option.value) <= currentProgress);
+                });
             }
 
-            document.getElementById('project_id').value = projectId;
-            document.getElementById('project_phase').value = phase;
-            document.getElementById('currentPhaseDisplay').innerText = phase.replace(/_/g, ' ').replace(/\b\w/g, c => c
-                .toUpperCase());
-            $('#updateProjectProgressModal').modal('show');
+            document.getElementById('saveProjectProgressButton').addEventListener('click', function() {
+                const formData = new FormData(document.getElementById('updateProjectProgressForm'));
 
-            const progressSelect = document.getElementById('project_phase_progress');
-            Array.from(progressSelect.options).forEach(option => {
-                option.disabled = parseInt(option.value) <= currentProgress;
-                option.classList.toggle('disabled-option', parseInt(option.value) <= currentProgress);
-            });
-        }
-
-        document.getElementById('saveProjectProgressButton').addEventListener('click', function() {
-            const formData = new FormData(document.getElementById('updateProjectProgressForm'));
-
-            fetch('{{ route('progress.store') }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        document.getElementById('errorMessages').innerHTML = data.error ||
-                            'An error occurred. Please try again.';
+                fetch('{{ route('progress.store') }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            document.getElementById('errorMessages').innerHTML = data.error ||
+                                'An error occurred. Please try again.';
+                            document.getElementById('errorMessages').style.display = 'block';
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('errorMessages').innerHTML = 'An error occurred. Please try again.';
                         document.getElementById('errorMessages').style.display = 'block';
-                    }
-                })
-                .catch(() => {
-                    document.getElementById('errorMessages').innerHTML = 'An error occurred. Please try again.';
-                    document.getElementById('errorMessages').style.display = 'block';
-                });
-        });
-
-        document.querySelectorAll('.img-preview').forEach(img => {
-            img.addEventListener('click', function() {
-                document.getElementById('expandedImage').src = img.dataset.image;
-                document.getElementById('projectRemarks').innerText = img.dataset.remarks ||
-                    'No remarks available.';
-                $('#imageModal').modal('show');
+                    });
             });
-        });
-    </script>
-@endsection
-</div>
-@section('style')
-    <style>
-        body {
-            background: linear-gradient(135deg, #0a60b7 25%, #1e6dbb 100%);
-            /* Light gradient for a subtle modern look */
-            background-attachment: fixed;
-            /* Keeps the background fixed during scroll */
-        }
 
-        .table-hover tbody tr:hover {
-            background-color: rgba(233, 236, 239, 0.5);
-            /* Semi-transparent hover effect */
-            /* Slightly transparent hover effect for better aesthetics */
-        }
+            document.querySelectorAll('.img-preview').forEach(img => {
+                img.addEventListener('click', function() {
+                    document.getElementById('expandedImage').src = img.dataset.image;
+                    document.getElementById('projectRemarks').innerText = img.dataset.remarks ||
+                        'No remarks available.';
+                    $('#imageModal').modal('show');
+                });
+            });
+        </script>
+    @endsection
+    </div>
+    @section('style')
+        <style>
+            body {
+                background: linear-gradient(135deg, #0a60b7 25%, #1e6dbb 100%);
+                /* Light gradient for a subtle modern look */
+                background-attachment: fixed;
+                /* Keeps the background fixed during scroll */
+            }
 
-        .badge-info {
-            background-color: #17a2b8;
-            /* Bootstrap info color */
-        }
+            .table-hover tbody tr:hover {
+                background-color: rgba(233, 236, 239, 0.5);
+                /* Semi-transparent hover effect */
+                /* Slightly transparent hover effect for better aesthetics */
+            }
 
-        .hover-animation:hover {
-            background-color: rgba(241, 241, 241, 0.7);
-            /* Slightly transparent hover effect for table rows */
-            transform: scale(1.02);
-            transition: background-color 0.3s, transform 0.3s;
-        }
+            .badge-info {
+                background-color: #17a2b8;
+                /* Bootstrap info color */
+            }
 
-        .img-preview {
-            border-radius: 5px;
-            /* Rounded corners for images */
-            transition: transform 0.3s;
-            /* Smooth transform effect */
-        }
+            .hover-animation:hover {
+                background-color: rgba(241, 241, 241, 0.7);
+                /* Slightly transparent hover effect for table rows */
+                transform: scale(1.02);
+                transition: background-color 0.3s, transform 0.3s;
+            }
 
-        .img-preview:hover {
-            transform: scale(1.05);
-            /* Slight zoom on hover */
-        }
+            .img-preview {
+                border-radius: 5px;
+                /* Rounded corners for images */
+                transition: transform 0.3s;
+                /* Smooth transform effect */
+            }
 
-        .disabled-option {
-            color: #ccc;
-            /* Grey out disabled options */
-        }
-    </style>
-@endsection
+            .img-preview:hover {
+                transform: scale(1.05);
+                /* Slight zoom on hover */
+            }
+
+            .disabled-option {
+                color: #ccc;
+                /* Grey out disabled options */
+            }
+        </style>
+    @endsection
 @endsection

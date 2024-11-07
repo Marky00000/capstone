@@ -193,6 +193,48 @@ class ProjectController extends Controller
         return redirect()->back()->with('success', 'Project status updated to hold.');
     }
 
+    public function cancel(Request $request, $id)
+{
+    // Retrieve the project by ID
+    $project = Project::findOrFail($id);
+    
+    // Change project status to 'cancel'
+    $project->project_status = 'cancel';
+    $project->save();
+
+    // Retrieve the booking associated with the project
+    $booking = Booking::find($project->booking_id); // Adjust if the column name is different
+    
+    // Get the currently authenticated user
+    $user = auth()->user(); 
+    
+    // Log the task in the task_logs table
+    TaskLog::create([
+        'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+        'type_id' => $project->id, // Assuming type_id is related to the project ID
+        'type' => 'Project', // Type of action
+        'action' => 'Update project status to Cancel. Project ID: ' . $project->id, // Description of action
+        'action_date' => now(), // Current timestamp
+    ]);
+
+    // Create a notification for the user who made the booking
+    if ($booking) {
+        Notification::create([
+            'user_id' => 1, // Hardcoded admin user ID, adjust as needed
+            'sent_to' => $booking->user_id, // User who should receive the notification
+            'title' => 'Project Update', 
+            'message' => 'Admin has canceled your project. Project ID: ' . $project->id,
+            'sent_at' => now(),
+            'type' => 'Project', 
+            'type_id' => $project->id // ID of the project
+        ]);
+    }
+
+    // Redirect back with a success message
+    return redirect()->back()->with('success', 'Project status updated to cancel.');
+}
+
+
 
 
      public function generateReport()
@@ -281,7 +323,7 @@ class ProjectController extends Controller
         $query->orderBy('created_at', 'desc'); // Adjust this as needed for default behavior.
         
         // Paginate the results
-        $projects = $query->paginate(10);
+        $projects = $query->paginate(5);
         
         // Pass the filters to the view
         return view('project.adminIndex', compact('projects', 'statusFilter', 'startDate', 'endDate'));

@@ -8,17 +8,17 @@
         Arfil's Landscaping Services</title>
     <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
 
-    <div class="container-fluid mt-4">
-
+    <div class="card shadow-sm rounded-lg border-1">
+        <div class="card shadow-sm rounded-lg border-1">
+            <div class="card-header stylish-header text-black">
+                <h1>Projects</h1>
+            </div>
         <div class="card-body">
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <div class="card shadow-sm rounded-lg border-1">
-                <div class="card-header stylish-header text-black">
-                    <h1>Projects</h1>
-                </div>
+          
 
                 <div class="card-body">
                     <!-- Filter and Sort Form -->
@@ -40,6 +40,10 @@
                                         </option>
                                         <option value="hold" {{ request('project_status') == 'hold' ? 'selected' : '' }}>
                                             On Hold
+                                        </option>
+                                        <option value="cancel"
+                                            {{ request('project_status') == 'cancel' ? 'selected' : '' }}>
+                                            Cancelled
                                         </option>
                                         <option value="finish"
                                             {{ request('project_status') == 'finish' ? 'selected' : '' }}>
@@ -217,24 +221,28 @@
                                             <td>
                                                 <span
                                                     class="badge 
-                                        @if ($project->project_status == 'pending') badge-warning 
-                                        @elseif($project->project_status == 'active') badge-success 
-                                        @elseif($project->project_status == 'hold') badge-danger    
-                                        @elseif($project->project_status == 'finish') badge-primary @endif">
+                                                    @if ($project->project_status == 'pending') badge-warning 
+                                                    @elseif($project->project_status == 'active') badge-success 
+                                                    @elseif($project->project_status == 'hold') badge-danger    
+                                                    @elseif($project->project_status == 'finish') badge-primary
+                                                    @elseif($project->project_status == 'cancel') badge-secondary @endif">
+
                                                     @if ($project->project_status == 'pending')
                                                         <i class="fas fa-hourglass-half"></i>
                                                     @elseif($project->project_status == 'active')
                                                         <i class="fas fa-spinner fa-spin"></i>
-                                                        <!-- Changed icon for active to spinner -->
                                                     @elseif($project->project_status == 'hold')
                                                         <i class="fas fa-pause-circle"></i>
                                                     @elseif($project->project_status == 'finish')
                                                         <i class="fas fa-check"></i>
-                                                        <!-- Changed icon for finish to check -->
+                                                    @elseif($project->project_status == 'cancel')
+                                                        <i class="fas fa-times-circle"></i>
                                                     @endif
+
                                                     {{ ucfirst($project->project_status) }}
                                                 </span>
                                             </td>
+
 
 
 
@@ -301,9 +309,57 @@
                                                                     Activate Project
                                                                 </button>
                                                             @endif
+
+                                                            @if ($project->project_status !== 'finish' && $project->project_status !== 'cancel')
+                                                                <button class="dropdown-item" data-toggle="modal"
+                                                                    data-target="#cancelModal{{ $project->id }}"
+                                                                    data-toggle="tooltip" title="Cancel Project">
+                                                                    <i class="fas fa-times-circle"
+                                                                        style="color: #dc3545;"></i>
+                                                                    <!-- Red color for Cancel -->
+                                                                    Cancel Project
+                                                                </button>
+                                                            @endif
+
+
+                                                        </div>
+                                                        <!-- Cancel Modal -->
+                                                        <div class="modal fade" id="cancelModal{{ $project->id }}"
+                                                            tabindex="-1" role="dialog"
+                                                            aria-labelledby="cancelModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="cancelModalLabel">
+                                                                            Confirm Cancel</h5>
+                                                                        <button type="button" class="close"
+                                                                            data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        Are you sure you want to cancel this project? This
+                                                                        action cannot be undone.
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                            data-dismiss="modal">Close</button>
+                                                                        <form
+                                                                            action="{{ route('project.cancel', $project->id) }}"
+                                                                            method="POST" class="confirm-form">
+                                                                            @csrf
+                                                                            @method('PATCH')
+                                                                            <button type="submit"
+                                                                                class="btn btn-danger confirm-button"
+                                                                                data-action="cancel">
+                                                                                Confirm Cancel
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
 
-                                                        <!-- Confirmation Modals for Hold and Activate -->
                                                         <!-- Hold Modal -->
                                                         <div class="modal fade" id="holdModal{{ $project->id }}"
                                                             tabindex="-1" role="dialog"
@@ -326,12 +382,14 @@
                                                                             data-dismiss="modal">Cancel</button>
                                                                         <form
                                                                             action="{{ route('project.hold', $project->id) }}"
-                                                                            method="POST">
+                                                                            method="POST" class="confirm-form">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-warning">Confirm
-                                                                                Hold</button>
+                                                                                class="btn btn-warning confirm-button"
+                                                                                data-action="hold">
+                                                                                Confirm Hold
+                                                                            </button>
                                                                         </form>
                                                                     </div>
                                                                 </div>
@@ -360,17 +418,20 @@
                                                                             data-dismiss="modal">Cancel</button>
                                                                         <form
                                                                             action="{{ route('project.activate', $project->id) }}"
-                                                                            method="POST">
+                                                                            method="POST" class="confirm-form">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-success">Confirm
-                                                                                Activation</button>
+                                                                                class="btn btn-success confirm-button"
+                                                                                data-action="activate">
+                                                                                Confirm Activation
+                                                                            </button>
                                                                         </form>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </td>
@@ -383,8 +444,9 @@
                         </div>
                     @endif
                     <div class="pagination-wrapper">
-                        {{ $projects->links('pagination::bootstrap-4') }}
+                        {{ $projects->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
+
                 </div>
             </div>
 
@@ -413,4 +475,47 @@
                     /* Optional: change text color for better visibility */
                 }
             </style>
+
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+            <script>
+                document.querySelectorAll('.confirm-form').forEach(form => {
+                    form.addEventListener('submit', function(event) {
+                        event.preventDefault(); // Prevent default form submission
+
+                        // Get the button element and action type
+                        const button = form.querySelector('.confirm-button');
+                        const actionType = button.getAttribute('data-action');
+
+                        // Change button text based on action type
+                        if (actionType === 'cancel') {
+                            button.textContent = 'Confirming Cancel...';
+                        } else if (actionType === 'hold') {
+                            button.textContent = 'Confirming Hold...';
+                        } else if (actionType === 'activate') {
+                            button.textContent = 'Confirming Activation...';
+                        }
+
+                        // Disable the button to prevent multiple clicks
+                        button.disabled = true;
+
+                        // Submit the form with SweetAlert confirmation
+                        form.submit();
+
+                        // SweetAlert confirmation message
+                        Swal.fire({
+                            title: `Project ${actionType.charAt(0).toUpperCase() + actionType.slice(1)}d!`,
+                            text: `The project has been successfully ${actionType}d.`,
+                            icon: 'success',
+                            timer: 2000,
+
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload(); // Reload the page after confirmation
+                            }
+                        });
+                    });
+                });
+            </script>
+
         @endsection

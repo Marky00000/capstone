@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     <div class="container-fluid">
         <!-- Logo positioned to the far left -->
-        <a class="navbar-brand mr-auto" href="{{ route('welcome') }}" style="display: flex; align-items: center;">
+        <a class="navbar-brand mr-auto" href="{{ route('dashboard') }}" style="display: flex; align-items: center;">
             <img src="{{ asset('arfil_logo1.png') }}" alt="Arfil's Logo" style="max-width: 55px; margin-right: 10px;">
             <span>Arfil's Landscaping and Swimmingpool Services</span>
         </a>

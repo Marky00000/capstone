@@ -175,7 +175,7 @@
                 </table>
             </div>
             <div class="pagination-wrapper">
-                {{ $bookings->links('pagination::bootstrap-4') }}
+                {{ $bookings->appends(request()->query())->links('pagination::bootstrap-4') }}
             </div>
         @endif
     </div>

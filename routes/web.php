@@ -130,6 +130,7 @@ use App\Http\Controllers\getUserNotifications;
     Route::get('/admin/projects/{id}', [ProjectController::class, 'adminShow'])->name('project.adminShow'); // Admin view single project
     Route::patch('/admin/projects/{project}/hold', [ProjectController::class, 'hold'])->name('project.hold'); // Hold a project
     Route::patch('/admin/projects/{id}/activate', [ProjectController::class, 'activate'])->name('project.activate'); // Activate a project
+    Route::patch('/projects/{project}/cancel', [ProjectController::class, 'cancel'])->name('project.cancel');
     Route::get('/admin/projects/reports', [ProjectController::class, 'generateReport'])->name('project.reports'); // Generate project report
     Route::get('/project/{id}', [ProjectController::class, 'view'])->name('project.view');
 

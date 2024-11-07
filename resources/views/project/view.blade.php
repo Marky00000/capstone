@@ -92,7 +92,8 @@
                                 <button type="button" class="btn btn-link" data-bs-toggle="modal"
                                     data-bs-target="#paymentImagesModal" data-images='@json($projects->payments->pluck('payment_image'))'
                                     data-amounts='@json($projects->payments->pluck('amount'))'>
-                                    <i class="fas fa-eye fa-lg" data-bs-toggle="tooltip" title="Show all payments"></i> <!-- Eye icon to indicate "View" -->
+                                    <i class="fas fa-eye fa-lg" data-bs-toggle="tooltip" title="Show all payments"></i>
+                                    <!-- Eye icon to indicate "View" -->
                                 </button>
 
                             </td>
@@ -125,7 +126,9 @@
                                     @if ($projects->project_status == 'pending') badge-warning 
                                     @elseif($projects->project_status == 'active') badge-success 
                                     @elseif($projects->project_status == 'hold') badge-danger    
-                                    @elseif($projects->project_status == 'finish') badge-primary @endif">
+                                    @elseif($projects->project_status == 'finish') badge-primary
+                                    @elseif($projects->project_status == 'cancel') badge-secondary @endif">
+
                                     @if ($projects->project_status == 'pending')
                                         <i class="fas fa-hourglass-half"></i>
                                     @elseif($projects->project_status == 'active')
@@ -134,10 +137,14 @@
                                         <i class="fas fa-pause-circle"></i>
                                     @elseif($projects->project_status == 'finish')
                                         <i class="fas fa-check"></i>
+                                    @elseif($projects->project_status == 'cancel')
+                                        <i class="fas fa-times-circle"></i> <!-- Icon for cancel -->
                                     @endif
+
                                     {{ ucfirst($projects->project_status) }}
                                 </span>
                             </td>
+
                         </tr>
                     </tbody>
                 </table>
@@ -195,13 +202,12 @@
                     </div>
 
                     @if ($projects->project_status !== 'pending')
-                    <div class="text-center mt-2">
-                        <a href="{{ route('progress.view', ['projectId' => $projects->id]) }}" class="btn btn-link">
-                            <i class="fas fa-arrow-right me-1"></i> <!-- Add your desired icon here -->
-                            View More
-                        </a>
-                    </div>
-                    
+                        <div class="text-center mt-2">
+                            <a href="{{ route('progress.view', ['projectId' => $projects->id]) }}" class="btn btn-link">
+                                <i class="fas fa-arrow-right me-1"></i> <!-- Add your desired icon here -->
+                                View More
+                            </a>
+                        </div>
                     @endif
                 </div>
 
@@ -214,13 +220,15 @@
             </div>
         </div>
 
-         <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel" aria-hidden="true">
+        <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div>
                             <p class="mb-0" id="totalPaidAmount" style="font-size: 1.25rem; font-weight: bold;">
-                                Total Paid: <span class="text-success">₱{{ number_format($projects->total_paid, 2) }}</span>
+                                Total Paid: <span
+                                    class="text-success">₱{{ number_format($projects->total_paid, 2) }}</span>
                             </p>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

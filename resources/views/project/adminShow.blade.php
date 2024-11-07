@@ -123,7 +123,7 @@
                                         ₱{{ number_format($payables, 2) }}
                                     @endif
                                 </span>
-                                @if ($payables > 0 && $projects->total_cost > $projects->total_paid)
+                                @if ($payables > 0 && $projects->total_cost > $projects->total_paid && $projects->project_status != 'cancel')
                                     <a href="{{ route('payment.payment', ['projectId' => $projects->id]) }}"
                                         class="btn btn-link">
                                         <i class="fas fa-credit-card fa-lg" data-bs-toggle="tooltip"
@@ -136,6 +136,7 @@
 
 
 
+
                         <tr>
                             <th>Status</th>
                             <td>
@@ -144,7 +145,9 @@
                                     @if ($projects->project_status == 'pending') badge-warning 
                                     @elseif($projects->project_status == 'active') badge-success 
                                     @elseif($projects->project_status == 'hold') badge-danger    
-                                    @elseif($projects->project_status == 'finish') badge-primary @endif">
+                                    @elseif($projects->project_status == 'finish') badge-primary
+                                    @elseif($projects->project_status == 'cancel') badge-secondary @endif">
+
                                     @if ($projects->project_status == 'pending')
                                         <i class="fas fa-hourglass-half"></i>
                                     @elseif($projects->project_status == 'active')
@@ -153,10 +156,14 @@
                                         <i class="fas fa-pause-circle"></i>
                                     @elseif($projects->project_status == 'finish')
                                         <i class="fas fa-check"></i>
+                                    @elseif($projects->project_status == 'cancel')
+                                        <i class="fas fa-times-circle"></i> <!-- Icon for cancel -->
                                     @endif
+
                                     {{ ucfirst($projects->project_status) }}
                                 </span>
                             </td>
+
                         </tr>
                     </tbody>
                 </table>

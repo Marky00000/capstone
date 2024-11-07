@@ -77,7 +77,7 @@ class PaymentController extends Controller
         // Default sorting is latest to oldest
         $query->orderBy('created_at', 'desc'); // Adjust this as needed for default behavior.
     
-        $payments = $query->paginate(10); // Adjust pagination as needed
+        $payments = $query->paginate(8); // Adjust pagination as needed
     
         return view('payment.adminIndex', compact('payments'));
     }

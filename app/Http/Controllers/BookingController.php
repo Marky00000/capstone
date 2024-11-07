@@ -68,7 +68,7 @@ class BookingController extends Controller
         }
 
         // Fetch filtered bookings, ordered by created_at from latest to oldest
-        $bookings = $query->orderBy('created_at', 'desc')->paginate(10); // Change 10 to the number of items you want per page
+        $bookings = $query->orderBy('created_at', 'desc')->paginate(8); // Change 10 to the number of items you want per page
 
         // Pass the filters and sort order to the view
         return view('booking.adminBooking', compact('bookings'));

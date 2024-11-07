@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('booking_id');
             $table->unsignedBigInteger('service_id');
             $table->json('service_ids')->nullable();  // JSON array to store multiple services
-            $table->enum('project_status', ['pending', 'active','hold', 'finish'])->default('pending');
+            $table->enum('project_status', ['pending', 'active','hold','cancel', 'finish'])->default('pending');
             $table->integer('lot_area');
             $table->decimal('cost', 10, 2);
             $table->decimal('total_cost', 10, 2);

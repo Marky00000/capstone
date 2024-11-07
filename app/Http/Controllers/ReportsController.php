@@ -34,7 +34,7 @@ class ReportsController extends Controller
         }
     
         // Get all payments based on the filters
-        $payments = $query->paginate(10); // Adjust the number as needed for pagination
+        $payments = $query->paginate(8); // Adjust the number as needed for pagination
     
         // Calculate total revenue based on current filters
         if ($request->filled('start_date') || $request->filled('end_date')) {

@@ -1,18 +1,19 @@
 @extends('layouts.apps')
 
 @section('content')
-    <div class="container-fluid mt-4">
-
-        @if (session('success'))
-            <div class="alert alert-success" role="alert">
-                {{ session('success') }}
-            </div>
-        @endif
-
+    <div class="card shadow-sm rounded-lg border-1">
         <div class="card shadow-sm border-light">
             <div class="card-header stylish-header text-black">
                 <h1> Rates</h1>
             </div>
+
+            @if (session('success'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+
 
             <div class="card-body">
                 <!-- Filter by Date Form -->
@@ -66,8 +67,7 @@
                                     @if ($payment->payment_image)
                                         <a href="#" class="payment-image"
                                             data-image-url="{{ asset('storage/' . $payment->payment_image) }}">
-                                            <img src="{{ asset('storage/' . $payment->payment_image) }}"
-                                                alt="Payment Image"
+                                            <img src="{{ asset('storage/' . $payment->payment_image) }}" alt="Payment Image"
                                                 style="width: 100px; height: auto; border: 1px solid #ccc; display: block; margin: 0 auto;">
                                         </a>
                                     @else
