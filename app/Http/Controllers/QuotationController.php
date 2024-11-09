@@ -9,6 +9,8 @@ use App\Models\Quotation;
 use App\Models\Service;
 use App\Models\TaskLog;
 use App\Models\Design;
+use App\Models\Rate;
+
 
 
 class QuotationController extends Controller
@@ -203,21 +205,29 @@ return view('quotation.form', compact('cities'));
 
     
 
-    public function index()
-    {
-        $user = auth()->user();
-        $quotations = Quotation::where('user_id', $user->id)->get();
+public function index()
+{
+    $user = auth()->user();
+    // Fetch quotations for the user, ordered from latest to oldest by creation date
+    $quotations = Quotation::where('user_id', $user->id)
+                            ->orderBy('created_at', 'desc') // Order by the creation date in descending order
+                            ->get();
 
-        return view('quotation.index', compact('quotations'));
-    }
+    return view('quotation.index', compact('quotations'));
+}
 
-    public function view()
-    {
-        $user = auth()->user();
-        $quotations = Quotation::where('user_id', $user->id)->paginate(10);
-    
-        return view('quotation.view', compact('quotations'));
-    }
+
+public function view()
+{
+    $user = auth()->user();
+    // Apply ordering before pagination
+    $quotations = Quotation::where('user_id', $user->id)
+                            ->orderBy('created_at', 'desc') // Order by the creation date in descending order
+                            ->paginate(10); // Paginate the results with 10 per page
+
+    return view('quotation.view', compact('quotations'));
+}
+
     
 
     // public function create()
@@ -227,262 +237,126 @@ return view('quotation.form', compact('cities'));
     // }
 
     public function store(Request $request)
-{
-    $userId = Auth::id();
-    // Validate the incoming request data
-    $request->validate([
-        'user_id' => 'required|exists:users,id',
-        'service_id' => 'required|exists:services,id',
-        'address' => 'required|string',
-        'city' => 'required|string',
-        'region' => 'required|string',
-        'lot_area' => 'required|numeric|min:1',
-    ]);
-
-    // Retrieve the service and its details
-    $service = Service::find($request->service_id);
-
-    // Define pricing and working days based on service, region, and complexity
-    $pricing = [
-        'landscaping' => [
-            'northern_mindanao' => [
-                'very_easy' => 2000,
-                'easy' => 2100,
-                'medium' => 2200,
-                'hard' => 2300,
-                'very_hard' => 2400,
-            ],
-            'other' => [
-                'very_easy' => 2500,
-                'easy' => 2600,
-                'medium' => 2700,
-                'hard' => 2800,
-                'very_hard' => 2900,
-            ],
-        ],
-        'swimmingpool' => [
-            'northern_mindanao' => [
-                'very_easy' => 10000,
-                'easy' => 10500,
-                'medium' => 11000,
-                'hard' => 11500,
-                'very_hard' => 12000,
-            ],
-            'other' => [
-                'very_easy' => 12500,
-                'easy' => 13000,
-                'medium' => 13500,
-                'hard' => 14000,
-                'very_hard' => 14500,
-            ],
-        ],
-        'renovation' => [
-            'northern_mindanao' => [
-                'very_easy' => 2000,
-                'easy' => 2100,
-                'medium' => 2200,
-                'hard' => 2300,
-                'very_hard' => 2400,
-            ],
-            'other' => [
-                'very_easy' => 2500,
-                'easy' => 2600,
-                'medium' => 2700,
-                'hard' => 2800,
-                'very_hard' => 2900,
-            ],
-        ],
-        'maintenance' => [ // New maintenance category added
-            'northern_mindanao' => [
-                'very_easy' => 200,
-                'easy' => 200,
-                'medium' => 200,
-                'hard' => 200,
-                'very_hard' => 200,
-            ],
-            'other' => [
-                'very_easy' => 400,
-                'easy' => 400,
-                'medium' => 400,
-                'hard' => 400,
-                'very_hard' => 400
-            ],
-        ],
-        'package' => [
-            'northern_mindanao' => [
-                'very_easy' => 1000,
-                'easy' => 1100,
-                'medium' => 1200,
-                'hard' => 1300,
-                'very_hard' => 1400,
-            ],
-            'other' => [
-                'very_easy' => 1500,
-                'easy' => 1600,
-                'medium' => 1700,
-                'hard' => 1800,
-                'very_hard' => 1900,
-            ],
-        ],
-    ];
-
-    $workingDaysByService = [
-        'landscaping' => [
-            'northern_mindanao' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-            'other' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-        ],
-        'swimmingpool' => [
-            'northern_mindanao' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-            'other' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-        ],
-        'renovation' => [
-            'northern_mindanao' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-            'other' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-        ],
-        'package' => [
-            'northern_mindanao' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-            'other' => [
-                'very_easy' => 1,
-                'easy' => 1,
-                'medium' => 1,
-                'hard' => 1,
-                'very_hard' => 1,
-            ],
-        ],
-    ];
-
-    // Determine region type
-    $regionType = strtolower($request->region) == 'northern mindanao' ? 'northern_mindanao' : 'other';
-
-    // Determine service type
-    $serviceType = strtolower($service->category);
-
-    // Determine complexity
-    $complexity = strtolower(str_replace(' ', '_', $service->complexity)); // Example: 'Very Easy' becomes 'very_easy'
-
-    // Adjust service type for renovation category
-    if ($serviceType === 'renovation') {
-        $effectiveServiceType = $service->type; // Use the service type (landscaping or swimmingpool) for renovation
-    } else {
-        $effectiveServiceType = $serviceType;
-    }
-
-    // Get base price based on service, region, and complexity
-    $baseAmount = $pricing[$effectiveServiceType][$regionType][$complexity] ?? 0;
-
-    // Calculate total amount
-    $amount = $baseAmount * $request->lot_area;
-
-    // Calculate working days based on lot area
-    $lotArea = $request->lot_area;
-
-    if (in_array($effectiveServiceType, ['landscaping', 'swimmingpool', 'renovation', 'package'])) {
-        if ($lotArea <= 20) {
-            $workingDays = 3;
-        } elseif ($lotArea <= 30) {
-            $workingDays = 5;
-        } elseif ($lotArea <= 40) {
-            $workingDays = 7;
-        } elseif ($lotArea <= 50) {
-            $workingDays = 10;
-        } elseif ($lotArea <= 60) {
-            $workingDays = 12;
-        } elseif ($lotArea <= 70) {
-            $workingDays = 15;
-        } elseif ($lotArea <= 80) {
-            $workingDays = 18;
-        } elseif ($lotArea <= 90) {
-            $workingDays = 20;
-        } elseif ($lotArea <= 100) {
-            $workingDays = 25;
-        } elseif ($lotArea <= 200) {
-            $workingDays = 30;
-        } elseif ($lotArea <= 300) {
-            $workingDays = 40;
+    {
+        $userId = Auth::id();
+        
+        // Validate the incoming request data
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'service_id' => 'required|exists:services,id',
+            'address' => 'required|string',
+            'city' => 'required|string',
+            'region' => 'required|string',
+            'lot_area' => 'required|numeric|min:1',
+        ]);
+    
+        // Retrieve the service and its details
+        $service = Service::find($request->service_id);
+    
+        // Determine region type
+        $regionType = strtolower($request->region) == 'northern mindanao' ? 'northern_mindanao' : 'other';
+    
+        // Determine service type
+        $serviceType = strtolower($service->category);
+    
+        // Determine complexity
+        $complexity = strtolower(str_replace(' ', '_', $service->complexity)); // Example: 'Very Easy' becomes 'very_easy'
+    
+        // Adjust service type for renovation category
+        if ($serviceType === 'renovation') {
+            $effectiveServiceType = $service->type; // Use the service type (landscaping or swimmingpool) for renovation
         } else {
-            $workingDays = 7;
+            $effectiveServiceType = $serviceType;
         }
-    } else {
-        $workingDays = 0; // Default for unknown service types
+    
+        // Fetch base price from the 'rates' table
+        $rate = Rate::where('service_type', $effectiveServiceType)
+                    ->where('region', $regionType)
+                    ->where('complexity', $complexity)
+                    ->first();
+    
+        if (!$rate) {
+            return back()->with('error', 'Rate for this service, region, and complexity not found.');
+        }
+    
+        $baseAmount = $rate->rate;
+    
+        // Calculate total amount
+        $amount = $baseAmount * $request->lot_area;
+    
+        // Calculate working days based on lot area
+        $lotArea = $request->lot_area;
+    
+        // You may want to use a similar lookup for working days, or use your existing logic
+        $workingDays = $this->calculateWorkingDays($lotArea, $effectiveServiceType);
+    
+        try {
+            // Create a new quotation record
+            $quotation = Quotation::create([
+                'user_id' => $request->user_id,
+                'service_id' => $request->service_id,
+                'address' => $request->address,
+                'city' => $request->city,
+                'region' => $request->region,
+                'lot_area' => $request->lot_area,
+                'amount' => $amount,
+                'working_days' => $workingDays,
+            ]);
+    
+            // Create a task log entry
+            $user = auth()->user(); // Get the currently authenticated user
+            TaskLog::create([
+                'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
+                'type' => 'Quotation', // Type of action being logged
+                'type_id' => $quotation->id, // ID of the created quotation
+                'action' => 'Created a new Quotation', // Description of the action
+                'action_date' => now(), // Current timestamp
+            ]);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Quotation created successfully.',
+                'redirect_url' => route('quotation.view') // Adjust if needed
+            ]);
+        } catch (\Exception $e) {
+            // Log error and return back with an error message
+            Log::error('Error creating quotation: ' . $e->getMessage());
+            return back()->with('error', 'There was an error creating the quotation. Please try again.');
+        }
     }
-
-    try {
-        // Create a new quotation record
-        $quotation = Quotation::create([
-            'user_id' => $request->user_id,
-            'service_id' => $request->service_id,
-            'address' => $request->address,
-            'city' => $request->city,
-            'region' => $request->region,
-            'lot_area' => $request->lot_area,
-            'amount' => $amount,
-            'working_days' => $workingDays,
-        ]);
-
-         // Create a task log entry
-    $user = auth()->user(); // Get the currently authenticated user
-    TaskLog::create([
-        'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
-        'type' => 'Quotation', // Type of action being logged
-        'type_id' => $quotation->id, // ID of the created quotation
-        'action' => 'Created a new Quotation', // Description of the action
-        'action_date' => now(), // Current timestamp
-    ]);
-
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Quotation created successfully.',
-            'redirect_url' => route('quotation.view') // Adjust if needed
-        ]);
-    } catch (\Exception $e) {
-        // Log error and return back with an error message
-        Log::error('Error creating quotation: ' . $e->getMessage());
-        return back()->with('error', 'There was an error creating the quotation. Please try again.');
+    
+    private function calculateWorkingDays($lotArea, $serviceType)
+    {
+        if (in_array($serviceType, ['landscaping', 'swimmingpool', 'renovation', 'package'])) {
+            if ($lotArea <= 20) {
+                return 3;
+            } elseif ($lotArea <= 30) {
+                return 5;
+            } elseif ($lotArea <= 40) {
+                return 7;
+            } elseif ($lotArea <= 50) {
+                return 10;
+            } elseif ($lotArea <= 60) {
+                return 12;
+            } elseif ($lotArea <= 70) {
+                return 15;
+            } elseif ($lotArea <= 80) {
+                return 18;
+            } elseif ($lotArea <= 90) {
+                return 20;
+            } elseif ($lotArea <= 100) {
+                return 25;
+            } elseif ($lotArea <= 200) {
+                return 30;
+            } elseif ($lotArea <= 300) {
+                return 40;
+            } else {
+                return 7;
+            }
+        }
+        return 0; // Default for unknown service types
     }
-}
+    
 
     
 

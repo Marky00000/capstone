@@ -22,10 +22,7 @@
 
                 <table class="table table-sm">
                     <tbody>
-                        <tr>
-                            <th>Project ID</th>
-                            <td>{{ $projects->id }}</td>
-                        </tr>
+                  
                         <tr>
                             <th>Booking ID</th>
                             <td>{{ $projects->booking->id }}</td>
@@ -170,7 +167,6 @@
 
                 <hr class="my-4">
 
-                <!-- Progress Bar Section -->
                 <div class="mt-4">
                     <h4>Project Progress</h4>
                     <div class="progress">
@@ -185,12 +181,7 @@
                                 'phase_three' => 'Phase Three',
                             ];
 
-                            if ($progress == 100 && $currentPhase !== 'phase_three') {
-                                $nextPhase = array_search($currentPhase, array_keys($phases)) + 1;
-                                $currentPhase = array_keys($phases)[$nextPhase] ?? $currentPhase;
-                                $progress = 0; // Reset progress for new phase
-                            }
-
+                            // Display current phase and progress without auto-advancing
                             $readablePhase = $phases[$currentPhase] ?? 'Not Started';
                             $phaseColor = 'bg-success'; // Default color for success
                             if ($progress < 50) {
@@ -211,6 +202,8 @@
                         <i class="fas fa-check-circle"></i>
                         @if ($progress == 100 && $currentPhase === 'phase_three')
                             Project Complete
+                        @elseif ($progress == 100)
+                            {{ $readablePhase }} (Complete)
                         @elseif ($progress == 0 && ($currentPhase === 'phase_two' || $currentPhase === 'phase_three'))
                             {{ $readablePhase }} (Starting)
                         @elseif ($progress > 0)
@@ -219,48 +212,50 @@
                             Project Not Started
                         @endif
                     </div>
-                    @if ($projects->project_status !== 'pending')
-                        <div class="text-center mt-2">
-                            <a href="{{ route('progress.index', ['projectId' => $projects->id]) }}" class="btn btn-link">
-                                <i class="fas fa-arrow-right me-1"></i> <!-- Add your desired icon here -->
-                                View More
-                            </a>
-                        </div>
-                    @endif
-
                 </div>
 
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('project.adminIndex') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </a>
-                </div>
+
+                @if ($projects->project_status !== 'pending')
+                    <div class="text-center mt-2">
+                        <a href="{{ route('progress.index', ['projectId' => $projects->id]) }}" class="btn btn-link">
+                            <i class="fas fa-arrow-right me-1"></i> <!-- Add your desired icon here -->
+                            View More
+                        </a>
+                    </div>
+                @endif
 
             </div>
-        </div>
 
-        <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div>
-                            <p class="mb-0" id="totalPaidAmount" style="font-size: 1.25rem; font-weight: bold;">
-                                Total Paid: <span
-                                    class="text-success">₱{{ number_format($projects->total_paid, 2) }}</span>
-                            </p>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ route('project.adminIndex') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="paymentImagesModal" tabindex="-1" aria-labelledby="paymentImagesModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <p class="mb-0" id="totalPaidAmount" style="font-size: 1.25rem; font-weight: bold;">
+                            Total Paid: <span class="text-success">₱{{ number_format($projects->total_paid, 2) }}</span>
+                        </p>
                     </div>
-                    <div class="modal-body" id="paymentImagesContainer">
-                        <!-- Payment images will be injected here as cards -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="paymentImagesContainer">
+                    <!-- Payment images will be injected here as cards -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
+    </div>
 
 
 

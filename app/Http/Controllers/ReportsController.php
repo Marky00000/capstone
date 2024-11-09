@@ -19,7 +19,7 @@ class ReportsController extends Controller
     public function rates(Request $request)
     {
         // Start a query on the Payment model
-        $query = Payment::query();
+        $query = Payment::query()->orderBy('created_at', 'desc');
     
         // Initialize a variable for total revenue
         $totalRevenue = 0;
@@ -33,19 +33,23 @@ class ReportsController extends Controller
             $query->where('created_at', '<=', $request->input('end_date'));
         }
     
-        // Get all payments based on the filters
-        $payments = $query->paginate(8); // Adjust the number as needed for pagination
-    
-        // Calculate total revenue based on current filters
+        // Check if date filters are applied and determine the query accordingly
         if ($request->filled('start_date') || $request->filled('end_date')) {
-            $totalRevenue = $query->sum('amount'); // Total revenue of filtered payments
+            // Get all payments when filters are applied (no pagination)
+            $payments = $query->get();
+            // Calculate total revenue for the filtered payments
+            $totalRevenue = $query->sum('amount');
         } else {
-            // Calculate total revenue from all payments when no filters are applied
+            // Use pagination when no filters are applied
+            $payments = $query->paginate(8); // Adjust the number as needed for pagination
             $totalRevenue = Payment::sum('amount');
         }
     
         return view('reports.rates', compact('payments', 'totalRevenue')); // Return the view with payments data and total revenue
     }
+    
+
+    
     
     
 

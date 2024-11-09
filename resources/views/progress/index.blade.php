@@ -220,31 +220,59 @@
 
                 // If there's a latest progress record, get its phase and phase_progress
                 if (latestProgress) {
-                    phase = latestProgress.phase; // Use the latest phase
-                    currentProgress = latestProgress.phase_progress; // Use the latest phase_progress
+                    phase = latestProgress.phase;
+                    currentProgress = latestProgress.phase_progress;
                 }
+
+                // Debugging: Log the current phase and progress
+                console.log("Current Phase:", phase);
+                console.log("Current Progress:", currentProgress);
+
+                // Ensure currentProgress is a number (in case it's being passed as a string)
+                currentProgress = Number(currentProgress);
+
+                // Check for phase progression based on current phase and progress
+                if (phase === "phase_one" && currentProgress === 100) {
+                    console.log("Transitioning to phase_two"); // Log when transitioning
+                    phase = "phase_two"; // Move to phase_two
+                    currentProgress = 0; // Reset progress for phase_two
+                } else if (phase === "phase_two" && currentProgress === 100) {
+                    console.log("Transitioning to phase_three"); // Log when transitioning
+                    phase = "phase_three"; // Move to phase_three
+                    currentProgress = 0; // Reset progress for phase_three
+                } else if (phase === "phase_three" && currentProgress === 100) {
+                    console.log("Transitioning to finished"); // Log when transitioning
+                    phase = "finished"; // Final phase reached
+                    currentProgress = 100; // Set progress to 100 (no more updates allowed)
+                    document.getElementById('saveProjectProgressButton').disabled = true; // Disable button
+                } else {
+                    document.getElementById('saveProjectProgressButton').disabled = false; // Enable button for other cases
+                }
+
+                // Debugging: Log the updated phase and progress
+                console.log("Updated Phase:", phase);
+                console.log("Updated Progress:", currentProgress);
 
                 // Update modal fields with the project data
                 document.getElementById('project_id').value = projectId;
                 document.getElementById('project_phase').value = phase;
-                document.getElementById('currentPhaseDisplay').innerText = phase.replace(/_/g, ' ').replace(/\b\w/g, c => c
-                    .toUpperCase());
+                document.getElementById('currentPhaseDisplay').innerText = phase
+                    .replace(/_/g, ' ') // Replaces underscores with spaces
+                    .replace(/\b\w/g, c => c.toUpperCase()); // Capitalizes the first letter of each word
 
-                // Hide error and success messages
-                document.getElementById('errorMessages').style.display = 'none';
-
-                // Show the modal using Bootstrap Modal API (Bootstrap 5)
+                // Show the modal using Bootstrap Modal API
                 var updateModal = new bootstrap.Modal(document.getElementById('updateProjectProgressModal'));
                 updateModal.show();
 
-                // Handle progress options: disable past options
+                // Handle progress dropdown: reset to null and disable past options based on currentProgress
                 const progressSelect = document.getElementById('project_phase_progress');
+                progressSelect.value = currentProgress; // Set the current progress in the dropdown
 
                 // Reset all options (disable, remove background color)
                 Array.from(progressSelect.options).forEach(option => {
                     option.disabled = false;
                     option.classList.remove('disabled-option');
-                    option.style.backgroundColor = ''; // Reset the background color
+                    option.style.backgroundColor = ''; // Reset background color
                 });
 
                 // Disable options from 0 up to currentProgress (inclusive)
@@ -258,6 +286,12 @@
                     }
                 });
             }
+
+
+
+
+
+
 
 
 

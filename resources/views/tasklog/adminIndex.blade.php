@@ -144,6 +144,11 @@
                                                 data-toggle="tooltip" title="View Package Service">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                        @elseif (str_contains(trim($log->type), 'Rate'))
+                                            <a href="{{ route('rates.index', $log->type_id) }}" class="btn btn-sm text-info"
+                                                data-toggle="tooltip" title="View Rate">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                         @elseif (str_contains(trim($log->type), 'Archive'))
                                             <a href="{{ route('archive.index', $log->type_id) }}"
                                                 class="btn btn-sm text-info" data-toggle="tooltip"

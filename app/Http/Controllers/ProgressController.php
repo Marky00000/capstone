@@ -84,7 +84,7 @@ class ProgressController extends Controller
         // Update project status if phase is phase_three and progress is 100
         if ($request->phase === 'phase_three' && $request->phase_progress == 100) {
             $project = Project::findOrFail($request->project_id);
-            $project->update(['project_status' => 'finished']); // Update project status
+            $project->update(['project_status' => 'finish']); // Update project status
         }
     
         // Log the progress in the task log

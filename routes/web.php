@@ -22,6 +22,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\TaskLogController;
 use App\Http\Controllers\getUserNotifications;
+use App\Http\Controllers\RatesController;
+
 
 
 
@@ -197,7 +199,12 @@ use App\Http\Controllers\getUserNotifications;
     
 
 
+    Route::get('/admin/rates', [RatesController::class, 'index'])->name('rates.index');
+    Route::get('rates/{rate}/edit', [RatesController::class, 'edit'])->name('rates.edit');
+    Route::put('rates/{id}', [RatesController::class, 'update'])->name('rates.update');
 
+
+    
 
 
     });

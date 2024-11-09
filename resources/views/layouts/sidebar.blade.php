@@ -1,9 +1,7 @@
 @if (auth()->user()->usertype !== 'user')
-    <ul class="navbar-nav bg-gradient-info sidebar sidebar-dark accordion" id="accordionSidebar">
-      
-
+    <ul class="navbar-nav bg-gradient-info sidebar sidebar-dark accordion print-hide" id="accordionSidebar">
         <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center"  href="{{ route('dashboard') }}">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
             <div class="sidebar-brand-icon rotate-n-15"></div>
             <div class="sidebar-brand-text mx-3">Arfil's Admin</div>
         </a>
@@ -19,6 +17,14 @@
             </a>
         </li>
 
+             <!-- Nav Item - Rates (Only for admin) -->
+             <li class="nav-item">
+                <a class="nav-link" href="{{ route('rates.index') }}">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Rates</span>
+                </a>
+            </li>
+
         <!-- Nav Item - Services -->
         <li class="nav-item">
             <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseServices"
@@ -26,8 +32,7 @@
                 <i class="fas fa-seedling"></i>
                 <span>Services</span>
             </a>
-            <div id="collapseServices" class="collapse" aria-labelledby="headingServices"
-                data-parent="#accordionSidebar">
+            <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{{ route('archive.index') }}">
                         <i class="fas fa-archive"></i> Archived Services
@@ -76,25 +81,25 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Services -->
+            <!-- Nav Item - Reports -->
             <li class="nav-item">
                 <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseReports"
                     aria-expanded="false" aria-controls="collapseReports">
                     <i class="fas fa-seedling"></i>
                     <span>Reports</span>
                 </a>
-                <div id="collapseReports" class="collapse" aria-labelledby="headingServices"
+                <div id="collapseReports" class="collapse" aria-labelledby="headingReports"
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        {{-- <a class="collapse-item"  href="{{ route('reports.projects') }}">
-                            <i class="fas fa-archive"></i> Project Reports
-                        </a> --}}
                         <a class="collapse-item" href="{{ route('reports.rates') }}">
-                            <i class="fas fa-tree"></i> Rates Reports
+                            <i class="fas fa-tree"></i> Revenue Reports
                         </a>
                     </div>
                 </div>
             </li>
+
+       
+
         @else
             <!-- Nav Item - Projects (Visible for super_admin) -->
             <li class="nav-item">
@@ -113,7 +118,7 @@
 @endif
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         // Check if sidebar state is stored in localStorage
         const sidebar = document.getElementById('accordionSidebar');
         const sidebarState = localStorage.getItem('sidebarState');
@@ -124,9 +129,9 @@
         }
 
         // Add event listener to sidebar toggle button
-        document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
             sidebar.classList.toggle('toggled');
-            
+
             // Store the state in localStorage
             if (sidebar.classList.contains('toggled')) {
                 localStorage.setItem('sidebarState', 'collapsed');
