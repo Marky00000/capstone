@@ -6,6 +6,8 @@ use App\Models\Progress; // Ensure you have a Progress model
 use Illuminate\Http\Request;
 use App\Models\TaskLog; // Import the TaskLog model
 use App\Models\Notification;
+use App\Mail\ProjectProgressUpdatedMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ProgressController extends Controller
@@ -111,6 +113,13 @@ class ProgressController extends Controller
                 'type' => 'Progress', // Set type to Progress
                 'type_id' => $project->id // Set type_id to the ID of the project
             ]);
+             // Send email notification
+        Mail::to($project->booking->user->email)->send(new ProjectProgressUpdatedMail(
+            $project,
+            $request->phase,
+            $request->phase_progress,
+            $remarks
+        ));
         }
     
         return response()->json(['success' => true, 'message' => 'Project progress stored successfully!']);

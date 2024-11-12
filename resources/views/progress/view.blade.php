@@ -171,9 +171,11 @@
         </div>
     </div>
 
+    <!-- Image Modal -->
     <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document"> <!-- Changed to modal-md for medium size -->
+        <div class="modal-dialog" role="document" style="max-width: 1100px;">
+            <!-- Reduced width for a more balanced modal -->
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="imageModalLabel">Progress Image</h5>
@@ -182,16 +184,26 @@
                     </button>
                 </div>
                 <div class="modal-body text-center">
+                    <!-- Image with rounded corners, shadow, and centered alignment -->
                     <img id="expandedImage" src="" alt="Expanded Project Image"
-                        class="img-fluid rounded shadow-sm" style="border: 5px solid #ccc;">
+                        class="img-fluid rounded shadow-sm mb-3"
+                        style="border: 4px solid #ddd; width: 100%; height: auto; max-width: 900px;">
+                    <!-- Adjusted max-width -->
+
+                    <!-- Remarks Section with top margin -->
                     <div id="remarks" class="mt-3">
                         <h6>Remarks:</h6>
-                        <p id="projectRemarks" class="text-muted"></p>
+                        <p id="projectRemarks" class="text-muted" style="font-size: 1rem;"></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
+
+
+
 
 
     @section('scripts')

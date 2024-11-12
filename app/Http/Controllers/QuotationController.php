@@ -237,93 +237,104 @@ public function view()
     // }
 
     public function store(Request $request)
-    {
-        $userId = Auth::id();
-        
-        // Validate the incoming request data
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'service_id' => 'required|exists:services,id',
-            'address' => 'required|string',
-            'city' => 'required|string',
-            'region' => 'required|string',
-            'lot_area' => 'required|numeric|min:1',
-        ]);
+{
+    $userId = Auth::id();
     
-        // Retrieve the service and its details
-        $service = Service::find($request->service_id);
-    
-        // Determine region type
-        $regionType = strtolower($request->region) == 'northern mindanao' ? 'northern_mindanao' : 'other';
-    
-        // Determine service type
-        $serviceType = strtolower($service->category);
-    
-        // Determine complexity
-        $complexity = strtolower(str_replace(' ', '_', $service->complexity)); // Example: 'Very Easy' becomes 'very_easy'
-    
-        // Adjust service type for renovation category
-        if ($serviceType === 'renovation') {
-            $effectiveServiceType = $service->type; // Use the service type (landscaping or swimmingpool) for renovation
-        } else {
-            $effectiveServiceType = $serviceType;
-        }
-    
-        // Fetch base price from the 'rates' table
-        $rate = Rate::where('service_type', $effectiveServiceType)
-                    ->where('region', $regionType)
-                    ->where('complexity', $complexity)
-                    ->first();
-    
-        if (!$rate) {
-            return back()->with('error', 'Rate for this service, region, and complexity not found.');
-        }
-    
-        $baseAmount = $rate->rate;
-    
-        // Calculate total amount
-        $amount = $baseAmount * $request->lot_area;
-    
-        // Calculate working days based on lot area
-        $lotArea = $request->lot_area;
-    
-        // You may want to use a similar lookup for working days, or use your existing logic
-        $workingDays = $this->calculateWorkingDays($lotArea, $effectiveServiceType);
-    
-        try {
-            // Create a new quotation record
-            $quotation = Quotation::create([
-                'user_id' => $request->user_id,
-                'service_id' => $request->service_id,
-                'address' => $request->address,
-                'city' => $request->city,
-                'region' => $request->region,
-                'lot_area' => $request->lot_area,
-                'amount' => $amount,
-                'working_days' => $workingDays,
-            ]);
-    
-            // Create a task log entry
-            $user = auth()->user(); // Get the currently authenticated user
-            TaskLog::create([
-                'user_id' => $user ? $user->id : null, // Use the user's ID or set to null if not authenticated
-                'type' => 'Quotation', // Type of action being logged
-                'type_id' => $quotation->id, // ID of the created quotation
-                'action' => 'Created a new Quotation', // Description of the action
-                'action_date' => now(), // Current timestamp
-            ]);
-    
-            return response()->json([
-                'success' => true,
-                'message' => 'Quotation created successfully.',
-                'redirect_url' => route('quotation.view') // Adjust if needed
-            ]);
-        } catch (\Exception $e) {
-            // Log error and return back with an error message
-            Log::error('Error creating quotation: ' . $e->getMessage());
-            return back()->with('error', 'There was an error creating the quotation. Please try again.');
-        }
+    // Validate the incoming request data
+    $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'service_id' => 'required|exists:services,id',
+        'address' => 'required|string',
+        'city' => 'required|string',
+        'region' => 'required|string',
+        'lot_area' => 'required|numeric|min:1',
+    ]);
+
+    // Retrieve the service and its details
+    $service = Service::find($request->service_id);
+
+    // Determine region type
+    $regionType = strtolower($request->region) == 'northern mindanao' ? 'northern_mindanao' : 'other';
+
+    // Determine service type
+    $serviceType = strtolower($service->category);
+
+    // Determine complexity
+    $complexity = strtolower(str_replace(' ', '_', $service->complexity)); // Example: 'Very Easy' becomes 'very_easy'
+
+    // Adjust service type for 'package' categories
+    if ($serviceType === 'package') {
+        $effectiveServiceType = 'package'; // Explicitly set to 'package' if that's a unique identifier in your rates
+    } else {
+        $effectiveServiceType = $serviceType;
     }
+
+
+    // Log the parameters used for the rate lookup to help with debugging
+    Log::info('Service Type for Rate Lookup:', ['service_type' => $effectiveServiceType]);
+    Log::info('Region Type for Rate Lookup:', ['region' => $regionType]);
+    Log::info('Complexity for Rate Lookup:', ['complexity' => $complexity]);
+
+    // Fetch base price from the 'rates' table
+    $rate = Rate::where('service_type', $effectiveServiceType)
+                ->where('region', $regionType)
+                ->where('complexity', $complexity)
+                ->first();
+
+    // Check if rate was found
+    if (!$rate) {
+        Log::warning('Rate not found with provided criteria', [
+            'service_type' => $effectiveServiceType,
+            'region' => $regionType,
+            'complexity' => $complexity
+        ]);
+        return back()->with('error', 'Rate for this service, region, and complexity not found.');
+    }
+
+    $baseAmount = $rate->rate;
+
+    // Calculate total amount
+    $amount = $baseAmount * $request->lot_area;
+
+    // Calculate working days based on lot area
+    $lotArea = $request->lot_area;
+    $workingDays = $this->calculateWorkingDays($lotArea, $effectiveServiceType);
+
+    try {
+        // Create a new quotation record
+        $quotation = Quotation::create([
+            'user_id' => $request->user_id,
+            'service_id' => $request->service_id,
+            'address' => $request->address,
+            'city' => $request->city,
+            'region' => $request->region,
+            'lot_area' => $request->lot_area,
+            'amount' => $amount,
+            'working_days' => $workingDays,
+        ]);
+
+        // Create a task log entry
+        $user = auth()->user();
+        TaskLog::create([
+            'user_id' => $user ? $user->id : null,
+            'type' => 'Quotation',
+            'type_id' => $quotation->id,
+            'action' => 'Created a new Quotation',
+            'action_date' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Quotation created successfully.',
+            'redirect_url' => route('quotation.view') // Adjust if needed
+        ]);
+    } catch (\Exception $e) {
+        // Log error and return back with an error message
+        Log::error('Error creating quotation: ' . $e->getMessage());
+        return back()->with('error', 'There was an error creating the quotation. Please try again.');
+    }
+}
+
     
     private function calculateWorkingDays($lotArea, $serviceType)
     {

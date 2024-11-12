@@ -22,7 +22,7 @@
 
                 <table class="table table-sm">
                     <tbody>
-                  
+
                         <tr>
                             <th>Booking ID</th>
                             <td>{{ $projects->booking->id }}</td>
@@ -387,8 +387,12 @@
             imagesContainer.innerHTML = ''; // Clear previous images
 
             if (images && amounts) {
-                const parsedImages = JSON.parse(images); // Parse JSON string to an array
-                const parsedAmounts = JSON.parse(amounts); // Parse JSON string to an array
+                let parsedImages = JSON.parse(images); // Parse JSON string to an array
+                let parsedAmounts = JSON.parse(amounts); // Parse JSON string to an array
+
+                // Reverse arrays to show latest images first
+                parsedImages = parsedImages.reverse();
+                parsedAmounts = parsedAmounts.reverse();
 
                 if (Array.isArray(parsedImages) && parsedImages.length > 0) {
                     parsedImages.forEach((image, index) => {
@@ -401,7 +405,7 @@
                         imgElement.src = `{{ asset('storage') }}/${image}`; // Set image source
                         imgElement.alt = 'Payment Image';
                         imgElement.classList.add('card-img-top',
-                            'img-fluid'); // Add Bootstrap classes for responsive images
+                        'img-fluid'); // Add Bootstrap classes for responsive images
 
                         // Append image to card
                         cardElement.appendChild(imgElement);
@@ -411,7 +415,6 @@
                         amountElement.classList.add('card-body');
                         amountElement.innerHTML =
                             `<h5 class="fw-bold">Amount Paid: ₱${parseFloat(parsedAmounts[index]).toLocaleString()}</h5>`;
-
 
                         cardElement.appendChild(amountElement); // Add the amount to the card
                         imagesContainer.appendChild(cardElement); // Append card to container

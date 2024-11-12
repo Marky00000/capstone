@@ -106,31 +106,30 @@
                         </tbody>
                     </table>
                 @endif
+                <div class="pagination-wrapper">
+                    {{ $payments->links('pagination::bootstrap-4') }}
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal for Image Preview -->
-    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="imageModalLabel">Payment Image</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <img id="modalImage" src="" alt="Payment Image"
-                        style="width: 100%; height: auto; max-width: 100%; max-height: 80vh; object-fit: contain;">
-                    <div id="modalAmount" class="mt-3 font-weight-bold" style="font-size: 18px;">
-                        Amount Paid: <span id="amountValue"></span>
-                    </div>
+                <div class="modal-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                    <img id="modalImage" src="" alt="Payment Image" class="img-fluid"
+                        style="transition: transform 0.3s ease; max-width: 100%; max-height: 80vh; border: 3px solid black;">
                 </div>
             </div>
         </div>
     </div>
+</div>
+
 
 
     <style>

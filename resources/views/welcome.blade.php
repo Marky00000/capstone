@@ -256,6 +256,10 @@
 
 
 
+
+
+
+
             <div class="topbar-divider d-none d-sm-block"></div>
 
             <!-- User Dropdown -->
@@ -560,7 +564,7 @@
 
 
         <!-- About Us Section -->
-        <h1 class="display-5 text-center" style="font-weight: 400; margin-top: 40px;">About Us</h1>
+        <h1 id="about" class="display-5 text-center" style="font-weight: 400; margin-top: 40px;">About Us</h1>
 
         <div class="container text-center mt-5">
             <div class="row justify-content-center gap-4">
@@ -606,6 +610,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+
+        </div>
         </div>
 
         <!-- Contact Us Section -->

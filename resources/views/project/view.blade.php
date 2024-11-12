@@ -371,8 +371,12 @@
             imagesContainer.innerHTML = ''; // Clear previous images
 
             if (images && amounts) {
-                const parsedImages = JSON.parse(images); // Parse JSON string to an array
-                const parsedAmounts = JSON.parse(amounts); // Parse JSON string to an array
+                let parsedImages = JSON.parse(images); // Parse JSON string to an array
+                let parsedAmounts = JSON.parse(amounts); // Parse JSON string to an array
+
+                // Reverse arrays to show latest images first
+                parsedImages = parsedImages.reverse();
+                parsedAmounts = parsedAmounts.reverse();
 
                 if (Array.isArray(parsedImages) && parsedImages.length > 0) {
                     parsedImages.forEach((image, index) => {
@@ -395,7 +399,6 @@
                         amountElement.classList.add('card-body');
                         amountElement.innerHTML =
                             `<h5 class="fw-bold">Amount Paid: ₱${parseFloat(parsedAmounts[index]).toLocaleString()}</h5>`;
-
 
                         cardElement.appendChild(amountElement); // Add the amount to the card
                         imagesContainer.appendChild(cardElement); // Append card to container

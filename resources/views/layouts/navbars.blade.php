@@ -35,6 +35,9 @@
                                     href="{{ route('services.byCategory', ['category' => 'renovation']) }}">Renovation</a>
                                 <a class="dropdown-item"
                                     href="{{ route('services.byCategory', ['category' => 'maintenance']) }}">Maintenance</a>
+                                <a class="dropdown-item"
+                                    href="{{ route('services.byCategory', ['category' => 'package']) }}">Packages</a>
+
                             </div>
                         </li>
 

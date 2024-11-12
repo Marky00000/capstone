@@ -179,10 +179,6 @@
                                             </script>
 
 
-
-
-
-
                                             <script>
                                                 function toggleServices(element) {
                                                     var remainingServices = element.closest('td').querySelector('.remaining-services');

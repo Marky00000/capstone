@@ -86,13 +86,16 @@
                                     <td>{{ ucfirst(str_replace('_', ' ', $rate->region)) }}</td>
                                     <td>{{ ucfirst(str_replace('_', ' ', $rate->complexity)) }}</td>
                                     <td>₱{{ number_format($rate->rate, 2) }}</td>
-                                    <td>
-                                        <!-- Edit Button -->
-                                        <a href="javascript:void(0);" class="dropdown-item" data-toggle="tooltip"
-                                            title="Edit Rate" onclick="openEditModal({{ $rate->id }})">
-                                            <i class="fas fa-edit" style="color: #007bff;"></i> Edit Rate
-                                        </a>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center">
+                                            <!-- Edit Button -->
+                                            <a href="javascript:void(0);" class="dropdown-item" data-toggle="tooltip"
+                                                title="Edit Rate" onclick="openEditModal({{ $rate->id }})">
+                                                <i class="fas fa-edit" style="color: #007bff;"></i>
+                                            </a>
+                                        </div>
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

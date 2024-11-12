@@ -188,7 +188,7 @@
         <!-- Image Modal -->
         <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-dialog" role="document" style="max-width: 1300px;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="imageModalLabel">Progress Image</h5>
@@ -196,12 +196,19 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <img id="expandedImage" src="" alt="Expanded Project Image" class="img-fluid">
+                    <div class="modal-body d-flex justify-content-center pt-0 pb-3"> <!-- Added padding-bottom -->
+                        <img id="expandedImage" src="" alt="Expanded Project Image" class="img-fluid"
+                            style="width: 1280px; height: 720px;">
                     </div>
                 </div>
             </div>
         </div>
+
+
+
+
+
+
 
     </div>
 
@@ -286,15 +293,6 @@
                     }
                 });
             }
-
-
-
-
-
-
-
-
-
 
 
             // Save the project progress

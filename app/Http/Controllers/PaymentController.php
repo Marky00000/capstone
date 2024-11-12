@@ -9,6 +9,8 @@ use App\Models\Project;
 use App\Models\Booking;
 use App\Models\TaskLog;
 use App\Models\Notification;
+use App\Mail\PaymentNotification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth; // Import Auth to get the logged-in user
 use Illuminate\Http\Request;
 
@@ -37,7 +39,7 @@ class PaymentController extends Controller
         $query->orderBy('created_at', 'desc'); // Adjust this as needed for default behavior.
     
         // Paginate the filtered payments
-        $payments = $query->paginate(10); // Adjust pagination as needed
+        $payments = $query->paginate(7); // Adjust pagination as needed
     
         // Return the view for payments, passing the filtered payments data
         return view('payment.index', compact('payments'));
@@ -148,6 +150,7 @@ class PaymentController extends Controller
                 'type_id' => $payment->id // Set type_id to the ID of the booking
             ]);
         }
+        Mail::to($project->booking->user->email)->send(new PaymentNotification($payment, $project));
     
         return redirect()->route('project.adminIndex')->with('success', 'Payment successfully submitted and is pending approval.');
     }

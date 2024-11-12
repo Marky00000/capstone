@@ -113,11 +113,12 @@
                 </div>
                 <div class="modal-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
                     <img id="modalImage" src="" alt="Payment Image" class="img-fluid"
-                        style="transition: transform 0.3s ease; max-width: 100%; max-height: 80vh;">
+                        style="transition: transform 0.3s ease; max-width: 100%; max-height: 80vh; border: 3px solid black;">
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Action Confirmation Modal -->
     <div class="modal fade" id="actionConfirmationModal" tabindex="-1" aria-labelledby="actionConfirmationModalLabel"
