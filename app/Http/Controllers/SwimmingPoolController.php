@@ -15,7 +15,7 @@ class SwimmingPoolController extends Controller
             // Fetch only services with the category 'swimmingpool' and status 'available', with pagination
             $services = Service::where('category', 'swimmingpool')
                                 ->where('status', 'available')
-                                ->paginate(10); // Limit to 10 items per page
+                                ->paginate(6); 
     
             return view('swimmingpool.index', ['services' => $services]);
         } catch (\Exception $e) {

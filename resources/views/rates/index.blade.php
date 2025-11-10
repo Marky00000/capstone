@@ -4,7 +4,7 @@
     <title>Arfil's Landscaping Services</title>
     <link rel="icon" type="image/png" href="{{ asset('arfil_logo.png') }}">
 
-    <div class="card shadow-sm rounded-lg border-1">
+    <div class="card shadow-sm rounded-lg border-1 card-gradient">
         <div class="card-header stylish-header text-black">
             <h1>Rates</h1>
         </div>

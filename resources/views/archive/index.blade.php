@@ -3,14 +3,16 @@
 @section('title', 'Archived Services')
 
 @section('content')
-    <h4>Archived Services</h4>
+
 
     <div class="card">
         <div class="card-header">
             <div class="card-tools">
+                    <h4>Archived Services</h4>
                 <div class="btn-group ml-2">
-                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
+
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                         Filter By
                     </button>
                     <div class="dropdown-menu">
@@ -108,7 +110,8 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                        style="float: right;">
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <div class="row">

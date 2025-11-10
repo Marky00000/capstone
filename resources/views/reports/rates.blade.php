@@ -4,7 +4,7 @@
     <div class="card shadow-sm rounded-lg border-1">
         <div class="card shadow-sm border-light">
             <div class="card-header stylish-header text-black d-flex justify-content-between align-items-center">
-                <h1>Revenue</h1>
+                <h1>Payment Report</h1>
                 <!-- Print Button -->
                 <button onclick="window.print()" class="btn btn-info print-hide">
                     <i class="fas fa-print"></i> Print
@@ -61,12 +61,12 @@
                 <!-- Display Revenue Date Range -->
                 <div class="revenue-date-range">
                     <h5 class="text-muted">
-                        Revenue: from {{ $startDate }} to {{ $endDate }}
+                        Payments: from {{ $startDate }} to {{ $endDate }}
                     </h5>
                 </div>
             </div>
 
-            <table class="table table-bordered" style="width: 100%;">
+            <table class="table table-bordered table-striped"  style="width: 100%;">
                 <thead>
                     <tr>
                         <th>Project ID</th>
@@ -110,32 +110,18 @@
             <!-- Display Total Revenue -->
             <div class="mt-4">
                 <h5 class="total-revenue">
-                    <i class="fas fa-calculator"></i> Total Revenue: <i
+                    <i class="fas fa-calculator"></i> Total Payment: <i
                         style="color: #28a745;">₱{{ number_format($totalRevenue, 2) }}</i>
                 </h5>
             </div>
 
         </div>
 
-        <!-- Image Modal -->
-        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="imageModalLabel">Payment Image</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
-                        <img id="modalImage" src="" alt="Payment Image" class="img-fluid"
-                            style="transition: transform 0.3s ease; max-width: 100%; max-height: 80vh;">
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <style>
             /* Hide elements with class print-hide when printing */
             @media print {
+                
                 .print-hide {
                     display: none !important;
                 }

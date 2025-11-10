@@ -20,38 +20,43 @@ use Illuminate\Support\Facades\Log;
 class ProjectController extends Controller
 {
     public function index(Request $request, $booking_id = null)
-    {
-        // Get the currently logged-in user
-        $user = auth()->user();
+{
+    // Get the currently logged-in user
+    $user = auth()->user();
     
-        // Fetch the query parameters for filtering 
-        $statusFilter = $request->query('project_status');
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+    // Fetch the query parameters for filtering
+    $statusFilter = $request->query('project_status');
+    $startDate = $request->query('start_date');
+    $endDate = $request->query('end_date');
     
-        // Initialize the query for fetching projects
-        $query = Project::with(['booking', 'service']);
+    // Initialize the query for fetching projects
+    $query = Project::with(['booking', 'service']);
     
-        // Check if the user has an associated booking ID
-        if ($booking_id) {
-            // Retrieve projects associated with the user's bookings
-            $query->where('booking_id', $booking_id)
-                  ->whereHas('booking', function($query) use ($user) {
-                      $query->where('user_id', $user->id);
-                  });
-        } else {
-            // If no booking ID is provided, return projects associated with the user
-            $query->whereHas('booking', function($query) use ($user) {
-                $query->where('user_id', $user->id);
-            });
-        }
+    // Check if the user has an associated booking ID
+    if ($booking_id) {
+        // Retrieve projects associated with the user's bookings
+        $query->where('booking_id', $booking_id)
+              ->whereHas('booking', function($query) use ($user) {
+                  $query->where('user_id', $user->id);
+              });
+    } else {
+        // If no booking ID is provided, return projects associated with the user
+        $query->whereHas('booking', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        });
+    }
     
-        // Apply status filter if present
-        if ($statusFilter) {
-            $query->where('project_status', $statusFilter);
-        }
+    // Apply the project status filter if present
+    if ($statusFilter) {
+        $query->where('project_status', $statusFilter);
+    }
     
-        // Apply date filters if present
+    // Apply date filters if both start and end dates are the same
+    if ($startDate && $endDate && $startDate == $endDate) {
+        // Filter for projects created on the same day
+        $query->whereDate('created_at', $startDate);
+    } else {
+        // If different start and end dates are provided, filter between the range
         if ($startDate) {
             $query->where('created_at', '>=', $startDate);
         }
@@ -59,19 +64,21 @@ class ProjectController extends Controller
         if ($endDate) {
             $query->where('created_at', '<=', $endDate);
         }
-    
-        // Default sorting is latest to oldest
-        $query->orderBy('created_at', 'desc');
-    
-        // Paginate the results
-        $projects = $query->paginate(10);
-    
-        // Debugging: Log the retrieved projects
-        \Log::info('Retrieved Projects:', $projects->toArray());
-    
-        // Return the view with the filtered projects and optionally the booking_id
-        return view('project.index', compact('projects', 'booking_id'));
     }
+    
+    // Default sorting is latest to oldest
+    $query->orderBy('created_at', 'desc');
+    
+    // Paginate the results
+    $projects = $query->paginate(10);
+    
+    // Debugging: Log the retrieved projects
+    \Log::info('Retrieved Projects:', $projects->toArray());
+    
+    // Return the view with the filtered projects and optionally the booking_id
+    return view('project.index', compact('projects', 'booking_id'));
+}
+
     
 
     
@@ -302,7 +309,7 @@ class ProjectController extends Controller
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
         
-        // Fetch projects (not bookings) with associated services and bookings
+        // Fetch projects with associated services and bookings
         $query = Project::with(['booking', 'service']);
         
         // Apply status filter if present
@@ -311,16 +318,17 @@ class ProjectController extends Controller
         }
         
         // Apply date filters if present
-        if ($startDate) {
-            $query->where('created_at', '>=', $startDate);
-        }
+        if ($startDate || $endDate) {
+            // Default to today's date if either is missing
+            $startDate = $startDate ?? now()->toDateString();
+            $endDate = $endDate ?? now()->toDateString();
     
-        if ($endDate) {
-            $query->where('created_at', '<=', $endDate);
+            $query->whereDate('created_at', '>=', $startDate)
+                  ->whereDate('created_at', '<=', $endDate);
         }
         
-        // Default sorting is latest to oldest, but can be adjusted here if needed.
-        $query->orderBy('created_at', 'desc'); // Adjust this as needed for default behavior.
+        // Default sorting is latest to oldest
+        $query->orderBy('created_at', 'desc');
         
         // Paginate the results
         $projects = $query->paginate(5);
@@ -328,6 +336,7 @@ class ProjectController extends Controller
         // Pass the filters to the view
         return view('project.adminIndex', compact('projects', 'statusFilter', 'startDate', 'endDate'));
     }
+    
     
     
 

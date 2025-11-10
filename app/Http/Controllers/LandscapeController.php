@@ -15,7 +15,7 @@ class LandscapeController extends Controller
         try {
             $services = Service::where('category', 'landscaping')
                                 ->where('status', 'available')
-                                ->paginate(10); // Limit to 10 items per page
+                                ->paginate(6); // Limit to 10 items per page
     
             return view('landscape.index', ['services' => $services]);
         } catch (\Exception $e) {

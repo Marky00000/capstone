@@ -14,7 +14,7 @@ class RenovationController extends Controller
             // Fetch only services with the category 'renovation' and status 'available', with pagination
             $services = Service::where('category', 'renovation')
                                 ->where('status', 'available')
-                                ->paginate(10); // Limit to 10 items per page
+                                ->paginate(6); // Limit to 10 items per page
     
             return view('renovation.index', ['services' => $services]);
         } catch (\Exception $e) {

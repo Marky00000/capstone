@@ -229,10 +229,10 @@
                         Alerts Center
                     </h6>
                     @php
-                        // Fetch the latest notifications for the logged-in user
+                        // Fetch unread notifications first, then read notifications
                         $notifications = \App\Models\Notification::where('sent_to', auth()->id())
-                            ->orderBy('created_at', 'desc')
-                            ->take(20) // Increase if you want to show more notifications
+                            ->orderByRaw('is_read ASC, created_at DESC') // Order by unread first, then newest
+                            ->take(20) // Adjust the limit as needed
                             ->get();
                     @endphp
 
@@ -250,6 +250,7 @@
                     @endif
                 </div>
             </li>
+
 
 
 
@@ -482,9 +483,9 @@
         <h1 class="display-5 text-center" style="font-weight: 300; margin-top: 20px;">Our Services</h1>
 
         <div class="placeholder"
-            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 30px;">
+            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 30px; background: rgba(0, 0, 0, 0.1);">
             <!-- Card 1: Landscaping -->
-            <div class="card hover-effect" style="width: 300px; cursor: pointer;"
+            <div class="card hover-effect" style="width: 300px; cursor: pointer; background: rgba(76, 175, 80, 0.1);"
                 onclick="window.location.href='{{ route('services.byCategory', ['category' => 'landscaping']) }}'">
                 <img src="landscaping.jpg" class="card-img-top" alt="Landscaping"
                     style="width: 100%; height: 180px; object-fit: cover;">
@@ -498,7 +499,7 @@
             </div>
 
             <!-- Card 2: Swimming Pool -->
-            <div class="card hover-effect" style="width: 300px; cursor: pointer;"
+            <div class="card hover-effect" style="width: 300px; cursor: pointer; background: rgba(2, 136, 209, 0.1);"
                 onclick="window.location.href='{{ route('services.byCategory', ['category' => 'swimmingpool']) }}'">
                 <img src="swimmingpool.jpg" class="card-img-top" alt="Swimming Pool"
                     style="width: 100%; height: 180px; object-fit: cover;">
@@ -513,7 +514,7 @@
             </div>
 
             <!-- Card 3: Renovation -->
-            <div class="card hover-effect" style="width: 300px; cursor: pointer;"
+            <div class="card hover-effect" style="width: 300px; cursor: pointer; background: rgba(230, 74, 25, 0.1);"
                 onclick="window.location.href='{{ route('services.byCategory', ['category' => 'renovation']) }}'">
                 <img src="renovation.jpg" class="card-img-top" alt="Renovation"
                     style="width: 100%; height: 180px; object-fit: cover;">
@@ -528,7 +529,7 @@
             </div>
 
             <!-- Card 4: Maintenance -->
-            <div class="card hover-effect" style="width: 300px; cursor: pointer;"
+            <div class="card hover-effect" style="width: 300px; cursor: pointer; background: rgba(255, 152, 0, 0.1);"
                 onclick="window.location.href='{{ route('services.byCategory', ['category' => 'maintenance']) }}'">
                 <img src="maintenance1.jpg" class="card-img-top" alt="Maintenance"
                     style="width: 100%; height: 180px; object-fit: cover;">
@@ -541,22 +542,22 @@
                 </div>
             </div>
 
-            <!-- Card 4: Package -->
-            <div class="card hover-effect" style="width: 300px; cursor: pointer;"
+            <!-- Card 5: Package -->
+            <div class="card hover-effect" style="width: 300px; cursor: pointer; background: rgba(76, 175, 80, 0.1);"
                 onclick="window.location.href='{{ route('services.byCategory', ['category' => 'package']) }}'">
                 <img src="background.jpg" class="card-img-top" alt="Package Services"
                     style="width: 100%; height: 180px; object-fit: cover;">
                 <div class="card-body text-center">
                     <i class="fas fa-box fa-2x" style="color: #4CAF50;"></i>
-                    <!-- Updated icon to represent packages -->
                     <h5 class="card-title" style="font-weight: 800; margin-top: 10px;">Package Services</h5>
-                    <!-- Updated title -->
                     <p class="card-text">Explore our comprehensive service packages tailored to meet all your needs.
-                    </p> <!-- Updated text -->
+                    </p>
                     <a href="{{ route('services.byCategory', ['category' => 'package']) }}"
-                        class="btn btn-outline-success">View Packages</a> <!-- Updated button and color -->
+                        class="btn btn-outline-success">View Packages</a>
                 </div>
             </div>
+        </div>
+
 
 
 
@@ -564,57 +565,68 @@
 
 
         <!-- About Us Section -->
-        <h1 id="about" class="display-5 text-center" style="font-weight: 400; margin-top: 40px;">About Us</h1>
+        <section id="about"
+            style="background: url('2.jpg') no-repeat center center/cover; position: relative; padding: 50px 0;">
+            <!-- Backdrop Effect -->
+            <div
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 1;">
+            </div>
 
-        <div class="container text-center mt-5">
-            <div class="row justify-content-center gap-4">
-                <!-- Card 1: Mission -->
-                <div class="col-lg-3 col-md-4 col-sm-6 slide-up">
-                    <div class="card shadow-lg border-0" style="border-radius: 15px;">
-                        <div class="card-body">
-                            <div class="icon mb-3">
-                                <i class="fas fa-bullseye fa-3x" style="color: #FF5722;"></i>
+
+            <div style="position: relative; z-index: 2;">
+                <h1 class="display-5 text-center" style="font-weight: 400; margin-top: 40px;">About Us</h1>
+
+                <div class="container text-center mt-5">
+                    <div class="row justify-content-center gap-4">
+                        <!-- Card 1: Mission -->
+                        <div class="col-lg-3 col-md-4 col-sm-6 slide-up">
+                            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                                <div class="card-body">
+                                    <div class="icon mb-3">
+                                        <i class="fas fa-bullseye fa-3x" style="color: #FF5722;"></i>
+                                    </div>
+                                    <h5 class="card-title font-weight-bold">Mission</h5>
+                                    <p class="card-text text-muted">To provide exceptional landscaping services that
+                                        transform
+                                        outdoor spaces.</p>
+                                </div>
                             </div>
-                            <h5 class="card-title font-weight-bold">Mission</h5>
-                            <p class="card-text text-muted">To provide exceptional landscaping services that transform
-                                outdoor spaces.</p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Card 2: Vision -->
-                <div class="col-lg-3 col-md-4 col-sm-6 slide-up">
-                    <div class="card shadow-lg border-0" style="border-radius: 15px;">
-                        <div class="card-body">
-                            <div class="icon mb-3">
-                                <i class="fas fa-eye fa-3x" style="color: #009688;"></i>
+                        <!-- Card 2: Vision -->
+                        <div class="col-lg-3 col-md-4 col-sm-6 slide-up">
+                            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                                <div class="card-body">
+                                    <div class="icon mb-3">
+                                        <i class="fas fa-eye fa-3x" style="color: #009688;"></i>
+                                    </div>
+                                    <h5 class="card-title font-weight-bold">Vision</h5>
+                                    <p class="card-text text-muted">To become a leading provider of innovative
+                                        landscaping
+                                        solutions in the region.</p>
+                                </div>
                             </div>
-                            <h5 class="card-title font-weight-bold">Vision</h5>
-                            <p class="card-text text-muted">To become a leading provider of innovative landscaping
-                                solutions in the region.</p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Card 3: Goal -->
-                <div class="col-lg-3 col-md-4 col-sm-6 slide-up">
-                    <div class="card shadow-lg border-0" style="border-radius: 15px;">
-                        <div class="card-body">
-                            <div class="icon mb-3">
-                                <i class="fas fa-trophy fa-3x" style="color: #FFC107;"></i>
+                        <!-- Card 3: Goal -->
+                        <div class="col-lg-3 col-md-4 col-sm-6 slide-up">
+                            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                                <div class="card-body">
+                                    <div class="icon mb-3">
+                                        <i class="fas fa-trophy fa-3x" style="color: #FFC107;"></i>
+                                    </div>
+                                    <h5 class="card-title font-weight-bold">Goal</h5>
+                                    <p class="card-text text-muted">To improve our services and contribute to
+                                        environmental
+                                        conservation.</p>
+                                </div>
                             </div>
-                            <h5 class="card-title font-weight-bold">Goal</h5>
-                            <p class="card-text text-muted">To improve our services and contribute to environmental
-                                conservation.</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-
-        </div>
-        </div>
 
         <!-- Contact Us Section -->
         <div id="contact" class="mt-5 text-center">

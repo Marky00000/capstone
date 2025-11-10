@@ -55,8 +55,8 @@
                 @if ($payments->isEmpty())
                     <p class="text-muted">You do not have any Payment Records</p>
                 @else
-                    <table class="table table-bordered" style="width: 100%;">
-                        <thead>
+                <table class="table table-bordered table-hover table-striped">
+                    <thead>
                             <tr>
                                 <th><i class="fas fa-hashtag"></i></th>
                                 <th><i class="fas fa-project-diagram"></i> Project ID</th>
@@ -107,7 +107,7 @@
                     </table>
                 @endif
                 <div class="pagination-wrapper">
-                    {{ $payments->links('pagination::bootstrap-4') }}
+                    {{ $payments->appends(request()->query())->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>

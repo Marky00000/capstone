@@ -6,6 +6,8 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 @section('content')
+
+
     <div class="pricing-factors mb-4">
         <h5>Booking Overview</h5>
         <p>Below is a list of all your Booking, including their details and current status.</p>
@@ -23,9 +25,9 @@
             </div>
         </div>
         <div class="card-body">
-
             <!-- Filter and Sort Form -->
             <form action="{{ route('booking.index') }}" method="GET" class="mb-4">
+
                 <div class="d-flex align-items-center"> <!-- Use flexbox for closer alignment -->
 
                     <!-- Booking Status Filter -->
@@ -35,15 +37,20 @@
                             <select name="booking_status" class="form-select form-select-sm custom-dropdown">
                                 <option value="">All Statuses</option>
                                 <option value="pending" {{ request('booking_status') == 'pending' ? 'selected' : '' }}>
-                                    Pending</option>
+                                    Pending
+                                </option>
                                 <option value="confirmed" {{ request('booking_status') == 'confirmed' ? 'selected' : '' }}>
-                                    Confirmed</option>
+                                    confirmed
+                                </option>
                                 <option value="cancelled" {{ request('booking_status') == 'cancelled' ? 'selected' : '' }}>
-                                    Cancelled</option>
+                                    Cancelled
+                                </option>
                                 <option value="declined" {{ request('booking_status') == 'declined' ? 'selected' : '' }}>
-                                    Declined</option>
+                                    Declined
+                                </option>
                                 <option value="visited" {{ request('booking_status') == 'visited' ? 'selected' : '' }}>
-                                    Visited</option>
+                                    Visited
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -67,11 +74,14 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary btn-sm"> <!-- Added 'btn-sm' for smaller size -->
+                    <button type="submit" class="btn btn-primary btn-sm">
                         <i class="fas fa-filter"></i> Filter
                     </button>
                 </div>
             </form>
+
+
+
 
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -81,7 +91,7 @@
                 <p class="text-muted">You do not have any bookings at this time. Please contact us to make a booking.</p>
             @else
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover table-striped">
                         <thead class="thead-light">
                             <tr>
                                 <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>
@@ -179,7 +189,7 @@
                 </div>
 
                 <div class="pagination-wrapper">
-                    {{ $bookings->links('pagination::bootstrap-4') }}
+                    {{ $bookings->appends(request()->query())->links('pagination::bootstrap-4') }}
                 </div>
             @endif
         </div>
@@ -211,11 +221,15 @@
 @endsection
 
 @section('styles')
+@section('styles')
     <style>
+    
         /* General Card Styles */
         .card {
             border-radius: 8px;
             border: none;
+            background-color: rgba(255, 255, 255, 0.9);
+            /* Slight transparency for blending */
         }
 
         .card-header {
@@ -229,17 +243,19 @@
         }
 
         .table {
+            background-color: #353434; /* Set grey background */
+
             margin-bottom: 0;
             border: none;
         }
 
         .table thead th {
-            background-color: #f8f9fa;
+            background-color: #d6d6d6;
             border-bottom: 2px solid #dee2e6;
         }
 
         .table tbody tr:hover {
-            background-color: #f1f3f5;
+            background-color: #d6d6d6; /* Slightly darker grey on hover */
         }
 
         /* Modal Styles */
@@ -345,11 +361,10 @@
             border-radius: 8px;
             background-color: #f9f9f9;
         }
-
-        .logo {
-            max-height: 50px;
-        }
+        
+        
     </style>
+
 @endsection
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -436,10 +451,10 @@
 
                         // Hide the cancel button for the specific booking if needed
                         const bookingStatus = response
-                        .booking_status; // Assuming the response contains booking status
+                            .booking_status; // Assuming the response contains booking status
                         if (bookingStatus === 'visited') {
                             $(`button[data-booking_id="${bookingId}"]`)
-                        .hide(); // Hide if visited
+                                .hide(); // Hide if visited
                         }
                     },
                     error: function(xhr) {

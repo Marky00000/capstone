@@ -30,7 +30,7 @@
                 </p>
             @else
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover table-striped">
                         <thead class="thead-light">
                             <tr>
                                 <th><i class="fas fa-numeric icon-faded-gray"></i> #</th>

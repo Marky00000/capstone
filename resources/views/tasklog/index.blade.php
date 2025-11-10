@@ -5,7 +5,7 @@
 @section('content')
     <div class="card shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
-            <h4 class="mb-0">Task Log</h4>
+            <h4 class="mb-0">Tasklog</h4>
             <a href="{{ route('welcome') }}" class="btn btn-light text-info btn-sm">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
@@ -22,8 +22,10 @@
                             <span class="input-group-text"><i class="fas fa-filter"></i></span>
                             <select name="type" class="form-select form-select-sm" style="max-width: 120px;">
                                 <option value="">All Types</option>
-                                <option value="Booking" {{ request('type') == 'Booking' ? 'selected' : '' }}>Booking</option>
-                                <option value="Quotation" {{ request('type') == 'Quotation' ? 'selected' : '' }}>Quotation</option>
+                                <option value="Booking" {{ request('type') == 'Booking' ? 'selected' : '' }}>Booking
+                                </option>
+                                <option value="Quotation" {{ request('type') == 'Quotation' ? 'selected' : '' }}>Quotation
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -53,11 +55,12 @@
                 </div>
             </form>
 
+
             @if ($taskLogs->isEmpty())
                 <p class="text-muted">You do not have any task logs at this time.</p>
             @else
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover table-striped">
                         <thead class="thead-light">
                             <tr>
                                 <th><i class="fas fa-tools icon-faded-gray"></i> Type</th>
@@ -91,13 +94,19 @@
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($log->action_date)->format('F j, Y') }}</td>
                                     <td>
-                                        <div style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
+                                        <div
+                                            style="display: flex; justify-content: space-evenly; align-items: center; gap: 10px; padding: 8px 0;">
                                             @if (trim($log->type) === 'Quotation')
-                                                <a href="{{ route('quotation.details', $log->type_id) }}" class="btn btn-sm" style="background-color: transparent; border: none; color: #17a2b8;" data-toggle="tooltip" title="View Project">
+                                                <a href="{{ route('quotation.details', $log->type_id) }}"
+                                                    class="btn btn-sm"
+                                                    style="background-color: transparent; border: none; color: #17a2b8;"
+                                                    data-toggle="tooltip" title="View Project">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             @elseif (trim($log->type) === 'Booking')
-                                                <a href="{{ route('booking.view', $log->type_id) }}" class="btn btn-sm" style="background-color: transparent; border: none; color: #17a2b8;" data-toggle="tooltip" title="View Booking">
+                                                <a href="{{ route('booking.view', $log->type_id) }}" class="btn btn-sm"
+                                                    style="background-color: transparent; border: none; color: #17a2b8;"
+                                                    data-toggle="tooltip" title="View Booking">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             @else
@@ -112,7 +121,7 @@
                 </div>
             @endif
             <div class="pagination-wrapper">
-                {{ $taskLogs->links('pagination::bootstrap-4') }}
+                {{ $taskLogs->appends(request()->query())->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </div>

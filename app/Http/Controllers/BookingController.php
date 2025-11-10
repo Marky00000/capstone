@@ -21,58 +21,68 @@ class BookingController extends Controller
     public function index(Request $request)
     {
         // Initialize the query for fetching bookings
-        $query = Booking::where('user_id', Auth::id());
-        
+        $query = Booking::where('user_id', Auth::id()); // Assuming user-specific bookings; adjust if needed
+    
         // Apply booking status filter if provided
         if ($request->filled('booking_status')) {
             $query->where('booking_status', $request->input('booking_status'));
         }
-        
-        // Apply date filters if provided
-        if ($request->filled('start_date')) {
-            $query->where('created_at', '>=', $request->input('start_date'));
+    
+        // Apply date filters for site_visit_date if provided
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            // Default to today's date if no date is provided
+            $startDate = $request->input('start_date', now()->toDateString());
+            $endDate = $request->input('end_date', now()->toDateString());
+    
+            // Apply the date filters to the query for site_visit_date
+            $query->whereDate('site_visit_date', '>=', $startDate)
+                  ->whereDate('site_visit_date', '<=', $endDate);
         }
-        
-        if ($request->filled('end_date')) {
-            $query->where('created_at', '<=', $request->input('end_date'));
-        }
-        
-        // Order by latest created date
-        $query->orderBy('created_at', 'desc');
+    
+        // Order by site_visit_date (latest first)
+        $query->orderBy('site_visit_date', 'desc');
     
         // Paginate the filtered bookings
-        $bookings = $query->paginate(10);
-        
+        $bookings = $query->paginate(10); // Adjust items per page as needed
+    
         // Return the view with the filtered bookings
         return view('booking.index', compact('bookings'));
     }
     
     
     
-        public function adminBooking(Request $request)
-    {
-        $query = Booking::query();
-
-        // Apply booking status filter if provided
-        if ($request->filled('booking_status')) {
-            $query->where('booking_status', $request->input('booking_status'));
-        }
-
-        // Apply date filters if provided
-        if ($request->filled('start_date')) {
-            $query->where('created_at', '>=', $request->input('start_date'));
-        }
-
-        if ($request->filled('end_date')) {
-            $query->where('created_at', '<=', $request->input('end_date'));
-        }
-
-        // Fetch filtered bookings, ordered by created_at from latest to oldest
-        $bookings = $query->orderBy('created_at', 'desc')->paginate(8); // Change 10 to the number of items you want per page
-
-        // Pass the filters and sort order to the view
-        return view('booking.adminBooking', compact('bookings'));
+    
+    
+    
+    public function adminBooking(Request $request)
+{
+    $query = Booking::query();
+    $today = now()->toDateString(); // Default to today's date
+    
+    // Apply booking status filter if provided
+    if ($request->filled('booking_status')) {
+        $query->where('booking_status', $request->input('booking_status'));
     }
+    
+    // Apply site_visit_date date filters if provided
+    if ($request->filled('start_date') || $request->filled('end_date')) {
+        $startDate = $request->input('start_date', $today); // Default to today if not set
+        $endDate = $request->input('end_date', $today);     // Default to today if not set
+
+        // Ensure that both dates are applied only when provided
+        $query->whereBetween('site_visit_date', [$startDate, $endDate]);
+    }
+
+    // Fetch filtered bookings, ordered by site_visit_date from latest to oldest
+    $bookings = $query->orderBy('created_at', 'desc') // Order by descending date
+                      ->paginate(8); // Adjust items per page as needed
+
+    // Pass the bookings data and filters to the view
+    return view('booking.adminBooking', compact('bookings'));
+}
+
+    
+    
 
         
     

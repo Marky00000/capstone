@@ -13,12 +13,12 @@
             <div class="card-header stylish-header text-black">
                 <h1>Projects</h1>
             </div>
-        <div class="card-body">
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+            <div class="card-body">
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-          
+
 
                 <div class="card-body">
                     <!-- Filter and Sort Form -->
@@ -264,16 +264,19 @@
                                                             </a>
 
                                                             <!-- Edit Project Button -->
-                                                            <a href="{{ route('project.edit', $project->id) }}"
-                                                                class="dropdown-item" data-toggle="tooltip"
-                                                                title="Edit Project">
-                                                                <i class="fas fa-edit" style="color: #007bff;"></i>
-                                                                <!-- Blue color for Edit -->
-                                                                Edit Project
-                                                            </a>
+                                                            @if ($project->project_status !== 'cancel' && $project->project_status !== 'finish')
+                                                                <a href="{{ route('project.edit', $project->id) }}"
+                                                                    class="dropdown-item" data-toggle="tooltip"
+                                                                    title="Edit Project">
+                                                                    <i class="fas fa-edit" style="color: #007bff;"></i>
+                                                                    <!-- Blue color for Edit -->
+                                                                    Edit Project
+                                                                </a>
+                                                            @endif
+
 
                                                             <!-- Payment Button - Show only if total_paid < total_cost -->
-                                                            @if ($project->total_paid < $project->total_cost)
+                                                            @if ($project->total_paid < $project->total_cost && $project->project_status !== 'cancel')
                                                                 <a href="{{ route('payment.payment', ['projectId' => $project->id]) }}"
                                                                     class="dropdown-item" data-toggle="tooltip"
                                                                     title="Make Payment">

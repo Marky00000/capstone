@@ -12,30 +12,40 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Get filters from the request
+        $filterType = $request->get('filter', 'yearly'); // Default to 'yearly'
+        $year = $request->get('year', date('Y')); // Default to the current year
+        $month = $request->get('month', date('m')); // Default to the current month
+
         // Fetch total services with status 'available'
         $totalServices = Service::where('status', 'available')->count();
 
         // Fetch total bookings
         $totalBookings = Booking::count();
 
-        // Fetch total projects with status 'pending', 'active', 'hold', or 'finished'
+        // Fetch total projects with specific statuses
         $totalProjects = Project::whereIn('project_status', ['pending', 'active', 'hold', 'cancel', 'finish'])->count();
 
         // Calculate total revenue
         $totalRevenue = Payment::sum('amount');
 
-        // Fetch revenue data for the chart
+        // Prepare data for the revenue chart
         $revenues = Payment::selectRaw('MONTH(created_at) as month, SUM(amount) as total')
+            ->when($filterType === 'monthly', function ($query) use ($year, $month) {
+                return $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+            })
+            ->when($filterType === 'yearly', function ($query) use ($year) {
+                return $query->whereYear('created_at', $year);
+            })
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
 
-        // Prepare chart data for revenue
         $chartData = [
-            'labels' => array_map(fn($m) => date('F', mktime(0, 0, 0, $m, 1)), range(1, 12)), // Month names
-            'data' => array_map(fn($m) => $revenues->get($m, 0), range(1, 12)) // Fill in 0 for months without revenue
+            'labels' => array_map(fn($m) => date('F', mktime(0, 0, 0, $m, 1)), range(1, 12)),
+            'data' => array_map(fn($m) => $revenues->get($m, 0), range(1, 12)),
         ];
 
         // Booking status distribution
@@ -43,7 +53,6 @@ class DashboardController extends Controller
             ->groupBy('booking_status')
             ->pluck('count', 'booking_status');
 
-        // Prepare data for booking status pie chart
         $bookingStatusData = [
             'labels' => ['Pending', 'Confirmed', 'Visited', 'Cancelled', 'Declined'],
             'data' => [
@@ -60,9 +69,8 @@ class DashboardController extends Controller
             ->groupBy('project_status')
             ->pluck('count', 'project_status');
 
-        // Prepare data for project status bar chart
         $projectStatusData = [
-            'labels' => ['Pending', 'Active', 'Hold','Cancelled', 'Finished'],
+            'labels' => ['Pending', 'Active', 'Hold', 'Cancelled', 'Finished'],
             'data' => [
                 $projectStatusCounts->get('pending', 0),
                 $projectStatusCounts->get('active', 0),
@@ -72,13 +80,36 @@ class DashboardController extends Controller
             ]
         ];
 
-        // Prepare data for bookings and payments over time
+        // Filter bookings, projects, and payments based on the selected filter
         $bookings = Booking::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->when($filterType === 'monthly', function ($query) use ($year, $month) {
+                return $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+            })
+            ->when($filterType === 'yearly', function ($query) use ($year) {
+                return $query->whereYear('created_at', $year);
+            })
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month');
+
+        $projects = Project::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->when($filterType === 'monthly', function ($query) use ($year, $month) {
+                return $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+            })
+            ->when($filterType === 'yearly', function ($query) use ($year) {
+                return $query->whereYear('created_at', $year);
+            })
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
 
         $payments = Payment::selectRaw('MONTH(created_at) as month, SUM(amount) as total')
+            ->when($filterType === 'monthly', function ($query) use ($year, $month) {
+                return $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+            })
+            ->when($filterType === 'yearly', function ($query) use ($year) {
+                return $query->whereYear('created_at', $year);
+            })
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
@@ -86,9 +117,34 @@ class DashboardController extends Controller
         $bookingsPaymentsData = [
             'labels' => array_map(fn($m) => date('F', mktime(0, 0, 0, $m, 1)), range(1, 12)),
             'bookings' => array_map(fn($m) => $bookings->get($m, 0), range(1, 12)),
+            'projects' => array_map(fn($m) => $projects->get($m, 0), range(1, 12)),
             'payments' => array_map(fn($m) => $payments->get($m, 0), range(1, 12)),
         ];
 
-        return view('dashboard', compact('totalServices', 'totalBookings', 'totalProjects', 'totalRevenue', 'chartData', 'bookingStatusData', 'projectStatusData', 'bookingsPaymentsData'));
+        // Service popularity
+        $servicePopularity = Service::withCount('projects')
+            ->orderByDesc('projects_count')
+            ->get();
+
+        $filteredServices = $servicePopularity->filter(fn($service) => $service->projects_count > 0);
+
+        $serviceNames = $filteredServices->pluck('name');
+        $projectCounts = $filteredServices->pluck('projects_count');
+
+        return view('dashboard', compact(
+            'serviceNames',
+            'projectCounts',
+            'totalServices',
+            'totalBookings',
+            'totalProjects',
+            'totalRevenue',
+            'chartData',
+            'bookingStatusData',
+            'projectStatusData',
+            'bookingsPaymentsData',
+            'filterType',
+            'year',
+            'month'
+        ));
     }
 }

@@ -3,7 +3,7 @@
 @section('content')
     <div class="card shadow-sm rounded-lg border-1">
         <div class="card-header stylish-header text-black">
-            <h1> Task Log</h1>
+            <h1> Tasklog</h1>
         </div>
 
         <!-- Filter and Sort Form -->
@@ -54,7 +54,7 @@
             <p class="text-muted">You do not have any task logs at this time.</p>
         @else
             <div class="table-responsive">
-                <table class="table table-striped table-bordered">
+                <table class="table table-bordered table-hover table-striped">
                     <thead class="thead-light">
                         <tr>
                             <th>Type</th>

@@ -18,32 +18,40 @@ class PaymentController extends Controller
 {  
 
     public function index(Request $request)
-    {
-        $user = Auth::user();
-        
-        // Initialize the query for payments, filtering by the authenticated user's bookings and projects
-        $query = Payment::whereHas('project.booking', function($query) use ($user) {
-            $query->where('user_id', $user->id);
-        });
+{
+    $user = Auth::user();
     
-        // Apply date filters if present
+    // Initialize the query for payments, filtering by the authenticated user's bookings and projects
+    $query = Payment::whereHas('project.booking', function($query) use ($user) {
+        $query->where('user_id', $user->id);
+    });
+
+    // Apply the same day filter if both start_date and end_date are the same
+    if ($request->has('start_date') && $request->has('end_date') && $request->start_date == $request->end_date) {
+        // Filter for payments created on the same day
+        $query->whereDate('created_at', $request->start_date);
+    } else {
+        // Apply start date filter if present
         if ($request->has('start_date') && $request->start_date != '') {
             $query->where('created_at', '>=', $request->start_date);
         }
-    
+
+        // Apply end date filter if present
         if ($request->has('end_date') && $request->end_date != '') {
             $query->where('created_at', '<=', $request->end_date);
         }
-    
-        // Default sorting is latest to oldest
-        $query->orderBy('created_at', 'desc'); // Adjust this as needed for default behavior.
-    
-        // Paginate the filtered payments
-        $payments = $query->paginate(7); // Adjust pagination as needed
-    
-        // Return the view for payments, passing the filtered payments data
-        return view('payment.index', compact('payments'));
     }
+
+    // Default sorting is latest to oldest
+    $query->orderBy('created_at', 'desc');
+    
+    // Paginate the filtered payments
+    $payments = $query->paginate(5); // Adjust pagination as needed
+    
+    // Return the view for payments, passing the filtered payments data
+    return view('payment.index', compact('payments'));
+}
+
     
 
     public function create($projectId)
@@ -63,26 +71,29 @@ class PaymentController extends Controller
     }
 
     public function adminIndex(Request $request)
-    {
-        $query = Payment::query();
-    
-    
-        // Apply date filters if present
-        if ($request->has('start_date') && $request->start_date != '') {
-            $query->where('created_at', '>=', $request->start_date);
-        }
-    
-        if ($request->has('end_date') && $request->end_date != '') {
-            $query->where('created_at', '<=', $request->end_date);
-        }
-    
-        // Default sorting is latest to oldest
-        $query->orderBy('created_at', 'desc'); // Adjust this as needed for default behavior.
-    
-        $payments = $query->paginate(8); // Adjust pagination as needed
-    
-        return view('payment.adminIndex', compact('payments'));
+{
+    // Start building the query
+    $query = Payment::query();
+
+    // Apply date filters if present
+    if ($request->filled('start_date') || $request->filled('end_date')) {
+        $startDate = $request->input('start_date', now()->toDateString()); // Default to today's date if not provided
+        $endDate = $request->input('end_date', now()->toDateString());     // Default to today's date if not provided
+
+        $query->whereDate('created_at', '>=', $startDate)
+              ->whereDate('created_at', '<=', $endDate);
     }
+
+    // Default sorting is latest to oldest
+    $query->orderBy('created_at', 'desc'); 
+
+    // Paginate the results
+    $payments = $query->paginate(5); // Adjust items per page as needed
+
+    // Return the view with the filtered payments and date filters
+    return view('payment.adminIndex', compact('payments'));
+}
+
     
     
 

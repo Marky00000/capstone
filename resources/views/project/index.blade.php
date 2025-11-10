@@ -38,12 +38,10 @@
                                     Pending</option>
                                 <option value="active" {{ request('project_status') == 'active' ? 'selected' : '' }}>Active
                                 </option>
-                                <option value="hold" {{ request('project_status') == 'hold' ? 'selected' : '' }}>
-                                    On Hold
+                                <option value="hold" {{ request('project_status') == 'hold' ? 'selected' : '' }}>On Hold
                                 </option>
                                 <option value="cancel" {{ request('project_status') == 'cancel' ? 'selected' : '' }}>
-                                    Cancelled
-                                </option>
+                                    Cancelled</option>
                                 <option value="finish" {{ request('project_status') == 'finish' ? 'selected' : '' }}>
                                     Finished</option>
                             </select>
@@ -74,6 +72,7 @@
                     </button>
                 </div>
             </form>
+
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
@@ -82,7 +81,7 @@
                 <p class="text-muted">You do not have any projects at this time.</p>
             @else
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered">
+                    <table class="table table-bordered table-hover table-striped">
                         <thead class="thead-light">
                             <tr>
                                 <th> Booking ID</th>
@@ -186,18 +185,22 @@
     <style>
         /* General Card Styles */
         .card {
+            background-color: transparent !important;  /* Makes the entire card background transparent */
             border-radius: 12px;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Optional: adds a subtle border for visibility */
             overflow: hidden;
         }
 
         .card-header {
+            background-color: transparent !important; /* Makes the header transparent */
             border-bottom: 1px solid #dee2e6;
             padding: 1rem 1.5rem;
             font-size: 1.25rem;
         }
 
         .card-body {
+            background-color: transparent !important; /* Makes the body of the card transparent */
+
             padding: 1.5rem;
         }
 

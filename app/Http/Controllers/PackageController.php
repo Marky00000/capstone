@@ -14,7 +14,7 @@ class PackageController extends Controller
         try {
             $service = Service::where('category', 'package')
                                 ->where('status', 'available')
-                                ->paginate(10); // Limit to 10 items per page
+                                ->paginate(6); // Limit to 10 items per page
 
 
     

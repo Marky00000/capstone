@@ -28,34 +28,27 @@
             margin: 0;
         }
 
+        /* Modern and compact navbar */
         .navbar {
-            box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.1);
+            background-color: #007bff; /* Blue background for the navbar */
+            padding: 0.5rem 1rem; /* Smaller padding to reduce the height */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .sticky-footer {
-            background-color: #ffffff;
-            text-align: center;
-            padding: 10px;
-            width: 100%;
-            height: 50px;
-            font-size: 14px;
-            border-top: 1px solid #ddd;
-            position: relative;
-            bottom: 0;
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #ffffff !important; /* White text */
+            font-weight: 600;
+            font-size: 1.1rem;
         }
 
-        .nav-item .nav-link {
-            color: #343a40;
-            font-weight: 300 !important;
-            text-decoration: none;
-            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        .navbar .nav-link:hover {
+            color: #ffd700 !important; /* Gold hover effect */
         }
 
         /* Hover effect for collapse items in Services */
         .collapse-item:hover {
             color: #17a2b8 !important;
             background-color: rgba(255, 255, 255, 0.1) !important;
-            text-decoration: underline !important;
         }
 
         /* Sidebar item hover effect */
@@ -68,9 +61,7 @@
         /* Navbar hover effect */
         .nav-item:hover .nav-link {
             color: #17a2b8 !important;
-            /* Change text color to info on hover */
             border-bottom: 2px solid #17a2b8;
-            /* Underline color */
             transition: color 0.3s ease, border-bottom-color 0.3s ease;
         }
 
@@ -90,8 +81,20 @@
             flex: 1;
             padding: 20px;
         }
-    </style>
 
+        /* Footer style */
+        .sticky-footer {
+            background-color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            height: 50px;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            position: relative;
+            bottom: 0;
+        }
+    </style>
 
     <!-- Custom fonts -->
     <link href="https://startbootstrap.github.io/startbootstrap-sb-admin-2/vendor/fontawesome-free/css/all.min.css"
@@ -126,7 +129,6 @@
         </div>
     @else
         <!-- Unauthenticated User Content -->
-        <!-- Main content area for unauthenticated users like the login page -->
         <main class="content">
             @yield('content')
         </main>
@@ -138,5 +140,65 @@
     @yield('scripts')
 
 </body>
+
+<style>
+    .content {
+        flex: 1;
+        padding: 20px;
+        background-image: url('{{ asset('2.jpg') }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    .content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.79);
+        z-index: 0;
+    }
+
+    /* .content>* {
+        position: relative;
+        z-index: 1;
+    } */
+    
+
+     /* Navbar styling to match sidebar */
+     .navbar {
+        background-color: #17a2b8; /* Match sidebar background color */
+        padding: 0.5rem 1rem; /* Maintain compact height */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar .navbar-brand, 
+    .navbar .nav-link {
+        color: #848484 !important; /* White text for navbar items */
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .navbar .nav-link:hover {
+        color: #17a2b8 !important; /* Light green hover effect */
+        border-bottom: 2px solid #d4edda; /* Add underline on hover */
+        transition: color 0.3s ease, border-bottom-color 0.3s ease;
+    }
+
+    
+
+    /* Dropdown items hover effect */
+    .collapse-item:hover {
+        color: #17a2b8 !important; /* Match hover effect with sidebar */
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    
+</style>
 
 </html>

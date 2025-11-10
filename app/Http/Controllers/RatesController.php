@@ -20,7 +20,7 @@ class RatesController extends Controller
         return $query->where('service_type', 'like', '%' . $serviceTypeFilter . '%');
     })
     ->when($complexityFilter, function ($query) use ($complexityFilter) {
-        return $query->where('complexity', 'like', '%' . $complexityFilter . '%');
+        return $query->where('complexity', '=', $complexityFilter); // Use exact match instead of 'like'
     })
     ->paginate(10); // Paginate results (10 per page)
     

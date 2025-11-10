@@ -47,7 +47,6 @@
                             <a class="nav-link text-dark" href="#contact">Contact</a>
                         </li>
                     @endauth
-
                     <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -62,10 +61,10 @@
                                 Alerts Center
                             </h6>
                             @php
-                                // Fetch the latest notifications for the logged-in user
+                                // Fetch unread notifications first, then read notifications
                                 $notifications = \App\Models\Notification::where('sent_to', auth()->id())
-                                    ->orderBy('created_at', 'desc')
-                                    ->take(20) // Increase if you want to show more notifications
+                                    ->orderByRaw('is_read ASC, created_at DESC') // Order by unread first, then newest
+                                    ->take(20) // Adjust the limit as needed
                                     ->get();
                             @endphp
 
@@ -83,7 +82,6 @@
                             @endif
                         </div>
                     </li>
-
 
 
 

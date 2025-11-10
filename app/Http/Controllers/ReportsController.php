@@ -24,17 +24,17 @@ class ReportsController extends Controller
         // Initialize a variable for total revenue
         $totalRevenue = 0;
     
+        // Default today's date for single-day filtering
+        $today = now()->toDateString();
+    
         // Apply date filters if provided
-        if ($request->filled('start_date')) {
-            $query->where('created_at', '>=', $request->input('start_date'));
-        }
-    
-        if ($request->filled('end_date')) {
-            $query->where('created_at', '<=', $request->input('end_date'));
-        }
-    
-        // Check if date filters are applied and determine the query accordingly
         if ($request->filled('start_date') || $request->filled('end_date')) {
+            $startDate = $request->input('start_date', $today); // Default to today if not set
+            $endDate = $request->input('end_date', $today);     // Default to today if not set
+    
+            $query->whereDate('created_at', '>=', $startDate)
+                  ->whereDate('created_at', '<=', $endDate);
+    
             // Get all payments when filters are applied (no pagination)
             $payments = $query->get();
             // Calculate total revenue for the filtered payments
@@ -47,6 +47,7 @@ class ReportsController extends Controller
     
         return view('reports.rates', compact('payments', 'totalRevenue')); // Return the view with payments data and total revenue
     }
+    
     
 
     

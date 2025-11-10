@@ -19,11 +19,11 @@ class ArchiveController extends Controller
     
             // Fetch archived services based on the filter
             if ($filter === 'all') {
-                $archivedServices = Service::where('status', 'archive')->paginate(10); // Adjust the number as needed
+                $archivedServices = Service::where('status', 'archive')->paginate(6); // Adjust the number as needed
             } else {
                 $archivedServices = Service::where('status', 'archive')
                     ->where('category', $filter)
-                    ->paginate(10); // Adjust the number as needed
+                    ->paginate(6); // Adjust the number as needed
             }
     
             return view('archive.index', [

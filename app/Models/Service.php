@@ -23,4 +23,9 @@ class Service extends Model
         'type', 
 
     ];
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
 }
